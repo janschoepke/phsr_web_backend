@@ -10,11 +10,16 @@ use DB\GroupVictims as ChildGroupVictims;
 use DB\GroupVictimsQuery as ChildGroupVictimsQuery;
 use DB\Mailing as ChildMailing;
 use DB\MailingQuery as ChildMailingQuery;
+use DB\User as ChildUser;
+use DB\UserQuery as ChildUserQuery;
+use DB\UserVictims as ChildUserVictims;
+use DB\UserVictimsQuery as ChildUserVictimsQuery;
 use DB\Victim as ChildVictim;
 use DB\VictimMailings as ChildVictimMailings;
 use DB\VictimMailingsQuery as ChildVictimMailingsQuery;
 use DB\VictimQuery as ChildVictimQuery;
 use DB\Map\GroupVictimsTableMap;
+use DB\Map\UserVictimsTableMap;
 use DB\Map\VictimMailingsTableMap;
 use DB\Map\VictimTableMap;
 use Propel\Runtime\Propel;
@@ -113,6 +118,12 @@ abstract class Victim implements ActiveRecordInterface
     protected $collGroupVictimssPartial;
 
     /**
+     * @var        ObjectCollection|ChildUserVictims[] Collection to store aggregation of ChildUserVictims objects.
+     */
+    protected $collUserVictimss;
+    protected $collUserVictimssPartial;
+
+    /**
      * @var        ObjectCollection|ChildVictimMailings[] Collection to store aggregation of ChildVictimMailings objects.
      */
     protected $collVictimMailingss;
@@ -127,6 +138,16 @@ abstract class Victim implements ActiveRecordInterface
      * @var bool
      */
     protected $collGroupsPartial;
+
+    /**
+     * @var        ObjectCollection|ChildUser[] Cross Collection to store aggregation of ChildUser objects.
+     */
+    protected $collUsers;
+
+    /**
+     * @var bool
+     */
+    protected $collUsersPartial;
 
     /**
      * @var        ObjectCollection|ChildMailing[] Cross Collection to store aggregation of ChildMailing objects.
@@ -154,6 +175,12 @@ abstract class Victim implements ActiveRecordInterface
 
     /**
      * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildUser[]
+     */
+    protected $usersScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
      * @var ObjectCollection|ChildMailing[]
      */
     protected $mailingsScheduledForDeletion = null;
@@ -163,6 +190,12 @@ abstract class Victim implements ActiveRecordInterface
      * @var ObjectCollection|ChildGroupVictims[]
      */
     protected $groupVictimssScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildUserVictims[]
+     */
+    protected $userVictimssScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -666,9 +699,12 @@ abstract class Victim implements ActiveRecordInterface
 
             $this->collGroupVictimss = null;
 
+            $this->collUserVictimss = null;
+
             $this->collVictimMailingss = null;
 
             $this->collGroups = null;
+            $this->collUsers = null;
             $this->collMailings = null;
         } // if (deep)
     }
@@ -813,6 +849,35 @@ abstract class Victim implements ActiveRecordInterface
             }
 
 
+            if ($this->usersScheduledForDeletion !== null) {
+                if (!$this->usersScheduledForDeletion->isEmpty()) {
+                    $pks = array();
+                    foreach ($this->usersScheduledForDeletion as $entry) {
+                        $entryPk = [];
+
+                        $entryPk[1] = $this->getId();
+                        $entryPk[0] = $entry->getId();
+                        $pks[] = $entryPk;
+                    }
+
+                    \DB\UserVictimsQuery::create()
+                        ->filterByPrimaryKeys($pks)
+                        ->delete($con);
+
+                    $this->usersScheduledForDeletion = null;
+                }
+
+            }
+
+            if ($this->collUsers) {
+                foreach ($this->collUsers as $user) {
+                    if (!$user->isDeleted() && ($user->isNew() || $user->isModified())) {
+                        $user->save($con);
+                    }
+                }
+            }
+
+
             if ($this->mailingsScheduledForDeletion !== null) {
                 if (!$this->mailingsScheduledForDeletion->isEmpty()) {
                     $pks = array();
@@ -853,6 +918,23 @@ abstract class Victim implements ActiveRecordInterface
 
             if ($this->collGroupVictimss !== null) {
                 foreach ($this->collGroupVictimss as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->userVictimssScheduledForDeletion !== null) {
+                if (!$this->userVictimssScheduledForDeletion->isEmpty()) {
+                    \DB\UserVictimsQuery::create()
+                        ->filterByPrimaryKeys($this->userVictimssScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->userVictimssScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collUserVictimss !== null) {
+                foreach ($this->collUserVictimss as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -1076,6 +1158,21 @@ abstract class Victim implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->collGroupVictimss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collUserVictimss) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'userVictimss';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'User_Victimss';
+                        break;
+                    default:
+                        $key = 'UserVictimss';
+                }
+
+                $result[$key] = $this->collUserVictimss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collVictimMailingss) {
 
@@ -1340,6 +1437,12 @@ abstract class Victim implements ActiveRecordInterface
                 }
             }
 
+            foreach ($this->getUserVictimss() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addUserVictims($relObj->copy($deepCopy));
+                }
+            }
+
             foreach ($this->getVictimMailingss() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addVictimMailings($relObj->copy($deepCopy));
@@ -1389,6 +1492,9 @@ abstract class Victim implements ActiveRecordInterface
     {
         if ('GroupVictims' == $relationName) {
             return $this->initGroupVictimss();
+        }
+        if ('UserVictims' == $relationName) {
+            return $this->initUserVictimss();
         }
         if ('VictimMailings' == $relationName) {
             return $this->initVictimMailingss();
@@ -1646,6 +1752,259 @@ abstract class Victim implements ActiveRecordInterface
         $query->joinWith('Group', $joinBehavior);
 
         return $this->getGroupVictimss($query, $con);
+    }
+
+    /**
+     * Clears out the collUserVictimss collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUserVictimss()
+     */
+    public function clearUserVictimss()
+    {
+        $this->collUserVictimss = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collUserVictimss collection loaded partially.
+     */
+    public function resetPartialUserVictimss($v = true)
+    {
+        $this->collUserVictimssPartial = $v;
+    }
+
+    /**
+     * Initializes the collUserVictimss collection.
+     *
+     * By default this just sets the collUserVictimss collection to an empty array (like clearcollUserVictimss());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initUserVictimss($overrideExisting = true)
+    {
+        if (null !== $this->collUserVictimss && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = UserVictimsTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collUserVictimss = new $collectionClassName;
+        $this->collUserVictimss->setModel('\DB\UserVictims');
+    }
+
+    /**
+     * Gets an array of ChildUserVictims objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildVictim is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildUserVictims[] List of ChildUserVictims objects
+     * @throws PropelException
+     */
+    public function getUserVictimss(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUserVictimssPartial && !$this->isNew();
+        if (null === $this->collUserVictimss || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collUserVictimss) {
+                // return empty collection
+                $this->initUserVictimss();
+            } else {
+                $collUserVictimss = ChildUserVictimsQuery::create(null, $criteria)
+                    ->filterByVictim($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collUserVictimssPartial && count($collUserVictimss)) {
+                        $this->initUserVictimss(false);
+
+                        foreach ($collUserVictimss as $obj) {
+                            if (false == $this->collUserVictimss->contains($obj)) {
+                                $this->collUserVictimss->append($obj);
+                            }
+                        }
+
+                        $this->collUserVictimssPartial = true;
+                    }
+
+                    return $collUserVictimss;
+                }
+
+                if ($partial && $this->collUserVictimss) {
+                    foreach ($this->collUserVictimss as $obj) {
+                        if ($obj->isNew()) {
+                            $collUserVictimss[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUserVictimss = $collUserVictimss;
+                $this->collUserVictimssPartial = false;
+            }
+        }
+
+        return $this->collUserVictimss;
+    }
+
+    /**
+     * Sets a collection of ChildUserVictims objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $userVictimss A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function setUserVictimss(Collection $userVictimss, ConnectionInterface $con = null)
+    {
+        /** @var ChildUserVictims[] $userVictimssToDelete */
+        $userVictimssToDelete = $this->getUserVictimss(new Criteria(), $con)->diff($userVictimss);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->userVictimssScheduledForDeletion = clone $userVictimssToDelete;
+
+        foreach ($userVictimssToDelete as $userVictimsRemoved) {
+            $userVictimsRemoved->setVictim(null);
+        }
+
+        $this->collUserVictimss = null;
+        foreach ($userVictimss as $userVictims) {
+            $this->addUserVictims($userVictims);
+        }
+
+        $this->collUserVictimss = $userVictimss;
+        $this->collUserVictimssPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related UserVictims objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related UserVictims objects.
+     * @throws PropelException
+     */
+    public function countUserVictimss(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUserVictimssPartial && !$this->isNew();
+        if (null === $this->collUserVictimss || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUserVictimss) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getUserVictimss());
+            }
+
+            $query = ChildUserVictimsQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByVictim($this)
+                ->count($con);
+        }
+
+        return count($this->collUserVictimss);
+    }
+
+    /**
+     * Method called to associate a ChildUserVictims object to this object
+     * through the ChildUserVictims foreign key attribute.
+     *
+     * @param  ChildUserVictims $l ChildUserVictims
+     * @return $this|\DB\Victim The current object (for fluent API support)
+     */
+    public function addUserVictims(ChildUserVictims $l)
+    {
+        if ($this->collUserVictimss === null) {
+            $this->initUserVictimss();
+            $this->collUserVictimssPartial = true;
+        }
+
+        if (!$this->collUserVictimss->contains($l)) {
+            $this->doAddUserVictims($l);
+
+            if ($this->userVictimssScheduledForDeletion and $this->userVictimssScheduledForDeletion->contains($l)) {
+                $this->userVictimssScheduledForDeletion->remove($this->userVictimssScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildUserVictims $userVictims The ChildUserVictims object to add.
+     */
+    protected function doAddUserVictims(ChildUserVictims $userVictims)
+    {
+        $this->collUserVictimss[]= $userVictims;
+        $userVictims->setVictim($this);
+    }
+
+    /**
+     * @param  ChildUserVictims $userVictims The ChildUserVictims object to remove.
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function removeUserVictims(ChildUserVictims $userVictims)
+    {
+        if ($this->getUserVictimss()->contains($userVictims)) {
+            $pos = $this->collUserVictimss->search($userVictims);
+            $this->collUserVictimss->remove($pos);
+            if (null === $this->userVictimssScheduledForDeletion) {
+                $this->userVictimssScheduledForDeletion = clone $this->collUserVictimss;
+                $this->userVictimssScheduledForDeletion->clear();
+            }
+            $this->userVictimssScheduledForDeletion[]= clone $userVictims;
+            $userVictims->setVictim(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Victim is new, it will return
+     * an empty collection; or if this Victim has previously
+     * been saved, it will retrieve related UserVictimss from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Victim.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildUserVictims[] List of ChildUserVictims objects
+     */
+    public function getUserVictimssJoinUser(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildUserVictimsQuery::create(null, $criteria);
+        $query->joinWith('User', $joinBehavior);
+
+        return $this->getUserVictimss($query, $con);
     }
 
     /**
@@ -2145,6 +2504,249 @@ abstract class Victim implements ActiveRecordInterface
     }
 
     /**
+     * Clears out the collUsers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUsers()
+     */
+    public function clearUsers()
+    {
+        $this->collUsers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collUsers crossRef collection.
+     *
+     * By default this just sets the collUsers collection to an empty collection (like clearUsers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @return void
+     */
+    public function initUsers()
+    {
+        $collectionClassName = UserVictimsTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collUsers = new $collectionClassName;
+        $this->collUsersPartial = true;
+        $this->collUsers->setModel('\DB\User');
+    }
+
+    /**
+     * Checks if the collUsers collection is loaded.
+     *
+     * @return bool
+     */
+    public function isUsersLoaded()
+    {
+        return null !== $this->collUsers;
+    }
+
+    /**
+     * Gets a collection of ChildUser objects related by a many-to-many relationship
+     * to the current object by way of the User_Victims cross-reference table.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildVictim is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return ObjectCollection|ChildUser[] List of ChildUser objects
+     */
+    public function getUsers(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUsersPartial && !$this->isNew();
+        if (null === $this->collUsers || null !== $criteria || $partial) {
+            if ($this->isNew()) {
+                // return empty collection
+                if (null === $this->collUsers) {
+                    $this->initUsers();
+                }
+            } else {
+
+                $query = ChildUserQuery::create(null, $criteria)
+                    ->filterByVictim($this);
+                $collUsers = $query->find($con);
+                if (null !== $criteria) {
+                    return $collUsers;
+                }
+
+                if ($partial && $this->collUsers) {
+                    //make sure that already added objects gets added to the list of the database.
+                    foreach ($this->collUsers as $obj) {
+                        if (!$collUsers->contains($obj)) {
+                            $collUsers[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUsers = $collUsers;
+                $this->collUsersPartial = false;
+            }
+        }
+
+        return $this->collUsers;
+    }
+
+    /**
+     * Sets a collection of User objects related by a many-to-many relationship
+     * to the current object by way of the User_Victims cross-reference table.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param  Collection $users A Propel collection.
+     * @param  ConnectionInterface $con Optional connection object
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function setUsers(Collection $users, ConnectionInterface $con = null)
+    {
+        $this->clearUsers();
+        $currentUsers = $this->getUsers();
+
+        $usersScheduledForDeletion = $currentUsers->diff($users);
+
+        foreach ($usersScheduledForDeletion as $toDelete) {
+            $this->removeUser($toDelete);
+        }
+
+        foreach ($users as $user) {
+            if (!$currentUsers->contains($user)) {
+                $this->doAddUser($user);
+            }
+        }
+
+        $this->collUsersPartial = false;
+        $this->collUsers = $users;
+
+        return $this;
+    }
+
+    /**
+     * Gets the number of User objects related by a many-to-many relationship
+     * to the current object by way of the User_Victims cross-reference table.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      boolean $distinct Set to true to force count distinct
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return int the number of related User objects
+     */
+    public function countUsers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUsersPartial && !$this->isNew();
+        if (null === $this->collUsers || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUsers) {
+                return 0;
+            } else {
+
+                if ($partial && !$criteria) {
+                    return count($this->getUsers());
+                }
+
+                $query = ChildUserQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByVictim($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collUsers);
+        }
+    }
+
+    /**
+     * Associate a ChildUser to this object
+     * through the User_Victims cross reference table.
+     *
+     * @param ChildUser $user
+     * @return ChildVictim The current object (for fluent API support)
+     */
+    public function addUser(ChildUser $user)
+    {
+        if ($this->collUsers === null) {
+            $this->initUsers();
+        }
+
+        if (!$this->getUsers()->contains($user)) {
+            // only add it if the **same** object is not already associated
+            $this->collUsers->push($user);
+            $this->doAddUser($user);
+        }
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param ChildUser $user
+     */
+    protected function doAddUser(ChildUser $user)
+    {
+        $userVictims = new ChildUserVictims();
+
+        $userVictims->setUser($user);
+
+        $userVictims->setVictim($this);
+
+        $this->addUserVictims($userVictims);
+
+        // set the back reference to this object directly as using provided method either results
+        // in endless loop or in multiple relations
+        if (!$user->isVictimsLoaded()) {
+            $user->initVictims();
+            $user->getVictims()->push($this);
+        } elseif (!$user->getVictims()->contains($this)) {
+            $user->getVictims()->push($this);
+        }
+
+    }
+
+    /**
+     * Remove user of this object
+     * through the User_Victims cross reference table.
+     *
+     * @param ChildUser $user
+     * @return ChildVictim The current object (for fluent API support)
+     */
+    public function removeUser(ChildUser $user)
+    {
+        if ($this->getUsers()->contains($user)) {
+            $userVictims = new ChildUserVictims();
+            $userVictims->setUser($user);
+            if ($user->isVictimsLoaded()) {
+                //remove the back reference if available
+                $user->getVictims()->removeObject($this);
+            }
+
+            $userVictims->setVictim($this);
+            $this->removeUserVictims(clone $userVictims);
+            $userVictims->clear();
+
+            $this->collUsers->remove($this->collUsers->search($user));
+
+            if (null === $this->usersScheduledForDeletion) {
+                $this->usersScheduledForDeletion = clone $this->collUsers;
+                $this->usersScheduledForDeletion->clear();
+            }
+
+            $this->usersScheduledForDeletion->push($user);
+        }
+
+
+        return $this;
+    }
+
+    /**
      * Clears out the collMailings collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
@@ -2422,6 +3024,11 @@ abstract class Victim implements ActiveRecordInterface
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collUserVictimss) {
+                foreach ($this->collUserVictimss as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collVictimMailingss) {
                 foreach ($this->collVictimMailingss as $o) {
                     $o->clearAllReferences($deep);
@@ -2429,6 +3036,11 @@ abstract class Victim implements ActiveRecordInterface
             }
             if ($this->collGroups) {
                 foreach ($this->collGroups as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collUsers) {
+                foreach ($this->collUsers as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
@@ -2440,8 +3052,10 @@ abstract class Victim implements ActiveRecordInterface
         } // if ($deep)
 
         $this->collGroupVictimss = null;
+        $this->collUserVictimss = null;
         $this->collVictimMailingss = null;
         $this->collGroups = null;
+        $this->collUsers = null;
         $this->collMailings = null;
     }
 

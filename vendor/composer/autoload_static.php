@@ -151,6 +151,8 @@ class ComposerStaticInite9fcd2453b0b05dfa228efedf683fad2
         'DB\\Base\\UserMailings' => __DIR__ . '/../..' . '/src/models/DB/Base/UserMailings.php',
         'DB\\Base\\UserMailingsQuery' => __DIR__ . '/../..' . '/src/models/DB/Base/UserMailingsQuery.php',
         'DB\\Base\\UserQuery' => __DIR__ . '/../..' . '/src/models/DB/Base/UserQuery.php',
+        'DB\\Base\\UserVictims' => __DIR__ . '/../..' . '/src/models/DB/Base/UserVictims.php',
+        'DB\\Base\\UserVictimsQuery' => __DIR__ . '/../..' . '/src/models/DB/Base/UserVictimsQuery.php',
         'DB\\Base\\Victim' => __DIR__ . '/../..' . '/src/models/DB/Base/Victim.php',
         'DB\\Base\\VictimMailings' => __DIR__ . '/../..' . '/src/models/DB/Base/VictimMailings.php',
         'DB\\Base\\VictimMailingsQuery' => __DIR__ . '/../..' . '/src/models/DB/Base/VictimMailingsQuery.php',
@@ -170,6 +172,7 @@ class ComposerStaticInite9fcd2453b0b05dfa228efedf683fad2
         'DB\\Map\\UserGroupsTableMap' => __DIR__ . '/../..' . '/src/models/DB/Map/UserGroupsTableMap.php',
         'DB\\Map\\UserMailingsTableMap' => __DIR__ . '/../..' . '/src/models/DB/Map/UserMailingsTableMap.php',
         'DB\\Map\\UserTableMap' => __DIR__ . '/../..' . '/src/models/DB/Map/UserTableMap.php',
+        'DB\\Map\\UserVictimsTableMap' => __DIR__ . '/../..' . '/src/models/DB/Map/UserVictimsTableMap.php',
         'DB\\Map\\VictimMailingsTableMap' => __DIR__ . '/../..' . '/src/models/DB/Map/VictimMailingsTableMap.php',
         'DB\\Map\\VictimTableMap' => __DIR__ . '/../..' . '/src/models/DB/Map/VictimTableMap.php',
         'DB\\User' => __DIR__ . '/../..' . '/src/models/DB/User.php',
@@ -178,6 +181,8 @@ class ComposerStaticInite9fcd2453b0b05dfa228efedf683fad2
         'DB\\UserMailings' => __DIR__ . '/../..' . '/src/models/DB/UserMailings.php',
         'DB\\UserMailingsQuery' => __DIR__ . '/../..' . '/src/models/DB/UserMailingsQuery.php',
         'DB\\UserQuery' => __DIR__ . '/../..' . '/src/models/DB/UserQuery.php',
+        'DB\\UserVictims' => __DIR__ . '/../..' . '/src/models/DB/UserVictims.php',
+        'DB\\UserVictimsQuery' => __DIR__ . '/../..' . '/src/models/DB/UserVictimsQuery.php',
         'DB\\Victim' => __DIR__ . '/../..' . '/src/models/DB/Victim.php',
         'DB\\VictimMailings' => __DIR__ . '/../..' . '/src/models/DB/VictimMailings.php',
         'DB\\VictimMailingsQuery' => __DIR__ . '/../..' . '/src/models/DB/VictimMailingsQuery.php',
@@ -185,6 +190,7 @@ class ComposerStaticInite9fcd2453b0b05dfa228efedf683fad2
         'src\\services\\ResponseService' => __DIR__ . '/../..' . '/src/services/ResponseService.php',
         'src\\services\\TokenService' => __DIR__ . '/../..' . '/src/services/TokenService.php',
         'src\\services\\UserService' => __DIR__ . '/../..' . '/src/services/UserService.php',
+        'src\\services\\VictimService' => __DIR__ . '/../..' . '/src/services/VictimService.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

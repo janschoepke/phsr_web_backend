@@ -171,6 +171,13 @@ class UserTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'UserGroupss', false);
+        $this->addRelation('UserVictims', '\\DB\\UserVictims', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':user_id',
+    1 => ':id',
+  ),
+), null, null, 'UserVictimss', false);
         $this->addRelation('UserMailings', '\\DB\\UserMailings', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
@@ -179,6 +186,7 @@ class UserTableMap extends TableMap
   ),
 ), null, null, 'UserMailingss', false);
         $this->addRelation('Group', '\\DB\\Group', RelationMap::MANY_TO_MANY, array(), null, null, 'Groups');
+        $this->addRelation('Victim', '\\DB\\Victim', RelationMap::MANY_TO_MANY, array(), null, null, 'Victims');
         $this->addRelation('Mailing', '\\DB\\Mailing', RelationMap::MANY_TO_MANY, array(), null, null, 'Mailings');
     } // buildRelations()
 

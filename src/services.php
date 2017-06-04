@@ -25,3 +25,8 @@ $container['tokenService'] = function($container){
     $tokenService = new services\TokenService();
     return $tokenService;
 };
+
+$container['victimService'] = function($container){
+    $victimService = new services\VictimService();
+    return $victimService;
+};

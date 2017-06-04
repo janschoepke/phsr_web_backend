@@ -44,12 +44,14 @@ class UserService {
                 $tokenService = new TokenService();
                 $jwt = $tokenService->generateJWT(array($currentUser->getEmail()));
                 return $jwt;
+            } else {
+                throw new \ApplicationException("The email/password combination does not match.");
+                return false;
             }
-            throw new \ApplicationException("The email/password combination does not match.");
+        } else {
+            throw new \ApplicationException("The email address you entered is not known.");
             return false;
         }
-        throw new \ApplicationException("The email address you entered is not known.");
-        return false;
     }
 
     function userExists($email) {

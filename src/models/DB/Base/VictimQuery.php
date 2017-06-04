@@ -50,6 +50,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimQuery rightJoinWithGroupVictims() Adds a RIGHT JOIN clause and with to the query using the GroupVictims relation
  * @method     ChildVictimQuery innerJoinWithGroupVictims() Adds a INNER JOIN clause and with to the query using the GroupVictims relation
  *
+ * @method     ChildVictimQuery leftJoinUserVictims($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserVictims relation
+ * @method     ChildVictimQuery rightJoinUserVictims($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserVictims relation
+ * @method     ChildVictimQuery innerJoinUserVictims($relationAlias = null) Adds a INNER JOIN clause to the query using the UserVictims relation
+ *
+ * @method     ChildVictimQuery joinWithUserVictims($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the UserVictims relation
+ *
+ * @method     ChildVictimQuery leftJoinWithUserVictims() Adds a LEFT JOIN clause and with to the query using the UserVictims relation
+ * @method     ChildVictimQuery rightJoinWithUserVictims() Adds a RIGHT JOIN clause and with to the query using the UserVictims relation
+ * @method     ChildVictimQuery innerJoinWithUserVictims() Adds a INNER JOIN clause and with to the query using the UserVictims relation
+ *
  * @method     ChildVictimQuery leftJoinVictimMailings($relationAlias = null) Adds a LEFT JOIN clause to the query using the VictimMailings relation
  * @method     ChildVictimQuery rightJoinVictimMailings($relationAlias = null) Adds a RIGHT JOIN clause to the query using the VictimMailings relation
  * @method     ChildVictimQuery innerJoinVictimMailings($relationAlias = null) Adds a INNER JOIN clause to the query using the VictimMailings relation
@@ -60,7 +70,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimQuery rightJoinWithVictimMailings() Adds a RIGHT JOIN clause and with to the query using the VictimMailings relation
  * @method     ChildVictimQuery innerJoinWithVictimMailings() Adds a INNER JOIN clause and with to the query using the VictimMailings relation
  *
- * @method     \DB\GroupVictimsQuery|\DB\VictimMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \DB\GroupVictimsQuery|\DB\UserVictimsQuery|\DB\VictimMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildVictim findOne(ConnectionInterface $con = null) Return the first ChildVictim matching the query
  * @method     ChildVictim findOneOrCreate(ConnectionInterface $con = null) Return the first ChildVictim matching the query, or a new ChildVictim object populated from the query conditions when no match is found
@@ -489,6 +499,79 @@ abstract class VictimQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related \DB\UserVictims object
+     *
+     * @param \DB\UserVictims|ObjectCollection $userVictims the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildVictimQuery The current query, for fluid interface
+     */
+    public function filterByUserVictims($userVictims, $comparison = null)
+    {
+        if ($userVictims instanceof \DB\UserVictims) {
+            return $this
+                ->addUsingAlias(VictimTableMap::COL_ID, $userVictims->getVictimId(), $comparison);
+        } elseif ($userVictims instanceof ObjectCollection) {
+            return $this
+                ->useUserVictimsQuery()
+                ->filterByPrimaryKeys($userVictims->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByUserVictims() only accepts arguments of type \DB\UserVictims or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the UserVictims relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildVictimQuery The current query, for fluid interface
+     */
+    public function joinUserVictims($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('UserVictims');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'UserVictims');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the UserVictims relation UserVictims object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\UserVictimsQuery A secondary query class using the current class as primary query
+     */
+    public function useUserVictimsQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinUserVictims($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'UserVictims', '\DB\UserVictimsQuery');
+    }
+
+    /**
      * Filter the query by a related \DB\VictimMailings object
      *
      * @param \DB\VictimMailings|ObjectCollection $victimMailings the related object to use as filter
@@ -575,6 +658,23 @@ abstract class VictimQuery extends ModelCriteria
         return $this
             ->useGroupVictimsQuery()
             ->filterByGroup($group, $comparison)
+            ->endUse();
+    }
+
+    /**
+     * Filter the query by a related User object
+     * using the User_Victims table as cross reference
+     *
+     * @param User $user the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildVictimQuery The current query, for fluid interface
+     */
+    public function filterByUser($user, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useUserVictimsQuery()
+            ->filterByUser($user, $comparison)
             ->endUse();
     }
 

@@ -2,8 +2,8 @@
 
 namespace DB\Map;
 
-use DB\Victim;
-use DB\VictimQuery;
+use DB\UserVictims;
+use DB\UserVictimsQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'Victims' table.
+ * This class defines the structure of the 'User_Victims' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class VictimTableMap extends TableMap
+class UserVictimsTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class VictimTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'DB.Map.VictimTableMap';
+    const CLASS_NAME = 'DB.Map.UserVictimsTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class VictimTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'Victims';
+    const TABLE_NAME = 'User_Victims';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\DB\\Victim';
+    const OM_CLASS = '\\DB\\UserVictims';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'DB.Victim';
+    const CLASS_DEFAULT = 'DB.UserVictims';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 2;
 
     /**
      * The number of lazy-loaded columns
@@ -69,32 +69,17 @@ class VictimTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 2;
 
     /**
-     * the column name for the id field
+     * the column name for the user_id field
      */
-    const COL_ID = 'Victims.id';
+    const COL_USER_ID = 'User_Victims.user_id';
 
     /**
-     * the column name for the firstname field
+     * the column name for the victim_id field
      */
-    const COL_FIRSTNAME = 'Victims.firstname';
-
-    /**
-     * the column name for the lastname field
-     */
-    const COL_LASTNAME = 'Victims.lastname';
-
-    /**
-     * the column name for the email field
-     */
-    const COL_EMAIL = 'Victims.email';
-
-    /**
-     * the column name for the description field
-     */
-    const COL_DESCRIPTION = 'Victims.description';
+    const COL_VICTIM_ID = 'User_Victims.victim_id';
 
     /**
      * The default string format for model objects of the related table
@@ -108,11 +93,11 @@ class VictimTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Firstname', 'Lastname', 'Email', 'Description', ),
-        self::TYPE_CAMELNAME     => array('id', 'firstname', 'lastname', 'email', 'description', ),
-        self::TYPE_COLNAME       => array(VictimTableMap::COL_ID, VictimTableMap::COL_FIRSTNAME, VictimTableMap::COL_LASTNAME, VictimTableMap::COL_EMAIL, VictimTableMap::COL_DESCRIPTION, ),
-        self::TYPE_FIELDNAME     => array('id', 'firstname', 'lastname', 'email', 'description', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('UserId', 'VictimId', ),
+        self::TYPE_CAMELNAME     => array('userId', 'victimId', ),
+        self::TYPE_COLNAME       => array(UserVictimsTableMap::COL_USER_ID, UserVictimsTableMap::COL_VICTIM_ID, ),
+        self::TYPE_FIELDNAME     => array('user_id', 'victim_id', ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -122,11 +107,11 @@ class VictimTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Firstname' => 1, 'Lastname' => 2, 'Email' => 3, 'Description' => 4, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'firstname' => 1, 'lastname' => 2, 'email' => 3, 'description' => 4, ),
-        self::TYPE_COLNAME       => array(VictimTableMap::COL_ID => 0, VictimTableMap::COL_FIRSTNAME => 1, VictimTableMap::COL_LASTNAME => 2, VictimTableMap::COL_EMAIL => 3, VictimTableMap::COL_DESCRIPTION => 4, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'firstname' => 1, 'lastname' => 2, 'email' => 3, 'description' => 4, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('UserId' => 0, 'VictimId' => 1, ),
+        self::TYPE_CAMELNAME     => array('userId' => 0, 'victimId' => 1, ),
+        self::TYPE_COLNAME       => array(UserVictimsTableMap::COL_USER_ID => 0, UserVictimsTableMap::COL_VICTIM_ID => 1, ),
+        self::TYPE_FIELDNAME     => array('user_id' => 0, 'victim_id' => 1, ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -139,18 +124,16 @@ class VictimTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('Victims');
-        $this->setPhpName('Victim');
+        $this->setName('User_Victims');
+        $this->setPhpName('UserVictims');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\DB\\Victim');
+        $this->setClassName('\\DB\\UserVictims');
         $this->setPackage('DB');
-        $this->setUseIdGenerator(true);
+        $this->setUseIdGenerator(false);
+        $this->setIsCrossRef(true);
         // columns
-        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('firstname', 'Firstname', 'VARCHAR', true, 100, null);
-        $this->addColumn('lastname', 'Lastname', 'VARCHAR', true, 100, null);
-        $this->addColumn('email', 'Email', 'VARCHAR', true, 100, null);
-        $this->addColumn('description', 'Description', 'VARCHAR', false, 1000, null);
+        $this->addForeignPrimaryKey('user_id', 'UserId', 'INTEGER' , 'Users', 'id', true, null, null);
+        $this->addForeignPrimaryKey('victim_id', 'VictimId', 'INTEGER' , 'Victims', 'id', true, null, null);
     } // initialize()
 
     /**
@@ -158,31 +141,74 @@ class VictimTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('GroupVictims', '\\DB\\GroupVictims', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('User', '\\DB\\User', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':user_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
+        $this->addRelation('Victim', '\\DB\\Victim', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
     0 => ':victim_id',
     1 => ':id',
   ),
-), null, null, 'GroupVictimss', false);
-        $this->addRelation('UserVictims', '\\DB\\UserVictims', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':victim_id',
-    1 => ':id',
-  ),
-), null, null, 'UserVictimss', false);
-        $this->addRelation('VictimMailings', '\\DB\\VictimMailings', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':victim_id',
-    1 => ':id',
-  ),
-), null, null, 'VictimMailingss', false);
-        $this->addRelation('Group', '\\DB\\Group', RelationMap::MANY_TO_MANY, array(), null, null, 'Groups');
-        $this->addRelation('User', '\\DB\\User', RelationMap::MANY_TO_MANY, array(), null, null, 'Users');
-        $this->addRelation('Mailing', '\\DB\\Mailing', RelationMap::MANY_TO_MANY, array(), null, null, 'Mailings');
+), null, null, null, false);
     } // buildRelations()
+
+    /**
+     * Adds an object to the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database. In some cases you may need to explicitly add objects
+     * to the cache in order to ensure that the same objects are always returned by find*()
+     * and findPk*() calls.
+     *
+     * @param \DB\UserVictims $obj A \DB\UserVictims object.
+     * @param string $key             (optional) key to use for instance map (for performance boost if key was already calculated externally).
+     */
+    public static function addInstanceToPool($obj, $key = null)
+    {
+        if (Propel::isInstancePoolingEnabled()) {
+            if (null === $key) {
+                $key = serialize([(null === $obj->getUserId() || is_scalar($obj->getUserId()) || is_callable([$obj->getUserId(), '__toString']) ? (string) $obj->getUserId() : $obj->getUserId()), (null === $obj->getVictimId() || is_scalar($obj->getVictimId()) || is_callable([$obj->getVictimId(), '__toString']) ? (string) $obj->getVictimId() : $obj->getVictimId())]);
+            } // if key === null
+            self::$instances[$key] = $obj;
+        }
+    }
+
+    /**
+     * Removes an object from the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database.  In some cases -- especially when you override doDelete
+     * methods in your stub classes -- you may need to explicitly remove objects
+     * from the cache in order to prevent returning objects that no longer exist.
+     *
+     * @param mixed $value A \DB\UserVictims object or a primary key value.
+     */
+    public static function removeInstanceFromPool($value)
+    {
+        if (Propel::isInstancePoolingEnabled() && null !== $value) {
+            if (is_object($value) && $value instanceof \DB\UserVictims) {
+                $key = serialize([(null === $value->getUserId() || is_scalar($value->getUserId()) || is_callable([$value->getUserId(), '__toString']) ? (string) $value->getUserId() : $value->getUserId()), (null === $value->getVictimId() || is_scalar($value->getVictimId()) || is_callable([$value->getVictimId(), '__toString']) ? (string) $value->getVictimId() : $value->getVictimId())]);
+
+            } elseif (is_array($value) && count($value) === 2) {
+                // assume we've been passed a primary key";
+                $key = serialize([(null === $value[0] || is_scalar($value[0]) || is_callable([$value[0], '__toString']) ? (string) $value[0] : $value[0]), (null === $value[1] || is_scalar($value[1]) || is_callable([$value[1], '__toString']) ? (string) $value[1] : $value[1])]);
+            } elseif ($value instanceof Criteria) {
+                self::$instances = [];
+
+                return;
+            } else {
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or \DB\UserVictims object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value, true)));
+                throw $e;
+            }
+
+            unset(self::$instances[$key]);
+        }
+    }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -200,11 +226,11 @@ class VictimTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+        return serialize([(null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)]), (null === $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)])]);
     }
 
     /**
@@ -221,11 +247,20 @@ class VictimTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return (int) $row[
+            $pks = [];
+
+        $pks[] = (int) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
-                : self::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)
+                : self::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)
         ];
+        $pks[] = (int) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 1 + $offset
+                : self::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+
+        return $pks;
     }
 
     /**
@@ -241,7 +276,7 @@ class VictimTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? VictimTableMap::CLASS_DEFAULT : VictimTableMap::OM_CLASS;
+        return $withPrefix ? UserVictimsTableMap::CLASS_DEFAULT : UserVictimsTableMap::OM_CLASS;
     }
 
     /**
@@ -255,22 +290,22 @@ class VictimTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Victim object, last column rank)
+     * @return array           (UserVictims object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = VictimTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = VictimTableMap::getInstanceFromPool($key))) {
+        $key = UserVictimsTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = UserVictimsTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + VictimTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + UserVictimsTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = VictimTableMap::OM_CLASS;
-            /** @var Victim $obj */
+            $cls = UserVictimsTableMap::OM_CLASS;
+            /** @var UserVictims $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            VictimTableMap::addInstanceToPool($obj, $key);
+            UserVictimsTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -293,18 +328,18 @@ class VictimTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = VictimTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = VictimTableMap::getInstanceFromPool($key))) {
+            $key = UserVictimsTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = UserVictimsTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Victim $obj */
+                /** @var UserVictims $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                VictimTableMap::addInstanceToPool($obj, $key);
+                UserVictimsTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -325,17 +360,11 @@ class VictimTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(VictimTableMap::COL_ID);
-            $criteria->addSelectColumn(VictimTableMap::COL_FIRSTNAME);
-            $criteria->addSelectColumn(VictimTableMap::COL_LASTNAME);
-            $criteria->addSelectColumn(VictimTableMap::COL_EMAIL);
-            $criteria->addSelectColumn(VictimTableMap::COL_DESCRIPTION);
+            $criteria->addSelectColumn(UserVictimsTableMap::COL_USER_ID);
+            $criteria->addSelectColumn(UserVictimsTableMap::COL_VICTIM_ID);
         } else {
-            $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.firstname');
-            $criteria->addSelectColumn($alias . '.lastname');
-            $criteria->addSelectColumn($alias . '.email');
-            $criteria->addSelectColumn($alias . '.description');
+            $criteria->addSelectColumn($alias . '.user_id');
+            $criteria->addSelectColumn($alias . '.victim_id');
         }
     }
 
@@ -348,7 +377,7 @@ class VictimTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(VictimTableMap::DATABASE_NAME)->getTable(VictimTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(UserVictimsTableMap::DATABASE_NAME)->getTable(UserVictimsTableMap::TABLE_NAME);
     }
 
     /**
@@ -356,16 +385,16 @@ class VictimTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(VictimTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(VictimTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new VictimTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(UserVictimsTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(UserVictimsTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new UserVictimsTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Victim or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a UserVictims or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Victim object or primary key or array of primary keys
+     * @param mixed               $values Criteria or UserVictims object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -376,27 +405,37 @@ class VictimTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(VictimTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(UserVictimsTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \DB\Victim) { // it's a model object
+        } elseif ($values instanceof \DB\UserVictims) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(VictimTableMap::DATABASE_NAME);
-            $criteria->add(VictimTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(UserVictimsTableMap::DATABASE_NAME);
+            // primary key is composite; we therefore, expect
+            // the primary key passed to be an array of pkey values
+            if (count($values) == count($values, COUNT_RECURSIVE)) {
+                // array is not multi-dimensional
+                $values = array($values);
+            }
+            foreach ($values as $value) {
+                $criterion = $criteria->getNewCriterion(UserVictimsTableMap::COL_USER_ID, $value[0]);
+                $criterion->addAnd($criteria->getNewCriterion(UserVictimsTableMap::COL_VICTIM_ID, $value[1]));
+                $criteria->addOr($criterion);
+            }
         }
 
-        $query = VictimQuery::create()->mergeWith($criteria);
+        $query = UserVictimsQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            VictimTableMap::clearInstancePool();
+            UserVictimsTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                VictimTableMap::removeInstanceFromPool($singleval);
+                UserVictimsTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -404,20 +443,20 @@ class VictimTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the Victims table.
+     * Deletes all rows from the User_Victims table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return VictimQuery::create()->doDeleteAll($con);
+        return UserVictimsQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Victim or Criteria object.
+     * Performs an INSERT on the database, given a UserVictims or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Victim object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or UserVictims object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -426,22 +465,18 @@ class VictimTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(VictimTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(UserVictimsTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Victim object
-        }
-
-        if ($criteria->containsKey(VictimTableMap::COL_ID) && $criteria->keyContainsValue(VictimTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.VictimTableMap::COL_ID.')');
+            $criteria = $criteria->buildCriteria(); // build Criteria from UserVictims object
         }
 
 
         // Set the correct dbName
-        $query = VictimQuery::create()->mergeWith($criteria);
+        $query = UserVictimsQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -450,7 +485,7 @@ class VictimTableMap extends TableMap
         });
     }
 
-} // VictimTableMap
+} // UserVictimsTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-VictimTableMap::buildTableMap();
+UserVictimsTableMap::buildTableMap();
