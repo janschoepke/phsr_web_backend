@@ -1,0 +1,8 @@
+{
+    "propel": {
+        "paths": {
+            "schemaDir": "\/Users\/janschopke\/master_web_backend\/src\/models",
+            "phpDir": "\/Users\/janschopke\/master_web_backend\/src\/models"
+        }
+    }
+}

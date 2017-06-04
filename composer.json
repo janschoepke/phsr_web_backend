@@ -1,13 +1,18 @@
 {
-	"config": {
-		"vendor-dir":"composer_modules",
-		"bin-dir":"composer_modules/bin"
-	},
-	"require": {
-		"slim/slim": "2.*",
-		"slim/views": "0.1.*",
-		"twig/twig": "1.15.*@dev",
-		"gabordemooij/redbean": "dev-RedBeanPHP3_5_X",
-		"phpmailer/phpmailer": "dev-master"
-	}
+    "require": {
+        "php": ">=5.5.0",
+        "slim/slim": "^3.1",
+        "slim/php-view": "^2.0",
+        "monolog/monolog": "^1.17",
+        "propel/propel": "^2.0@alpha",
+        "firebase/php-jwt": "^4.0"
+    },
+    "autoload": {
+        "classmap": [
+            "src/models/DB",
+            "src/services"
+        ]
+    },
+    "minimum-stability": "alpha"
+
 }
