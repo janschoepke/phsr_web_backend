@@ -26,9 +26,16 @@ $app->post('/victim-management/get-groups', function(ServerRequestInterface $req
             if(!$valid) {
                 throw new \ApplicationException("Token invalid.");
             } else {
+                $result = array();
+                $i = 0;
                 $victimService  = $this->victimService;
-                $userGroups = $victimService->getUserGroups($valid[0]);
-                var_dump($userGroups);
+                $userGroups = $victimService->getUserGroups($valid[0], true);
+
+                foreach($userGroups as $userGroup) {
+                    $result[$i]['Group'] = array("Id" =>$userGroup->getId(), "Name" => $userGroup->getName(), "Description" => $userGroup->getDescription());
+                    $result[$i]['Members'] = $victimService->getGroupVictims($valid[0], $userGroup->getId(), true);
+                        $i++;
+                }
             }
         }
     } catch(\ApplicationException $ae) {
@@ -38,7 +45,8 @@ $app->post('/victim-management/get-groups', function(ServerRequestInterface $req
     }
 
     $resultData = [
-        "success" => "true"
+        "success" => "true",
+        "allGroups" => json_encode($result)
     ];
 
     return $response->withStatus(200)
@@ -82,6 +90,7 @@ $app->post('/victim-management/add-group', function(ServerRequestInterface $requ
 
 });
 
+//TODO: Name darf nicht leer sein.
 $app->post('/victim-management/edit-group', function(ServerRequestInterface $request, ResponseInterface $response) {
     $body = json_decode($request->getBody());
 
@@ -112,6 +121,42 @@ $app->post('/victim-management/edit-group', function(ServerRequestInterface $req
 
     $resultData = [
         "success" => "true"
+    ];
+
+    return $response->withStatus(200)
+        ->write(json_encode($resultData));
+
+});
+
+$app->post('/victim-management/get-group', function(ServerRequestInterface $request, ResponseInterface $response) {
+    $body = json_decode($request->getBody());
+
+    $token = htmlspecialchars($body->token);
+    $groupID = htmlspecialchars($body->groupID);
+
+    try{
+        if(!$token) {
+            throw new \ApplicationException("Please submit a token.");
+        } else {
+            $tokenService = $this->tokenService;
+            $valid = (array) $tokenService->decodeJWT($token);
+            if(!$valid) {
+                throw new \ApplicationException("Token invalid.");
+            } else {
+                $victimService  = $this->victimService;
+                $groupData = $victimService->getGroup($valid[0], $groupID);
+
+            }
+        }
+    } catch(\ApplicationException $ae) {
+        //TODO: Response Service
+        return $response->withStatus(403)
+            ->write(json_encode(["success" => "false", "code" => $ae->getCode(), "message" => $ae->getMessage()]));
+    }
+
+    $resultData = [
+        "success" => "true",
+        "groupData" => $groupData
     ];
 
     return $response->withStatus(200)
@@ -154,6 +199,7 @@ $app->post('/victim-management/delete-group', function(ServerRequestInterface $r
 
 });
 
+//TODO: Check for blank input
 $app->post('/victim-management/add-victim', function(ServerRequestInterface $request, ResponseInterface $response) {
     $body = json_decode($request->getBody());
 
@@ -279,7 +325,6 @@ $app->post('/victim-management/get-all-victims', function(ServerRequestInterface
             } else {
                 $victimService  = $this->victimService;
                 $allVictims = $victimService->getAllVictims($valid[0]);
-                return $allVictims;
             }
         }
     } catch(\ApplicationException $ae) {
@@ -289,7 +334,8 @@ $app->post('/victim-management/get-all-victims', function(ServerRequestInterface
     }
 
     $resultData = [
-        "success" => "true"
+        "success" => "true",
+        "allVictims" => $allVictims
     ];
 
     return $response->withStatus(200)
@@ -397,6 +443,41 @@ $app->post('/victim-management/delete-victim', function(ServerRequestInterface $
 
     $resultData = [
         "success" => "true"
+    ];
+
+    return $response->withStatus(200)
+        ->write(json_encode($resultData));
+
+});
+
+$app->post('/victim-management/get-victim', function(ServerRequestInterface $request, ResponseInterface $response) {
+    $body = json_decode($request->getBody());
+
+    $token = htmlspecialchars($body->token);
+    $victimID = htmlspecialchars($body->victimID);
+
+    try{
+        if(!$token) {
+            throw new \ApplicationException("Please submit a token.");
+        } else {
+            $tokenService = $this->tokenService;
+            $valid = (array) $tokenService->decodeJWT($token);
+            if(!$valid) {
+                throw new \ApplicationException("Token invalid.");
+            } else {
+                $victimService  = $this->victimService;
+                $currentVictim = $victimService->getVictim($valid[0], $victimID);
+            }
+        }
+    } catch(\ApplicationException $ae) {
+        //TODO: Response Service
+        return $response->withStatus(403)
+            ->write(json_encode(["success" => "false", "code" => $ae->getCode(), "message" => $ae->getMessage()]));
+    }
+
+    $resultData = [
+        "success" => "true",
+        "victimData" => $currentVictim
     ];
 
     return $response->withStatus(200)

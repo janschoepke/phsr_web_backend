@@ -33,11 +33,14 @@ class VictimService {
         }
     }
 
-    function getUserGroups($userMail) {
+    function getUserGroups($userMail, $raw = false) {
         $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
         if(!is_null($currentUser)) {
             $userGroups = GroupQuery::create()->filterByUser($currentUser)->find();
-            return $userGroups->toJSON();
+            if (!$raw) {
+                return $userGroups->toJSON();
+            }
+            return $userGroups;
         } else {
             throw new \ApplicationException("There is no such email address.");
             return false;
@@ -53,6 +56,22 @@ class VictimService {
                 $currentGroup->setDescription($description);
                 $currentGroup->save();
                 return true;
+            } else {
+                throw new \ApplicationException("There is no group with this id.");
+                return false;
+            }
+        } else {
+            throw new \ApplicationException("There is no such email address.");
+            return false;
+        }
+    }
+
+    function getGroup($userMail, $groupID) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $currentGroup = GroupQuery::create()->filterById($groupID)->filterByUser($currentUser)->findOne();
+            if(!is_null($currentGroup)) {
+                return $currentGroup->toJSON();
             } else {
                 throw new \ApplicationException("There is no group with this id.");
                 return false;
@@ -131,13 +150,16 @@ class VictimService {
         }
     }
 
-    function getGroupVictims($userMail, $groupID) {
+    function getGroupVictims($userMail, $groupID, $raw = false) {
         $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
         if(!is_null($currentUser)) {
             $currentGroup = GroupQuery::create()->filterById($groupID)->filterByUser($currentUser)->findOne();
             if(!is_null($currentGroup)) {
                 $groupVictims = VictimQuery::create()->filterByGroup($currentGroup)->find();
-                return $groupVictims->toJSON();
+                if(!$raw) {
+                    return $groupVictims->toJSON();
+                }
+                return $groupVictims->toArray();
             } else {
                 throw new \ApplicationException("There is no group with this id.");
                 return false;
@@ -153,6 +175,22 @@ class VictimService {
         if(!is_null($currentUser)) {
             $allVictims = VictimQuery::create()->filterByUser($currentUser)->find();
             return $allVictims->toJSON();
+        } else {
+            throw new \ApplicationException("There is no such email address.");
+            return false;
+        }
+    }
+
+    function getVictim($userMail, $victimID) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $currentVictim = VictimQuery::create()->filterById($victimID)->filterByUser($currentUser)->findOne();
+            if(!is_null($currentVictim)) {
+                return $currentVictim->toJSON();
+            } else {
+                throw new \ApplicationException("There is no victim with this id.");
+                return false;
+            }
         } else {
             throw new \ApplicationException("There is no such email address.");
             return false;
