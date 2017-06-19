@@ -25,3 +25,9 @@ $container['victimService'] = function($container){
     $victimService = new services\VictimService();
     return $victimService;
 };
+
+$container['mailingService'] = function($container){
+    $mailingService = new services\MailingService();
+    return $mailingService;
+};
+
