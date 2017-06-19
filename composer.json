@@ -4,8 +4,9 @@
         "slim/slim": "^3.1",
         "slim/php-view": "^2.0",
         "monolog/monolog": "^1.17",
-        "propel/propel": "^2.0@alpha",
-        "firebase/php-jwt": "^4.0"
+        "propel/propel": "~2.0@dev",
+        "firebase/php-jwt": "^4.0",
+        "phpmailer/phpmailer": "^6.0@RC"
     },
     "autoload": {
         "classmap": [
