@@ -1,12 +1,9 @@
 tmp
-public/js
-public/dev
-public/css
 dist
-bower_modules
 node_modules
 composer_modules/*
 !composer_modules/bin/
 composer.lock
 composer.phar
 .idea
+vendor
