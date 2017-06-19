@@ -16,11 +16,6 @@ $container['userService'] = function($container){
     return $userService;
 };
 
-$container['responseService'] = function($container){
-    $responseService = new services\ResponseService();
-    return $responseService;
-};
-
 $container['tokenService'] = function($container){
     $tokenService = new services\TokenService();
     return $tokenService;
