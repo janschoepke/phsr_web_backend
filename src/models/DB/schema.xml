@@ -1,0 +1,117 @@
+<database name="default" defaultIdMethod="native"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd"
+          namespace="DB"
+>
+
+    <table name="Users" phpName="User">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="firstname" type="varchar" size="100" required="true" />
+        <column name="lastname" type="varchar" size="100" required="true" />
+        <column name="email" type="varchar" size="100" required="true" />
+        <column name="pwhash" type="varchar" size="100" required="true" />
+        <column name="salt" type="varchar" size="100" required="true" />
+    </table>
+
+    <table name="Groups" phpName="Group">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="name" type="varchar" size="100" required="true" />
+        <column name="description" type="varchar" size="1000" />
+    </table>
+
+    <table name="Victims" phpName="Victim">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="firstname" type="varchar" size="100" required="true" />
+        <column name="lastname" type="varchar" size="100" required="true" />
+        <column name="email" type="varchar" size="100" required="true" />
+        <column name="description" type="varchar" size="1000" />
+    </table>
+
+    <table name="Mailings" phpName="Mailing">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="name" type="varchar" size="100" required="true" />
+        <column name="headline" type="varchar" size="100" required="true" />
+        <column name="content" type="varchar" size="5000" required="true" />
+        <column name="description" type="varchar" size="1000" />
+        <column name="fromEmail" type="varchar" size="100" />
+        <column name="fromName" type="varchar" size="100" />
+        <column name="tracking" type="tinyint" size="1" />
+    </table>
+
+    <table name="User_Groups" isCrossRef="true">
+        <column name="user_id" type="integer" primaryKey="true" />
+        <column name="group_id" type="integer" primaryKey="true" />
+
+        <foreign-key foreignTable="Users">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Groups">
+            <reference local="group_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="Group_Victims" isCrossRef="true">
+        <column name="group_id" type="integer" primaryKey="true" />
+        <column name="victim_id" type="integer" primaryKey="true" />
+
+        <foreign-key foreignTable="Groups">
+            <reference local="group_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Victims">
+            <reference local="victim_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="User_Victims" isCrossRef="true">
+        <column name="user_id" type="integer" primaryKey="true" />
+        <column name="victim_id" type="integer" primaryKey="true" />
+
+        <foreign-key foreignTable="Users">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Victims">
+            <reference local="victim_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="Victim_Mailings" isCrossRef="true">
+        <column name="id" type="integer" primaryKey="true" autoIncrement="true" />
+        <column name="victim_id" type="integer" />
+        <column name="mailing_id" type="integer" />
+        <column name="timestamp" type="timestamp" />
+        <column name="opened" type="tinyint" />
+        <column name="clicked" type="tinyint" />
+        <column name="customParam" type="varchar" size="10" />
+
+        <foreign-key foreignTable="Victims">
+            <reference local="victim_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Mailings">
+            <reference local="mailing_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="User_Mailings" isCrossRef="true">
+        <column name="user_id" type="integer" primaryKey="true" />
+        <column name="mailing_id" type="integer" primaryKey="true" />
+
+        <foreign-key foreignTable="Users">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Mailings">
+            <reference local="mailing_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="Group_Mailings" isCrossRef="true">
+        <column name="group_id" type="integer" primaryKey="true" />
+        <column name="mailing_id" type="integer" primaryKey="true" />
+
+        <foreign-key foreignTable="Groups">
+            <reference local="group_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Mailings">
+            <reference local="mailing_id" foreign="id" />
+        </foreign-key>
+    </table>
+</database>
