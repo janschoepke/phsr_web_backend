@@ -4,9 +4,9 @@ $serviceContainer->checkVersion('2.0.0-dev');
 $serviceContainer->setAdapterClass('default', 'mysql');
 $manager = new \Propel\Runtime\Connection\ConnectionManagerSingle();
 $manager->setConfiguration(array (
-  'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=master_thesis',
-  'user' => 'root',
-  'password' => 'root',
+    'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=janschoe',
+    'user' => 'janschoe',
+    'password' => 'iekeech4phie7',
   'settings' =>
   array (
     'charset' => 'utf8',
@@ -24,3 +24,10 @@ $manager->setConfiguration(array (
 $manager->setName('default');
 $serviceContainer->setConnectionManager('default', $manager);
 $serviceContainer->setDefaultDatasource('default');
+
+/*
+ * Local Database Config:
+ * 'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=master_thesis',
+ * 'user' => 'root',
+ * 'password' => 'root',
+ */
