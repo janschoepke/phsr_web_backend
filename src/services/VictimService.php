@@ -108,7 +108,7 @@ class VictimService {
         }
     }
 
-    function addVictim($userMail, $name, $lastName, $email, $description){
+    function addVictim($userMail, $name, $lastName, $email, $description, $birthday, $gender){
         $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
         if(!is_null($currentUser)) {
             $victim = new Victim();
@@ -116,6 +116,8 @@ class VictimService {
             $victim->setLastname($lastName);
             $victim->setEmail($email);
             $victim->setDescription($description);
+            $victim->setBirthday($birthday);
+            $victim->setGender(($gender == "male") ? true : false);
             $currentUser->addVictim($victim);
             $currentUser->save();
             return true;
@@ -197,7 +199,7 @@ class VictimService {
         }
     }
 
-    function editVictim($userMail, $victimID, $name, $lastName, $email, $description) {
+    function editVictim($userMail, $victimID, $name, $lastName, $email, $description, $birthday, $gender) {
         $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
         if(!is_null($currentUser)) {
             $currentVictim = VictimQuery::create()->filterById($victimID)->filterByUser($currentUser)->findOne();
@@ -206,6 +208,8 @@ class VictimService {
                 $currentVictim->setLastname($lastName);
                 $currentVictim->setEmail($email);
                 $currentVictim->setDescription($description);
+                $currentVictim->setBirthday($birthday);
+                $currentVictim->setGender(($gender == "male") ? true : false);
                 $currentVictim->save();
                 return true;
             } else {

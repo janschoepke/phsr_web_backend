@@ -123,9 +123,11 @@ $app->group('/victim-management', function() use ($app) {
         $lastName = htmlspecialchars($body->lastName);
         $email = htmlspecialchars($body->email);
         $description = htmlspecialchars($body->description);
+        $birthday = htmlspecialchars($body->birthday);
+        $gender = htmlspecialchars($body->gender);
 
         $victimService  = $this->victimService;
-        $victimService->addVictim($auth, $name, $lastName, $email, $description);
+        $victimService->addVictim($auth, $name, $lastName, $email, $description, $birthday, $gender);
 
         $resultData = [
             "success" => "true"
@@ -203,9 +205,11 @@ $app->group('/victim-management', function() use ($app) {
         $lastName = htmlspecialchars($body->lastName);
         $email = htmlspecialchars($body->email);
         $description = htmlspecialchars($body->description);
+        $birthday = htmlspecialchars($body->birthday);
+        $gender = htmlspecialchars($body->gender);
 
         $victimService  = $this->victimService;
-        $victimService->editVictim($auth, $victimID, $name, $lastName, $email, $description);
+        $victimService->editVictim($auth, $victimID, $name, $lastName, $email, $description, $birthday, $gender);
 
         $resultData = [
             "success" => "true"
