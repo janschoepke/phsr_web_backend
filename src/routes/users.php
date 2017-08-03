@@ -52,7 +52,7 @@ $app->post('/users/login', function(ServerRequestInterface $request, ResponseInt
             throw new \ApplicationException("Please submit a email/password combination.");
         } else {
             $userService = $this->userService;
-            $jwt = $userService->login($email, $password);
+            $loginInformation = $userService->login($email, $password);
         }
     } catch(\ApplicationException $ae) {
         //TODO: Response Service
@@ -61,9 +61,10 @@ $app->post('/users/login', function(ServerRequestInterface $request, ResponseInt
     }
 
     $resultData = [
-        "success" => "true",
-        "token" => $jwt
+        "success" => "true"
     ];
+
+    $resultData = array_merge($resultData, $loginInformation);
 
     return $response->withStatus(200)
         ->write(json_encode($resultData));

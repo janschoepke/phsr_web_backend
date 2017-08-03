@@ -43,7 +43,7 @@ class UserService {
             if($enteredPassword['hashedPassword'] === $currentUser->getPwhash()) {
                 $tokenService = new TokenService();
                 $jwt = $tokenService->generateJWT(array($currentUser->getEmail()));
-                return $jwt;
+                return array('token' => $jwt, 'firstname' => $currentUser->getFirstname(), 'lastname' => $currentUser->getLastname());
             } else {
                 throw new \ApplicationException("The email/password combination does not match.");
                 return false;
