@@ -21,6 +21,12 @@ $container['tokenService'] = function($container){
     return $tokenService;
 };
 
+$container['trackingService'] = function($container){
+    $trackingService = new services\TrackingService();
+    return $trackingService;
+};
+
+
 $container['victimService'] = function($container){
     $victimService = new services\VictimService();
     return $victimService;
@@ -30,4 +36,5 @@ $container['mailingService'] = function($container){
     $mailingService = new services\MailingService();
     return $mailingService;
 };
+
 
