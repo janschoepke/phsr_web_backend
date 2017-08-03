@@ -22,6 +22,34 @@ $app->get('/resources/image.jpg', function(ServerRequestInterface $request, Resp
 
 $app->group('/phishing', function() use ($app) {
 
+    $app->post('/send-smtp-mail', function(ServerRequestInterface $request, ResponseInterface $response) {
+
+        $body = json_decode($request->getBody());
+        $auth = $request->getAttribute('auth');
+
+        $toEmail = htmlspecialchars($body->toEmail);
+        $toName = htmlspecialchars($body->toName);
+        $fromEmail = htmlspecialchars($body->fromEmail);
+        $fromName = htmlspecialchars($body->fromName);
+        $subject = htmlspecialchars($body->subject);
+        $mailBody = htmlspecialchars($body->body);
+        $smtpHost = htmlspecialchars($body->smtpHost);
+        $smtpUser = htmlspecialchars($body->smtpUser);
+        $smtpPassword = htmlspecialchars($body->smtpPassword);
+        $smtpSecure = htmlspecialchars($body->smtpSecure);
+        $smtpPort = htmlspecialchars($body->smtpPort);
+
+        $mailingService = $this->mailingService;
+        $mailingService->sendSMTPMail($fromEmail, $fromName, $toEmail, $toName, $subject, $mailBody, $smtpHost, $smtpUser, $smtpPassword, $smtpSecure, $smtpPort);
+
+        $resultData = [
+            "success" => "true"
+        ];
+
+        return $response->withStatus(200)
+            ->write(json_encode($resultData));
+    });
+
     $app->post('/send-mail-to-group', function(ServerRequestInterface $request, ResponseInterface $response) {
 
         $body = json_decode($request->getBody());
@@ -31,10 +59,10 @@ $app->group('/phishing', function() use ($app) {
         $fromEmail = htmlspecialchars($body->fromEmail);
         $fromName = htmlspecialchars($body->fromName);
         $subject = htmlspecialchars($body->subject);
-        $body = htmlspecialchars($body->body);
+        $mailBody = htmlspecialchars($body->body);
 
         $mailingService = $this->mailingService;
-        $mailingService->sendMailToGroup($auth, $groupId, $fromEmail, $fromName, $subject, $body);
+        $mailingService->sendMailToGroup($auth, $groupId, $fromEmail, $fromName, $subject, $mailBody);
 
         $resultData = [
             "success" => "true"
@@ -55,14 +83,28 @@ $app->group('/phishing', function() use ($app) {
         $fromEmail = htmlspecialchars($body->fromEmail);
         $fromName = htmlspecialchars($body->fromName);
         $subject = htmlspecialchars($body->subject);
-        $body = htmlspecialchars($body->body);
-        $addTracking = htmlspecialchars($body->tracking);
+        $mailBody = htmlspecialchars($body->body);
+        $addTracking = htmlspecialchars($body->addTracking);
+
+        $isSmtp = htmlspecialchars($body->isSmtp);
+        $smtpHost = htmlspecialchars($body->smtpHost);
+        $smtpUser = htmlspecialchars($body->smtpUser);
+        $smtpPassword = htmlspecialchars($body->smtpPassword);
+        $smtpSecure = htmlspecialchars($body->smtpSecure);
+        $smtpPort = htmlspecialchars($body->smtpPort);
 
         $mailingService = $this->mailingService;
-        $mailingService->addMailing($auth, $name, $description, $fromEmail, $fromName, $subject, $body, $addTracking);
+
+        $mailingID = null;
+        if($isSmtp) {
+            $mailingID = $mailingService->addSMTPMailing($auth, $name, $description, $fromEmail, $fromName, $subject, $mailBody, $addTracking, $smtpHost, $smtpUser, $smtpPassword, $smtpSecure, $smtpPort);
+        } else {
+            $mailingID = $mailingService->addMailing($auth, $name, $description, $fromEmail, $fromName, $subject, $mailBody, $addTracking);
+        }
 
         $resultData = [
-            "success" => "true"
+            "success" => "true",
+            "mailingID" => $mailingID
         ];
 
         return $response->withStatus(200)

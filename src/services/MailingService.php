@@ -16,12 +16,38 @@ use DB\Mailing;
 use DB\UserMailingsQuery;
 use DB\UserQuery;
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 
 class MailingService
 {
 
+    function sendSMTPMail($fromEmail, $fromName, $toEmail, $toName, $subject, $body, $smtpHost, $smtpUser, $smtpPassword, $smtpSecure, $smtpPort) {
+        $mail = new PHPMailer;
+
+        $mail->isSMTP();
+        $mail->Host = $smtpHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $smtpUser;
+        $mail->Password = $smtpPassword;
+        $mail->SMTPSecure = $smtpSecure;
+        $mail->Port = $smtpPort;
+
+        $mail->setFrom($fromEmail, $fromName);
+        $mail->addAddress($toEmail, $toName);
+
+        $mail->isHTML(true);
+
+        $mail->Subject = $subject;
+        $mail->Body    = $body;
+
+        if(!$mail->send()) {
+            echo 'Message could not be sent.';
+            echo 'Mailer Error: ' . $mail->ErrorInfo;
+        }
+        return true;
+    }
+
     function sendMail($fromEmail, $fromName, $toEmail, $toName, $subject, $body) {
-        trigger_error("Deprecated function called.", E_USER_NOTICE);
         $mail = new PHPMailer;
 
         $mail->setFrom($fromEmail, $fromName);
@@ -62,10 +88,41 @@ class MailingService
             $mailing->setFromname($fromName);
             $mailing->setHeadline($subject);
             $mailing->setTracking($addTracking);
+            $mailing->setIssmtp(false);
 
             $currentUser->addMailing($mailing);
             $currentUser->save();
-            return true;
+
+            return $mailing->getId();
+        } else {
+            throw new \ApplicationException("There is no such user.");
+            return false;
+        }
+    }
+
+    function addSMTPMailing($userMail, $name, $description, $fromEmail, $fromName, $subject, $body, $addTracking, $smtpHost, $smtpUser, $smtpPassword, $smtpSecure, $smtpPort) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $tokenService = new TokenService();
+
+            $mailing = new Mailing();
+            $mailing->setName($name);
+            $mailing->setDescription($description);
+            $mailing->setContent($body);
+            $mailing->setFromemail($fromEmail);
+            $mailing->setFromname($fromName);
+            $mailing->setHeadline($subject);
+            $mailing->setTracking($addTracking);
+            $mailing->setSmtphost($smtpHost);
+            $mailing->setIssmtp(true);
+            $mailing->setSmtpuser($smtpUser);
+            $mailing->setSmtppassword($tokenService->encryptPassword($smtpPassword));
+            $mailing->setSmtpsecure($smtpSecure);
+            $mailing->setSmtpport($smtpPort);
+
+            $currentUser->addMailing($mailing);
+            $currentUser->save();
+            return $mailing->getId();
         } else {
             throw new \ApplicationException("There is no such user.");
             return false;
@@ -91,7 +148,15 @@ class MailingService
         if(!is_null($currentUser)) {
             $currentMailing = \DB\MailingQuery::create()->filterById($mailingID)->findOne();
             if(!is_null($currentMailing)) {
-                return $currentMailing->toJSON();
+                $tokenService = new TokenService();
+
+                $decryptedPassword = $tokenService->decryptPassword($currentMailing->getSmtppassword());
+                $mailingData = $currentMailing->toJSON();
+
+                $json = json_decode($mailingData,true);
+                $json['Smtppassword'] = $decryptedPassword;
+
+                return json_encode($json);
             } else {
                 throw new \ApplicationException("There is no such mailing.");
                 return false;
