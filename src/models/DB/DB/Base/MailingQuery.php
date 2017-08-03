@@ -28,6 +28,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailingQuery orderByFromemail($order = Criteria::ASC) Order by the fromEmail column
  * @method     ChildMailingQuery orderByFromname($order = Criteria::ASC) Order by the fromName column
  * @method     ChildMailingQuery orderByTracking($order = Criteria::ASC) Order by the tracking column
+ * @method     ChildMailingQuery orderByIssmtp($order = Criteria::ASC) Order by the isSmtp column
+ * @method     ChildMailingQuery orderBySmtphost($order = Criteria::ASC) Order by the smtpHost column
+ * @method     ChildMailingQuery orderBySmtpuser($order = Criteria::ASC) Order by the smtpUser column
+ * @method     ChildMailingQuery orderBySmtppassword($order = Criteria::ASC) Order by the smtpPassword column
+ * @method     ChildMailingQuery orderBySmtpsecure($order = Criteria::ASC) Order by the smtpSecure column
+ * @method     ChildMailingQuery orderBySmtpport($order = Criteria::ASC) Order by the smtpPort column
  *
  * @method     ChildMailingQuery groupById() Group by the id column
  * @method     ChildMailingQuery groupByName() Group by the name column
@@ -37,6 +43,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailingQuery groupByFromemail() Group by the fromEmail column
  * @method     ChildMailingQuery groupByFromname() Group by the fromName column
  * @method     ChildMailingQuery groupByTracking() Group by the tracking column
+ * @method     ChildMailingQuery groupByIssmtp() Group by the isSmtp column
+ * @method     ChildMailingQuery groupBySmtphost() Group by the smtpHost column
+ * @method     ChildMailingQuery groupBySmtpuser() Group by the smtpUser column
+ * @method     ChildMailingQuery groupBySmtppassword() Group by the smtpPassword column
+ * @method     ChildMailingQuery groupBySmtpsecure() Group by the smtpSecure column
+ * @method     ChildMailingQuery groupBySmtpport() Group by the smtpPort column
  *
  * @method     ChildMailingQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildMailingQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -45,6 +57,26 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailingQuery leftJoinWith($relation) Adds a LEFT JOIN clause and with to the query
  * @method     ChildMailingQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildMailingQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
+ *
+ * @method     ChildMailingQuery leftJoinWebVisit($relationAlias = null) Adds a LEFT JOIN clause to the query using the WebVisit relation
+ * @method     ChildMailingQuery rightJoinWebVisit($relationAlias = null) Adds a RIGHT JOIN clause to the query using the WebVisit relation
+ * @method     ChildMailingQuery innerJoinWebVisit($relationAlias = null) Adds a INNER JOIN clause to the query using the WebVisit relation
+ *
+ * @method     ChildMailingQuery joinWithWebVisit($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the WebVisit relation
+ *
+ * @method     ChildMailingQuery leftJoinWithWebVisit() Adds a LEFT JOIN clause and with to the query using the WebVisit relation
+ * @method     ChildMailingQuery rightJoinWithWebVisit() Adds a RIGHT JOIN clause and with to the query using the WebVisit relation
+ * @method     ChildMailingQuery innerJoinWithWebVisit() Adds a INNER JOIN clause and with to the query using the WebVisit relation
+ *
+ * @method     ChildMailingQuery leftJoinWebConversion($relationAlias = null) Adds a LEFT JOIN clause to the query using the WebConversion relation
+ * @method     ChildMailingQuery rightJoinWebConversion($relationAlias = null) Adds a RIGHT JOIN clause to the query using the WebConversion relation
+ * @method     ChildMailingQuery innerJoinWebConversion($relationAlias = null) Adds a INNER JOIN clause to the query using the WebConversion relation
+ *
+ * @method     ChildMailingQuery joinWithWebConversion($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the WebConversion relation
+ *
+ * @method     ChildMailingQuery leftJoinWithWebConversion() Adds a LEFT JOIN clause and with to the query using the WebConversion relation
+ * @method     ChildMailingQuery rightJoinWithWebConversion() Adds a RIGHT JOIN clause and with to the query using the WebConversion relation
+ * @method     ChildMailingQuery innerJoinWithWebConversion() Adds a INNER JOIN clause and with to the query using the WebConversion relation
  *
  * @method     ChildMailingQuery leftJoinVictimMailings($relationAlias = null) Adds a LEFT JOIN clause to the query using the VictimMailings relation
  * @method     ChildMailingQuery rightJoinVictimMailings($relationAlias = null) Adds a RIGHT JOIN clause to the query using the VictimMailings relation
@@ -76,7 +108,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailingQuery rightJoinWithGroupMailings() Adds a RIGHT JOIN clause and with to the query using the GroupMailings relation
  * @method     ChildMailingQuery innerJoinWithGroupMailings() Adds a INNER JOIN clause and with to the query using the GroupMailings relation
  *
- * @method     \DB\VictimMailingsQuery|\DB\UserMailingsQuery|\DB\GroupMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \DB\WebVisitQuery|\DB\WebConversionQuery|\DB\VictimMailingsQuery|\DB\UserMailingsQuery|\DB\GroupMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildMailing findOne(ConnectionInterface $con = null) Return the first ChildMailing matching the query
  * @method     ChildMailing findOneOrCreate(ConnectionInterface $con = null) Return the first ChildMailing matching the query, or a new ChildMailing object populated from the query conditions when no match is found
@@ -88,7 +120,13 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailing findOneByDescription(string $description) Return the first ChildMailing filtered by the description column
  * @method     ChildMailing findOneByFromemail(string $fromEmail) Return the first ChildMailing filtered by the fromEmail column
  * @method     ChildMailing findOneByFromname(string $fromName) Return the first ChildMailing filtered by the fromName column
- * @method     ChildMailing findOneByTracking(int $tracking) Return the first ChildMailing filtered by the tracking column *
+ * @method     ChildMailing findOneByTracking(int $tracking) Return the first ChildMailing filtered by the tracking column
+ * @method     ChildMailing findOneByIssmtp(boolean $isSmtp) Return the first ChildMailing filtered by the isSmtp column
+ * @method     ChildMailing findOneBySmtphost(string $smtpHost) Return the first ChildMailing filtered by the smtpHost column
+ * @method     ChildMailing findOneBySmtpuser(string $smtpUser) Return the first ChildMailing filtered by the smtpUser column
+ * @method     ChildMailing findOneBySmtppassword(string $smtpPassword) Return the first ChildMailing filtered by the smtpPassword column
+ * @method     ChildMailing findOneBySmtpsecure(string $smtpSecure) Return the first ChildMailing filtered by the smtpSecure column
+ * @method     ChildMailing findOneBySmtpport(string $smtpPort) Return the first ChildMailing filtered by the smtpPort column *
 
  * @method     ChildMailing requirePk($key, ConnectionInterface $con = null) Return the ChildMailing by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildMailing requireOne(ConnectionInterface $con = null) Return the first ChildMailing matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -101,6 +139,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailing requireOneByFromemail(string $fromEmail) Return the first ChildMailing filtered by the fromEmail column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildMailing requireOneByFromname(string $fromName) Return the first ChildMailing filtered by the fromName column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildMailing requireOneByTracking(int $tracking) Return the first ChildMailing filtered by the tracking column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildMailing requireOneByIssmtp(boolean $isSmtp) Return the first ChildMailing filtered by the isSmtp column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildMailing requireOneBySmtphost(string $smtpHost) Return the first ChildMailing filtered by the smtpHost column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildMailing requireOneBySmtpuser(string $smtpUser) Return the first ChildMailing filtered by the smtpUser column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildMailing requireOneBySmtppassword(string $smtpPassword) Return the first ChildMailing filtered by the smtpPassword column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildMailing requireOneBySmtpsecure(string $smtpSecure) Return the first ChildMailing filtered by the smtpSecure column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildMailing requireOneBySmtpport(string $smtpPort) Return the first ChildMailing filtered by the smtpPort column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildMailing[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildMailing objects based on current ModelCriteria
  * @method     ChildMailing[]|ObjectCollection findById(int $id) Return ChildMailing objects filtered by the id column
@@ -111,6 +155,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMailing[]|ObjectCollection findByFromemail(string $fromEmail) Return ChildMailing objects filtered by the fromEmail column
  * @method     ChildMailing[]|ObjectCollection findByFromname(string $fromName) Return ChildMailing objects filtered by the fromName column
  * @method     ChildMailing[]|ObjectCollection findByTracking(int $tracking) Return ChildMailing objects filtered by the tracking column
+ * @method     ChildMailing[]|ObjectCollection findByIssmtp(boolean $isSmtp) Return ChildMailing objects filtered by the isSmtp column
+ * @method     ChildMailing[]|ObjectCollection findBySmtphost(string $smtpHost) Return ChildMailing objects filtered by the smtpHost column
+ * @method     ChildMailing[]|ObjectCollection findBySmtpuser(string $smtpUser) Return ChildMailing objects filtered by the smtpUser column
+ * @method     ChildMailing[]|ObjectCollection findBySmtppassword(string $smtpPassword) Return ChildMailing objects filtered by the smtpPassword column
+ * @method     ChildMailing[]|ObjectCollection findBySmtpsecure(string $smtpSecure) Return ChildMailing objects filtered by the smtpSecure column
+ * @method     ChildMailing[]|ObjectCollection findBySmtpport(string $smtpPort) Return ChildMailing objects filtered by the smtpPort column
  * @method     ChildMailing[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -209,7 +259,7 @@ abstract class MailingQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, headline, content, description, fromEmail, fromName, tracking FROM Mailings WHERE id = :p0';
+        $sql = 'SELECT id, name, headline, content, description, fromEmail, fromName, tracking, isSmtp, smtpHost, smtpUser, smtpPassword, smtpSecure, smtpPort FROM Mailings WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -529,6 +579,304 @@ abstract class MailingQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(MailingTableMap::COL_TRACKING, $tracking, $comparison);
+    }
+
+    /**
+     * Filter the query on the isSmtp column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByIssmtp(true); // WHERE isSmtp = true
+     * $query->filterByIssmtp('yes'); // WHERE isSmtp = true
+     * </code>
+     *
+     * @param     boolean|string $issmtp The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterByIssmtp($issmtp = null, $comparison = null)
+    {
+        if (is_string($issmtp)) {
+            $issmtp = in_array(strtolower($issmtp), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(MailingTableMap::COL_ISSMTP, $issmtp, $comparison);
+    }
+
+    /**
+     * Filter the query on the smtpHost column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySmtphost('fooValue');   // WHERE smtpHost = 'fooValue'
+     * $query->filterBySmtphost('%fooValue%', Criteria::LIKE); // WHERE smtpHost LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $smtphost The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterBySmtphost($smtphost = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($smtphost)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MailingTableMap::COL_SMTPHOST, $smtphost, $comparison);
+    }
+
+    /**
+     * Filter the query on the smtpUser column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySmtpuser('fooValue');   // WHERE smtpUser = 'fooValue'
+     * $query->filterBySmtpuser('%fooValue%', Criteria::LIKE); // WHERE smtpUser LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $smtpuser The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterBySmtpuser($smtpuser = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($smtpuser)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MailingTableMap::COL_SMTPUSER, $smtpuser, $comparison);
+    }
+
+    /**
+     * Filter the query on the smtpPassword column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySmtppassword('fooValue');   // WHERE smtpPassword = 'fooValue'
+     * $query->filterBySmtppassword('%fooValue%', Criteria::LIKE); // WHERE smtpPassword LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $smtppassword The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterBySmtppassword($smtppassword = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($smtppassword)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MailingTableMap::COL_SMTPPASSWORD, $smtppassword, $comparison);
+    }
+
+    /**
+     * Filter the query on the smtpSecure column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySmtpsecure('fooValue');   // WHERE smtpSecure = 'fooValue'
+     * $query->filterBySmtpsecure('%fooValue%', Criteria::LIKE); // WHERE smtpSecure LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $smtpsecure The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterBySmtpsecure($smtpsecure = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($smtpsecure)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MailingTableMap::COL_SMTPSECURE, $smtpsecure, $comparison);
+    }
+
+    /**
+     * Filter the query on the smtpPort column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterBySmtpport('fooValue');   // WHERE smtpPort = 'fooValue'
+     * $query->filterBySmtpport('%fooValue%', Criteria::LIKE); // WHERE smtpPort LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $smtpport The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterBySmtpport($smtpport = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($smtpport)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MailingTableMap::COL_SMTPPORT, $smtpport, $comparison);
+    }
+
+    /**
+     * Filter the query by a related \DB\WebVisit object
+     *
+     * @param \DB\WebVisit|ObjectCollection $webVisit the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterByWebVisit($webVisit, $comparison = null)
+    {
+        if ($webVisit instanceof \DB\WebVisit) {
+            return $this
+                ->addUsingAlias(MailingTableMap::COL_ID, $webVisit->getMailingId(), $comparison);
+        } elseif ($webVisit instanceof ObjectCollection) {
+            return $this
+                ->useWebVisitQuery()
+                ->filterByPrimaryKeys($webVisit->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByWebVisit() only accepts arguments of type \DB\WebVisit or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the WebVisit relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function joinWebVisit($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('WebVisit');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'WebVisit');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the WebVisit relation WebVisit object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\WebVisitQuery A secondary query class using the current class as primary query
+     */
+    public function useWebVisitQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinWebVisit($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'WebVisit', '\DB\WebVisitQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\WebConversion object
+     *
+     * @param \DB\WebConversion|ObjectCollection $webConversion the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildMailingQuery The current query, for fluid interface
+     */
+    public function filterByWebConversion($webConversion, $comparison = null)
+    {
+        if ($webConversion instanceof \DB\WebConversion) {
+            return $this
+                ->addUsingAlias(MailingTableMap::COL_ID, $webConversion->getMailingId(), $comparison);
+        } elseif ($webConversion instanceof ObjectCollection) {
+            return $this
+                ->useWebConversionQuery()
+                ->filterByPrimaryKeys($webConversion->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByWebConversion() only accepts arguments of type \DB\WebConversion or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the WebConversion relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildMailingQuery The current query, for fluid interface
+     */
+    public function joinWebConversion($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('WebConversion');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'WebConversion');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the WebConversion relation WebConversion object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\WebConversionQuery A secondary query class using the current class as primary query
+     */
+    public function useWebConversionQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinWebConversion($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'WebConversion', '\DB\WebConversionQuery');
     }
 
     /**

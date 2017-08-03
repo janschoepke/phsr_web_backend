@@ -16,10 +16,16 @@ use DB\UserMailingsQuery as ChildUserMailingsQuery;
 use DB\UserQuery as ChildUserQuery;
 use DB\VictimMailings as ChildVictimMailings;
 use DB\VictimMailingsQuery as ChildVictimMailingsQuery;
+use DB\WebConversion as ChildWebConversion;
+use DB\WebConversionQuery as ChildWebConversionQuery;
+use DB\WebVisit as ChildWebVisit;
+use DB\WebVisitQuery as ChildWebVisitQuery;
 use DB\Map\GroupMailingsTableMap;
 use DB\Map\MailingTableMap;
 use DB\Map\UserMailingsTableMap;
 use DB\Map\VictimMailingsTableMap;
+use DB\Map\WebConversionTableMap;
+use DB\Map\WebVisitTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -131,6 +137,60 @@ abstract class Mailing implements ActiveRecordInterface
     protected $tracking;
 
     /**
+     * The value for the issmtp field.
+     *
+     * @var        boolean
+     */
+    protected $issmtp;
+
+    /**
+     * The value for the smtphost field.
+     *
+     * @var        string
+     */
+    protected $smtphost;
+
+    /**
+     * The value for the smtpuser field.
+     *
+     * @var        string
+     */
+    protected $smtpuser;
+
+    /**
+     * The value for the smtppassword field.
+     *
+     * @var        string
+     */
+    protected $smtppassword;
+
+    /**
+     * The value for the smtpsecure field.
+     *
+     * @var        string
+     */
+    protected $smtpsecure;
+
+    /**
+     * The value for the smtpport field.
+     *
+     * @var        string
+     */
+    protected $smtpport;
+
+    /**
+     * @var        ObjectCollection|ChildWebVisit[] Collection to store aggregation of ChildWebVisit objects.
+     */
+    protected $collWebVisits;
+    protected $collWebVisitsPartial;
+
+    /**
+     * @var        ObjectCollection|ChildWebConversion[] Collection to store aggregation of ChildWebConversion objects.
+     */
+    protected $collWebConversions;
+    protected $collWebConversionsPartial;
+
+    /**
      * @var        ObjectCollection|ChildVictimMailings[] Collection to store aggregation of ChildVictimMailings objects.
      */
     protected $collVictimMailingss;
@@ -187,6 +247,18 @@ abstract class Mailing implements ActiveRecordInterface
      * @var ObjectCollection|ChildGroup[]
      */
     protected $groupsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildWebVisit[]
+     */
+    protected $webVisitsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildWebConversion[]
+     */
+    protected $webConversionsScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -512,6 +584,76 @@ abstract class Mailing implements ActiveRecordInterface
     }
 
     /**
+     * Get the [issmtp] column value.
+     *
+     * @return boolean
+     */
+    public function getIssmtp()
+    {
+        return $this->issmtp;
+    }
+
+    /**
+     * Get the [issmtp] column value.
+     *
+     * @return boolean
+     */
+    public function isIssmtp()
+    {
+        return $this->getIssmtp();
+    }
+
+    /**
+     * Get the [smtphost] column value.
+     *
+     * @return string
+     */
+    public function getSmtphost()
+    {
+        return $this->smtphost;
+    }
+
+    /**
+     * Get the [smtpuser] column value.
+     *
+     * @return string
+     */
+    public function getSmtpuser()
+    {
+        return $this->smtpuser;
+    }
+
+    /**
+     * Get the [smtppassword] column value.
+     *
+     * @return string
+     */
+    public function getSmtppassword()
+    {
+        return $this->smtppassword;
+    }
+
+    /**
+     * Get the [smtpsecure] column value.
+     *
+     * @return string
+     */
+    public function getSmtpsecure()
+    {
+        return $this->smtpsecure;
+    }
+
+    /**
+     * Get the [smtpport] column value.
+     *
+     * @return string
+     */
+    public function getSmtpport()
+    {
+        return $this->smtpport;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -672,6 +814,134 @@ abstract class Mailing implements ActiveRecordInterface
     } // setTracking()
 
     /**
+     * Sets the value of the [issmtp] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param  boolean|integer|string $v The new value
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function setIssmtp($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->issmtp !== $v) {
+            $this->issmtp = $v;
+            $this->modifiedColumns[MailingTableMap::COL_ISSMTP] = true;
+        }
+
+        return $this;
+    } // setIssmtp()
+
+    /**
+     * Set the value of [smtphost] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function setSmtphost($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->smtphost !== $v) {
+            $this->smtphost = $v;
+            $this->modifiedColumns[MailingTableMap::COL_SMTPHOST] = true;
+        }
+
+        return $this;
+    } // setSmtphost()
+
+    /**
+     * Set the value of [smtpuser] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function setSmtpuser($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->smtpuser !== $v) {
+            $this->smtpuser = $v;
+            $this->modifiedColumns[MailingTableMap::COL_SMTPUSER] = true;
+        }
+
+        return $this;
+    } // setSmtpuser()
+
+    /**
+     * Set the value of [smtppassword] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function setSmtppassword($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->smtppassword !== $v) {
+            $this->smtppassword = $v;
+            $this->modifiedColumns[MailingTableMap::COL_SMTPPASSWORD] = true;
+        }
+
+        return $this;
+    } // setSmtppassword()
+
+    /**
+     * Set the value of [smtpsecure] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function setSmtpsecure($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->smtpsecure !== $v) {
+            $this->smtpsecure = $v;
+            $this->modifiedColumns[MailingTableMap::COL_SMTPSECURE] = true;
+        }
+
+        return $this;
+    } // setSmtpsecure()
+
+    /**
+     * Set the value of [smtpport] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function setSmtpport($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->smtpport !== $v) {
+            $this->smtpport = $v;
+            $this->modifiedColumns[MailingTableMap::COL_SMTPPORT] = true;
+        }
+
+        return $this;
+    } // setSmtpport()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -730,6 +1000,24 @@ abstract class Mailing implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : MailingTableMap::translateFieldName('Tracking', TableMap::TYPE_PHPNAME, $indexType)];
             $this->tracking = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : MailingTableMap::translateFieldName('Issmtp', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->issmtp = (null !== $col) ? (boolean) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : MailingTableMap::translateFieldName('Smtphost', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->smtphost = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 10 + $startcol : MailingTableMap::translateFieldName('Smtpuser', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->smtpuser = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 11 + $startcol : MailingTableMap::translateFieldName('Smtppassword', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->smtppassword = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 12 + $startcol : MailingTableMap::translateFieldName('Smtpsecure', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->smtpsecure = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 13 + $startcol : MailingTableMap::translateFieldName('Smtpport', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->smtpport = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -738,7 +1026,7 @@ abstract class Mailing implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 8; // 8 = MailingTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 14; // 14 = MailingTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\DB\\Mailing'), 0, $e);
@@ -798,6 +1086,10 @@ abstract class Mailing implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->collWebVisits = null;
+
+            $this->collWebConversions = null;
 
             $this->collVictimMailingss = null;
 
@@ -979,6 +1271,40 @@ abstract class Mailing implements ActiveRecordInterface
             }
 
 
+            if ($this->webVisitsScheduledForDeletion !== null) {
+                if (!$this->webVisitsScheduledForDeletion->isEmpty()) {
+                    \DB\WebVisitQuery::create()
+                        ->filterByPrimaryKeys($this->webVisitsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->webVisitsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collWebVisits !== null) {
+                foreach ($this->collWebVisits as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->webConversionsScheduledForDeletion !== null) {
+                if (!$this->webConversionsScheduledForDeletion->isEmpty()) {
+                    \DB\WebConversionQuery::create()
+                        ->filterByPrimaryKeys($this->webConversionsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->webConversionsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collWebConversions !== null) {
+                foreach ($this->collWebConversions as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             if ($this->victimMailingssScheduledForDeletion !== null) {
                 if (!$this->victimMailingssScheduledForDeletion->isEmpty()) {
                     foreach ($this->victimMailingssScheduledForDeletion as $victimMailings) {
@@ -1081,6 +1407,24 @@ abstract class Mailing implements ActiveRecordInterface
         if ($this->isColumnModified(MailingTableMap::COL_TRACKING)) {
             $modifiedColumns[':p' . $index++]  = 'tracking';
         }
+        if ($this->isColumnModified(MailingTableMap::COL_ISSMTP)) {
+            $modifiedColumns[':p' . $index++]  = 'isSmtp';
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPHOST)) {
+            $modifiedColumns[':p' . $index++]  = 'smtpHost';
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPUSER)) {
+            $modifiedColumns[':p' . $index++]  = 'smtpUser';
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPPASSWORD)) {
+            $modifiedColumns[':p' . $index++]  = 'smtpPassword';
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPSECURE)) {
+            $modifiedColumns[':p' . $index++]  = 'smtpSecure';
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPPORT)) {
+            $modifiedColumns[':p' . $index++]  = 'smtpPort';
+        }
 
         $sql = sprintf(
             'INSERT INTO Mailings (%s) VALUES (%s)',
@@ -1115,6 +1459,24 @@ abstract class Mailing implements ActiveRecordInterface
                         break;
                     case 'tracking':
                         $stmt->bindValue($identifier, $this->tracking, PDO::PARAM_INT);
+                        break;
+                    case 'isSmtp':
+                        $stmt->bindValue($identifier, (int) $this->issmtp, PDO::PARAM_INT);
+                        break;
+                    case 'smtpHost':
+                        $stmt->bindValue($identifier, $this->smtphost, PDO::PARAM_STR);
+                        break;
+                    case 'smtpUser':
+                        $stmt->bindValue($identifier, $this->smtpuser, PDO::PARAM_STR);
+                        break;
+                    case 'smtpPassword':
+                        $stmt->bindValue($identifier, $this->smtppassword, PDO::PARAM_STR);
+                        break;
+                    case 'smtpSecure':
+                        $stmt->bindValue($identifier, $this->smtpsecure, PDO::PARAM_STR);
+                        break;
+                    case 'smtpPort':
+                        $stmt->bindValue($identifier, $this->smtpport, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1202,6 +1564,24 @@ abstract class Mailing implements ActiveRecordInterface
             case 7:
                 return $this->getTracking();
                 break;
+            case 8:
+                return $this->getIssmtp();
+                break;
+            case 9:
+                return $this->getSmtphost();
+                break;
+            case 10:
+                return $this->getSmtpuser();
+                break;
+            case 11:
+                return $this->getSmtppassword();
+                break;
+            case 12:
+                return $this->getSmtpsecure();
+                break;
+            case 13:
+                return $this->getSmtpport();
+                break;
             default:
                 return null;
                 break;
@@ -1240,6 +1620,12 @@ abstract class Mailing implements ActiveRecordInterface
             $keys[5] => $this->getFromemail(),
             $keys[6] => $this->getFromname(),
             $keys[7] => $this->getTracking(),
+            $keys[8] => $this->getIssmtp(),
+            $keys[9] => $this->getSmtphost(),
+            $keys[10] => $this->getSmtpuser(),
+            $keys[11] => $this->getSmtppassword(),
+            $keys[12] => $this->getSmtpsecure(),
+            $keys[13] => $this->getSmtpport(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1247,6 +1633,36 @@ abstract class Mailing implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
+            if (null !== $this->collWebVisits) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'webVisits';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'WebVisitss';
+                        break;
+                    default:
+                        $key = 'WebVisits';
+                }
+
+                $result[$key] = $this->collWebVisits->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collWebConversions) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'webConversions';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'WebConversionss';
+                        break;
+                    default:
+                        $key = 'WebConversions';
+                }
+
+                $result[$key] = $this->collWebConversions->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
             if (null !== $this->collVictimMailingss) {
 
                 switch ($keyType) {
@@ -1350,6 +1766,24 @@ abstract class Mailing implements ActiveRecordInterface
             case 7:
                 $this->setTracking($value);
                 break;
+            case 8:
+                $this->setIssmtp($value);
+                break;
+            case 9:
+                $this->setSmtphost($value);
+                break;
+            case 10:
+                $this->setSmtpuser($value);
+                break;
+            case 11:
+                $this->setSmtppassword($value);
+                break;
+            case 12:
+                $this->setSmtpsecure($value);
+                break;
+            case 13:
+                $this->setSmtpport($value);
+                break;
         } // switch()
 
         return $this;
@@ -1399,6 +1833,24 @@ abstract class Mailing implements ActiveRecordInterface
         }
         if (array_key_exists($keys[7], $arr)) {
             $this->setTracking($arr[$keys[7]]);
+        }
+        if (array_key_exists($keys[8], $arr)) {
+            $this->setIssmtp($arr[$keys[8]]);
+        }
+        if (array_key_exists($keys[9], $arr)) {
+            $this->setSmtphost($arr[$keys[9]]);
+        }
+        if (array_key_exists($keys[10], $arr)) {
+            $this->setSmtpuser($arr[$keys[10]]);
+        }
+        if (array_key_exists($keys[11], $arr)) {
+            $this->setSmtppassword($arr[$keys[11]]);
+        }
+        if (array_key_exists($keys[12], $arr)) {
+            $this->setSmtpsecure($arr[$keys[12]]);
+        }
+        if (array_key_exists($keys[13], $arr)) {
+            $this->setSmtpport($arr[$keys[13]]);
         }
     }
 
@@ -1464,6 +1916,24 @@ abstract class Mailing implements ActiveRecordInterface
         }
         if ($this->isColumnModified(MailingTableMap::COL_TRACKING)) {
             $criteria->add(MailingTableMap::COL_TRACKING, $this->tracking);
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_ISSMTP)) {
+            $criteria->add(MailingTableMap::COL_ISSMTP, $this->issmtp);
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPHOST)) {
+            $criteria->add(MailingTableMap::COL_SMTPHOST, $this->smtphost);
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPUSER)) {
+            $criteria->add(MailingTableMap::COL_SMTPUSER, $this->smtpuser);
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPPASSWORD)) {
+            $criteria->add(MailingTableMap::COL_SMTPPASSWORD, $this->smtppassword);
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPSECURE)) {
+            $criteria->add(MailingTableMap::COL_SMTPSECURE, $this->smtpsecure);
+        }
+        if ($this->isColumnModified(MailingTableMap::COL_SMTPPORT)) {
+            $criteria->add(MailingTableMap::COL_SMTPPORT, $this->smtpport);
         }
 
         return $criteria;
@@ -1558,11 +2028,29 @@ abstract class Mailing implements ActiveRecordInterface
         $copyObj->setFromemail($this->getFromemail());
         $copyObj->setFromname($this->getFromname());
         $copyObj->setTracking($this->getTracking());
+        $copyObj->setIssmtp($this->getIssmtp());
+        $copyObj->setSmtphost($this->getSmtphost());
+        $copyObj->setSmtpuser($this->getSmtpuser());
+        $copyObj->setSmtppassword($this->getSmtppassword());
+        $copyObj->setSmtpsecure($this->getSmtpsecure());
+        $copyObj->setSmtpport($this->getSmtpport());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
+
+            foreach ($this->getWebVisits() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addWebVisit($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getWebConversions() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addWebConversion($relObj->copy($deepCopy));
+                }
+            }
 
             foreach ($this->getVictimMailingss() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
@@ -1623,6 +2111,14 @@ abstract class Mailing implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
+        if ('WebVisit' == $relationName) {
+            $this->initWebVisits();
+            return;
+        }
+        if ('WebConversion' == $relationName) {
+            $this->initWebConversions();
+            return;
+        }
         if ('VictimMailings' == $relationName) {
             $this->initVictimMailingss();
             return;
@@ -1635,6 +2131,506 @@ abstract class Mailing implements ActiveRecordInterface
             $this->initGroupMailingss();
             return;
         }
+    }
+
+    /**
+     * Clears out the collWebVisits collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addWebVisits()
+     */
+    public function clearWebVisits()
+    {
+        $this->collWebVisits = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collWebVisits collection loaded partially.
+     */
+    public function resetPartialWebVisits($v = true)
+    {
+        $this->collWebVisitsPartial = $v;
+    }
+
+    /**
+     * Initializes the collWebVisits collection.
+     *
+     * By default this just sets the collWebVisits collection to an empty array (like clearcollWebVisits());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initWebVisits($overrideExisting = true)
+    {
+        if (null !== $this->collWebVisits && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = WebVisitTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collWebVisits = new $collectionClassName;
+        $this->collWebVisits->setModel('\DB\WebVisit');
+    }
+
+    /**
+     * Gets an array of ChildWebVisit objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildMailing is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     * @throws PropelException
+     */
+    public function getWebVisits(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebVisitsPartial && !$this->isNew();
+        if (null === $this->collWebVisits || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collWebVisits) {
+                // return empty collection
+                $this->initWebVisits();
+            } else {
+                $collWebVisits = ChildWebVisitQuery::create(null, $criteria)
+                    ->filterByMailing($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collWebVisitsPartial && count($collWebVisits)) {
+                        $this->initWebVisits(false);
+
+                        foreach ($collWebVisits as $obj) {
+                            if (false == $this->collWebVisits->contains($obj)) {
+                                $this->collWebVisits->append($obj);
+                            }
+                        }
+
+                        $this->collWebVisitsPartial = true;
+                    }
+
+                    return $collWebVisits;
+                }
+
+                if ($partial && $this->collWebVisits) {
+                    foreach ($this->collWebVisits as $obj) {
+                        if ($obj->isNew()) {
+                            $collWebVisits[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collWebVisits = $collWebVisits;
+                $this->collWebVisitsPartial = false;
+            }
+        }
+
+        return $this->collWebVisits;
+    }
+
+    /**
+     * Sets a collection of ChildWebVisit objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $webVisits A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildMailing The current object (for fluent API support)
+     */
+    public function setWebVisits(Collection $webVisits, ConnectionInterface $con = null)
+    {
+        /** @var ChildWebVisit[] $webVisitsToDelete */
+        $webVisitsToDelete = $this->getWebVisits(new Criteria(), $con)->diff($webVisits);
+
+
+        $this->webVisitsScheduledForDeletion = $webVisitsToDelete;
+
+        foreach ($webVisitsToDelete as $webVisitRemoved) {
+            $webVisitRemoved->setMailing(null);
+        }
+
+        $this->collWebVisits = null;
+        foreach ($webVisits as $webVisit) {
+            $this->addWebVisit($webVisit);
+        }
+
+        $this->collWebVisits = $webVisits;
+        $this->collWebVisitsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related WebVisit objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related WebVisit objects.
+     * @throws PropelException
+     */
+    public function countWebVisits(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebVisitsPartial && !$this->isNew();
+        if (null === $this->collWebVisits || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collWebVisits) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getWebVisits());
+            }
+
+            $query = ChildWebVisitQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByMailing($this)
+                ->count($con);
+        }
+
+        return count($this->collWebVisits);
+    }
+
+    /**
+     * Method called to associate a ChildWebVisit object to this object
+     * through the ChildWebVisit foreign key attribute.
+     *
+     * @param  ChildWebVisit $l ChildWebVisit
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function addWebVisit(ChildWebVisit $l)
+    {
+        if ($this->collWebVisits === null) {
+            $this->initWebVisits();
+            $this->collWebVisitsPartial = true;
+        }
+
+        if (!$this->collWebVisits->contains($l)) {
+            $this->doAddWebVisit($l);
+
+            if ($this->webVisitsScheduledForDeletion and $this->webVisitsScheduledForDeletion->contains($l)) {
+                $this->webVisitsScheduledForDeletion->remove($this->webVisitsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildWebVisit $webVisit The ChildWebVisit object to add.
+     */
+    protected function doAddWebVisit(ChildWebVisit $webVisit)
+    {
+        $this->collWebVisits[]= $webVisit;
+        $webVisit->setMailing($this);
+    }
+
+    /**
+     * @param  ChildWebVisit $webVisit The ChildWebVisit object to remove.
+     * @return $this|ChildMailing The current object (for fluent API support)
+     */
+    public function removeWebVisit(ChildWebVisit $webVisit)
+    {
+        if ($this->getWebVisits()->contains($webVisit)) {
+            $pos = $this->collWebVisits->search($webVisit);
+            $this->collWebVisits->remove($pos);
+            if (null === $this->webVisitsScheduledForDeletion) {
+                $this->webVisitsScheduledForDeletion = clone $this->collWebVisits;
+                $this->webVisitsScheduledForDeletion->clear();
+            }
+            $this->webVisitsScheduledForDeletion[]= clone $webVisit;
+            $webVisit->setMailing(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Mailing is new, it will return
+     * an empty collection; or if this Mailing has previously
+     * been saved, it will retrieve related WebVisits from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Mailing.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     */
+    public function getWebVisitsJoinVictim(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebVisitQuery::create(null, $criteria);
+        $query->joinWith('Victim', $joinBehavior);
+
+        return $this->getWebVisits($query, $con);
+    }
+
+    /**
+     * Clears out the collWebConversions collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addWebConversions()
+     */
+    public function clearWebConversions()
+    {
+        $this->collWebConversions = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collWebConversions collection loaded partially.
+     */
+    public function resetPartialWebConversions($v = true)
+    {
+        $this->collWebConversionsPartial = $v;
+    }
+
+    /**
+     * Initializes the collWebConversions collection.
+     *
+     * By default this just sets the collWebConversions collection to an empty array (like clearcollWebConversions());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initWebConversions($overrideExisting = true)
+    {
+        if (null !== $this->collWebConversions && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = WebConversionTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collWebConversions = new $collectionClassName;
+        $this->collWebConversions->setModel('\DB\WebConversion');
+    }
+
+    /**
+     * Gets an array of ChildWebConversion objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildMailing is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     * @throws PropelException
+     */
+    public function getWebConversions(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebConversionsPartial && !$this->isNew();
+        if (null === $this->collWebConversions || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collWebConversions) {
+                // return empty collection
+                $this->initWebConversions();
+            } else {
+                $collWebConversions = ChildWebConversionQuery::create(null, $criteria)
+                    ->filterByMailing($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collWebConversionsPartial && count($collWebConversions)) {
+                        $this->initWebConversions(false);
+
+                        foreach ($collWebConversions as $obj) {
+                            if (false == $this->collWebConversions->contains($obj)) {
+                                $this->collWebConversions->append($obj);
+                            }
+                        }
+
+                        $this->collWebConversionsPartial = true;
+                    }
+
+                    return $collWebConversions;
+                }
+
+                if ($partial && $this->collWebConversions) {
+                    foreach ($this->collWebConversions as $obj) {
+                        if ($obj->isNew()) {
+                            $collWebConversions[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collWebConversions = $collWebConversions;
+                $this->collWebConversionsPartial = false;
+            }
+        }
+
+        return $this->collWebConversions;
+    }
+
+    /**
+     * Sets a collection of ChildWebConversion objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $webConversions A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildMailing The current object (for fluent API support)
+     */
+    public function setWebConversions(Collection $webConversions, ConnectionInterface $con = null)
+    {
+        /** @var ChildWebConversion[] $webConversionsToDelete */
+        $webConversionsToDelete = $this->getWebConversions(new Criteria(), $con)->diff($webConversions);
+
+
+        $this->webConversionsScheduledForDeletion = $webConversionsToDelete;
+
+        foreach ($webConversionsToDelete as $webConversionRemoved) {
+            $webConversionRemoved->setMailing(null);
+        }
+
+        $this->collWebConversions = null;
+        foreach ($webConversions as $webConversion) {
+            $this->addWebConversion($webConversion);
+        }
+
+        $this->collWebConversions = $webConversions;
+        $this->collWebConversionsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related WebConversion objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related WebConversion objects.
+     * @throws PropelException
+     */
+    public function countWebConversions(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebConversionsPartial && !$this->isNew();
+        if (null === $this->collWebConversions || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collWebConversions) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getWebConversions());
+            }
+
+            $query = ChildWebConversionQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByMailing($this)
+                ->count($con);
+        }
+
+        return count($this->collWebConversions);
+    }
+
+    /**
+     * Method called to associate a ChildWebConversion object to this object
+     * through the ChildWebConversion foreign key attribute.
+     *
+     * @param  ChildWebConversion $l ChildWebConversion
+     * @return $this|\DB\Mailing The current object (for fluent API support)
+     */
+    public function addWebConversion(ChildWebConversion $l)
+    {
+        if ($this->collWebConversions === null) {
+            $this->initWebConversions();
+            $this->collWebConversionsPartial = true;
+        }
+
+        if (!$this->collWebConversions->contains($l)) {
+            $this->doAddWebConversion($l);
+
+            if ($this->webConversionsScheduledForDeletion and $this->webConversionsScheduledForDeletion->contains($l)) {
+                $this->webConversionsScheduledForDeletion->remove($this->webConversionsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildWebConversion $webConversion The ChildWebConversion object to add.
+     */
+    protected function doAddWebConversion(ChildWebConversion $webConversion)
+    {
+        $this->collWebConversions[]= $webConversion;
+        $webConversion->setMailing($this);
+    }
+
+    /**
+     * @param  ChildWebConversion $webConversion The ChildWebConversion object to remove.
+     * @return $this|ChildMailing The current object (for fluent API support)
+     */
+    public function removeWebConversion(ChildWebConversion $webConversion)
+    {
+        if ($this->getWebConversions()->contains($webConversion)) {
+            $pos = $this->collWebConversions->search($webConversion);
+            $this->collWebConversions->remove($pos);
+            if (null === $this->webConversionsScheduledForDeletion) {
+                $this->webConversionsScheduledForDeletion = clone $this->collWebConversions;
+                $this->webConversionsScheduledForDeletion->clear();
+            }
+            $this->webConversionsScheduledForDeletion[]= clone $webConversion;
+            $webConversion->setMailing(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Mailing is new, it will return
+     * an empty collection; or if this Mailing has previously
+     * been saved, it will retrieve related WebConversions from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Mailing.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     */
+    public function getWebConversionsJoinVictim(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebConversionQuery::create(null, $criteria);
+        $query->joinWith('Victim', $joinBehavior);
+
+        return $this->getWebConversions($query, $con);
     }
 
     /**
@@ -2894,6 +3890,12 @@ abstract class Mailing implements ActiveRecordInterface
         $this->fromemail = null;
         $this->fromname = null;
         $this->tracking = null;
+        $this->issmtp = null;
+        $this->smtphost = null;
+        $this->smtpuser = null;
+        $this->smtppassword = null;
+        $this->smtpsecure = null;
+        $this->smtpport = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -2912,6 +3914,16 @@ abstract class Mailing implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collWebVisits) {
+                foreach ($this->collWebVisits as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collWebConversions) {
+                foreach ($this->collWebConversions as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collVictimMailingss) {
                 foreach ($this->collVictimMailingss as $o) {
                     $o->clearAllReferences($deep);
@@ -2939,6 +3951,8 @@ abstract class Mailing implements ActiveRecordInterface
             }
         } // if ($deep)
 
+        $this->collWebVisits = null;
+        $this->collWebConversions = null;
         $this->collVictimMailingss = null;
         $this->collUserMailingss = null;
         $this->collGroupMailingss = null;

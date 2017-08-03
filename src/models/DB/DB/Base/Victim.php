@@ -2,6 +2,7 @@
 
 namespace DB\Base;
 
+use \DateTime;
 use \Exception;
 use \PDO;
 use DB\Group as ChildGroup;
@@ -16,10 +17,16 @@ use DB\Victim as ChildVictim;
 use DB\VictimMailings as ChildVictimMailings;
 use DB\VictimMailingsQuery as ChildVictimMailingsQuery;
 use DB\VictimQuery as ChildVictimQuery;
+use DB\WebConversion as ChildWebConversion;
+use DB\WebConversionQuery as ChildWebConversionQuery;
+use DB\WebVisit as ChildWebVisit;
+use DB\WebVisitQuery as ChildWebVisitQuery;
 use DB\Map\GroupVictimsTableMap;
 use DB\Map\UserVictimsTableMap;
 use DB\Map\VictimMailingsTableMap;
 use DB\Map\VictimTableMap;
+use DB\Map\WebConversionTableMap;
+use DB\Map\WebVisitTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -32,6 +39,7 @@ use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
+use Propel\Runtime\Util\PropelDateTime;
 
 /**
  * Base class that represents a row from the 'Victims' table.
@@ -110,6 +118,32 @@ abstract class Victim implements ActiveRecordInterface
     protected $description;
 
     /**
+     * The value for the gender field.
+     *
+     * @var        boolean
+     */
+    protected $gender;
+
+    /**
+     * The value for the birthday field.
+     *
+     * @var        DateTime
+     */
+    protected $birthday;
+
+    /**
+     * @var        ObjectCollection|ChildWebVisit[] Collection to store aggregation of ChildWebVisit objects.
+     */
+    protected $collWebVisits;
+    protected $collWebVisitsPartial;
+
+    /**
+     * @var        ObjectCollection|ChildWebConversion[] Collection to store aggregation of ChildWebConversion objects.
+     */
+    protected $collWebConversions;
+    protected $collWebConversionsPartial;
+
+    /**
      * @var        ObjectCollection|ChildGroupVictims[] Collection to store aggregation of ChildGroupVictims objects.
      */
     protected $collGroupVictimss;
@@ -166,6 +200,18 @@ abstract class Victim implements ActiveRecordInterface
      * @var ObjectCollection|ChildUser[]
      */
     protected $usersScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildWebVisit[]
+     */
+    protected $webVisitsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildWebConversion[]
+     */
+    protected $webConversionsScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -461,6 +507,46 @@ abstract class Victim implements ActiveRecordInterface
     }
 
     /**
+     * Get the [gender] column value.
+     *
+     * @return boolean
+     */
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+    /**
+     * Get the [gender] column value.
+     *
+     * @return boolean
+     */
+    public function isGender()
+    {
+        return $this->getGender();
+    }
+
+    /**
+     * Get the [optionally formatted] temporal [birthday] column value.
+     *
+     *
+     * @param      string $format The date/time format string (either date()-style or strftime()-style).
+     *                            If format is NULL, then the raw DateTime object will be returned.
+     *
+     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00
+     *
+     * @throws PropelException - if unable to parse/validate the date/time value.
+     */
+    public function getBirthday($format = NULL)
+    {
+        if ($format === null) {
+            return $this->birthday;
+        } else {
+            return $this->birthday instanceof \DateTimeInterface ? $this->birthday->format($format) : null;
+        }
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -561,6 +647,54 @@ abstract class Victim implements ActiveRecordInterface
     } // setDescription()
 
     /**
+     * Sets the value of the [gender] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param  boolean|integer|string $v The new value
+     * @return $this|\DB\Victim The current object (for fluent API support)
+     */
+    public function setGender($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->gender !== $v) {
+            $this->gender = $v;
+            $this->modifiedColumns[VictimTableMap::COL_GENDER] = true;
+        }
+
+        return $this;
+    } // setGender()
+
+    /**
+     * Sets the value of [birthday] column to a normalized version of the date/time value specified.
+     *
+     * @param  mixed $v string, integer (timestamp), or \DateTimeInterface value.
+     *               Empty strings are treated as NULL.
+     * @return $this|\DB\Victim The current object (for fluent API support)
+     */
+    public function setBirthday($v)
+    {
+        $dt = PropelDateTime::newInstance($v, null, 'DateTime');
+        if ($this->birthday !== null || $dt !== null) {
+            if ($this->birthday === null || $dt === null || $dt->format("Y-m-d") !== $this->birthday->format("Y-m-d")) {
+                $this->birthday = $dt === null ? null : clone $dt;
+                $this->modifiedColumns[VictimTableMap::COL_BIRTHDAY] = true;
+            }
+        } // if either are not null
+
+        return $this;
+    } // setBirthday()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -610,6 +744,15 @@ abstract class Victim implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : VictimTableMap::translateFieldName('Description', TableMap::TYPE_PHPNAME, $indexType)];
             $this->description = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : VictimTableMap::translateFieldName('Gender', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->gender = (null !== $col) ? (boolean) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : VictimTableMap::translateFieldName('Birthday', TableMap::TYPE_PHPNAME, $indexType)];
+            if ($col === '0000-00-00') {
+                $col = null;
+            }
+            $this->birthday = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -618,7 +761,7 @@ abstract class Victim implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 5; // 5 = VictimTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = VictimTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\DB\\Victim'), 0, $e);
@@ -678,6 +821,10 @@ abstract class Victim implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->collWebVisits = null;
+
+            $this->collWebConversions = null;
 
             $this->collGroupVictimss = null;
 
@@ -859,6 +1006,42 @@ abstract class Victim implements ActiveRecordInterface
             }
 
 
+            if ($this->webVisitsScheduledForDeletion !== null) {
+                if (!$this->webVisitsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->webVisitsScheduledForDeletion as $webVisit) {
+                        // need to save related object because we set the relation to null
+                        $webVisit->save($con);
+                    }
+                    $this->webVisitsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collWebVisits !== null) {
+                foreach ($this->collWebVisits as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->webConversionsScheduledForDeletion !== null) {
+                if (!$this->webConversionsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->webConversionsScheduledForDeletion as $webConversion) {
+                        // need to save related object because we set the relation to null
+                        $webConversion->save($con);
+                    }
+                    $this->webConversionsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collWebConversions !== null) {
+                foreach ($this->collWebConversions as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             if ($this->groupVictimssScheduledForDeletion !== null) {
                 if (!$this->groupVictimssScheduledForDeletion->isEmpty()) {
                     \DB\GroupVictimsQuery::create()
@@ -952,6 +1135,12 @@ abstract class Victim implements ActiveRecordInterface
         if ($this->isColumnModified(VictimTableMap::COL_DESCRIPTION)) {
             $modifiedColumns[':p' . $index++]  = 'description';
         }
+        if ($this->isColumnModified(VictimTableMap::COL_GENDER)) {
+            $modifiedColumns[':p' . $index++]  = 'gender';
+        }
+        if ($this->isColumnModified(VictimTableMap::COL_BIRTHDAY)) {
+            $modifiedColumns[':p' . $index++]  = 'birthday';
+        }
 
         $sql = sprintf(
             'INSERT INTO Victims (%s) VALUES (%s)',
@@ -977,6 +1166,12 @@ abstract class Victim implements ActiveRecordInterface
                         break;
                     case 'description':
                         $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
+                        break;
+                    case 'gender':
+                        $stmt->bindValue($identifier, (int) $this->gender, PDO::PARAM_INT);
+                        break;
+                    case 'birthday':
+                        $stmt->bindValue($identifier, $this->birthday ? $this->birthday->format("Y-m-d H:i:s.u") : null, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1055,6 +1250,12 @@ abstract class Victim implements ActiveRecordInterface
             case 4:
                 return $this->getDescription();
                 break;
+            case 5:
+                return $this->getGender();
+                break;
+            case 6:
+                return $this->getBirthday();
+                break;
             default:
                 return null;
                 break;
@@ -1090,13 +1291,49 @@ abstract class Victim implements ActiveRecordInterface
             $keys[2] => $this->getLastname(),
             $keys[3] => $this->getEmail(),
             $keys[4] => $this->getDescription(),
+            $keys[5] => $this->getGender(),
+            $keys[6] => $this->getBirthday(),
         );
+        if ($result[$keys[6]] instanceof \DateTimeInterface) {
+            $result[$keys[6]] = $result[$keys[6]]->format('c');
+        }
+
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
             $result[$key] = $virtualColumn;
         }
 
         if ($includeForeignObjects) {
+            if (null !== $this->collWebVisits) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'webVisits';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'WebVisitss';
+                        break;
+                    default:
+                        $key = 'WebVisits';
+                }
+
+                $result[$key] = $this->collWebVisits->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collWebConversions) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'webConversions';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'WebConversionss';
+                        break;
+                    default:
+                        $key = 'WebConversions';
+                }
+
+                $result[$key] = $this->collWebConversions->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
             if (null !== $this->collGroupVictimss) {
 
                 switch ($keyType) {
@@ -1191,6 +1428,12 @@ abstract class Victim implements ActiveRecordInterface
             case 4:
                 $this->setDescription($value);
                 break;
+            case 5:
+                $this->setGender($value);
+                break;
+            case 6:
+                $this->setBirthday($value);
+                break;
         } // switch()
 
         return $this;
@@ -1231,6 +1474,12 @@ abstract class Victim implements ActiveRecordInterface
         }
         if (array_key_exists($keys[4], $arr)) {
             $this->setDescription($arr[$keys[4]]);
+        }
+        if (array_key_exists($keys[5], $arr)) {
+            $this->setGender($arr[$keys[5]]);
+        }
+        if (array_key_exists($keys[6], $arr)) {
+            $this->setBirthday($arr[$keys[6]]);
         }
     }
 
@@ -1287,6 +1536,12 @@ abstract class Victim implements ActiveRecordInterface
         }
         if ($this->isColumnModified(VictimTableMap::COL_DESCRIPTION)) {
             $criteria->add(VictimTableMap::COL_DESCRIPTION, $this->description);
+        }
+        if ($this->isColumnModified(VictimTableMap::COL_GENDER)) {
+            $criteria->add(VictimTableMap::COL_GENDER, $this->gender);
+        }
+        if ($this->isColumnModified(VictimTableMap::COL_BIRTHDAY)) {
+            $criteria->add(VictimTableMap::COL_BIRTHDAY, $this->birthday);
         }
 
         return $criteria;
@@ -1378,11 +1633,25 @@ abstract class Victim implements ActiveRecordInterface
         $copyObj->setLastname($this->getLastname());
         $copyObj->setEmail($this->getEmail());
         $copyObj->setDescription($this->getDescription());
+        $copyObj->setGender($this->getGender());
+        $copyObj->setBirthday($this->getBirthday());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
+
+            foreach ($this->getWebVisits() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addWebVisit($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getWebConversions() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addWebConversion($relObj->copy($deepCopy));
+                }
+            }
 
             foreach ($this->getGroupVictimss() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
@@ -1443,6 +1712,14 @@ abstract class Victim implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
+        if ('WebVisit' == $relationName) {
+            $this->initWebVisits();
+            return;
+        }
+        if ('WebConversion' == $relationName) {
+            $this->initWebConversions();
+            return;
+        }
         if ('GroupVictims' == $relationName) {
             $this->initGroupVictimss();
             return;
@@ -1455,6 +1732,506 @@ abstract class Victim implements ActiveRecordInterface
             $this->initVictimMailingss();
             return;
         }
+    }
+
+    /**
+     * Clears out the collWebVisits collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addWebVisits()
+     */
+    public function clearWebVisits()
+    {
+        $this->collWebVisits = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collWebVisits collection loaded partially.
+     */
+    public function resetPartialWebVisits($v = true)
+    {
+        $this->collWebVisitsPartial = $v;
+    }
+
+    /**
+     * Initializes the collWebVisits collection.
+     *
+     * By default this just sets the collWebVisits collection to an empty array (like clearcollWebVisits());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initWebVisits($overrideExisting = true)
+    {
+        if (null !== $this->collWebVisits && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = WebVisitTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collWebVisits = new $collectionClassName;
+        $this->collWebVisits->setModel('\DB\WebVisit');
+    }
+
+    /**
+     * Gets an array of ChildWebVisit objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildVictim is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     * @throws PropelException
+     */
+    public function getWebVisits(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebVisitsPartial && !$this->isNew();
+        if (null === $this->collWebVisits || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collWebVisits) {
+                // return empty collection
+                $this->initWebVisits();
+            } else {
+                $collWebVisits = ChildWebVisitQuery::create(null, $criteria)
+                    ->filterByVictim($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collWebVisitsPartial && count($collWebVisits)) {
+                        $this->initWebVisits(false);
+
+                        foreach ($collWebVisits as $obj) {
+                            if (false == $this->collWebVisits->contains($obj)) {
+                                $this->collWebVisits->append($obj);
+                            }
+                        }
+
+                        $this->collWebVisitsPartial = true;
+                    }
+
+                    return $collWebVisits;
+                }
+
+                if ($partial && $this->collWebVisits) {
+                    foreach ($this->collWebVisits as $obj) {
+                        if ($obj->isNew()) {
+                            $collWebVisits[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collWebVisits = $collWebVisits;
+                $this->collWebVisitsPartial = false;
+            }
+        }
+
+        return $this->collWebVisits;
+    }
+
+    /**
+     * Sets a collection of ChildWebVisit objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $webVisits A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function setWebVisits(Collection $webVisits, ConnectionInterface $con = null)
+    {
+        /** @var ChildWebVisit[] $webVisitsToDelete */
+        $webVisitsToDelete = $this->getWebVisits(new Criteria(), $con)->diff($webVisits);
+
+
+        $this->webVisitsScheduledForDeletion = $webVisitsToDelete;
+
+        foreach ($webVisitsToDelete as $webVisitRemoved) {
+            $webVisitRemoved->setVictim(null);
+        }
+
+        $this->collWebVisits = null;
+        foreach ($webVisits as $webVisit) {
+            $this->addWebVisit($webVisit);
+        }
+
+        $this->collWebVisits = $webVisits;
+        $this->collWebVisitsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related WebVisit objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related WebVisit objects.
+     * @throws PropelException
+     */
+    public function countWebVisits(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebVisitsPartial && !$this->isNew();
+        if (null === $this->collWebVisits || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collWebVisits) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getWebVisits());
+            }
+
+            $query = ChildWebVisitQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByVictim($this)
+                ->count($con);
+        }
+
+        return count($this->collWebVisits);
+    }
+
+    /**
+     * Method called to associate a ChildWebVisit object to this object
+     * through the ChildWebVisit foreign key attribute.
+     *
+     * @param  ChildWebVisit $l ChildWebVisit
+     * @return $this|\DB\Victim The current object (for fluent API support)
+     */
+    public function addWebVisit(ChildWebVisit $l)
+    {
+        if ($this->collWebVisits === null) {
+            $this->initWebVisits();
+            $this->collWebVisitsPartial = true;
+        }
+
+        if (!$this->collWebVisits->contains($l)) {
+            $this->doAddWebVisit($l);
+
+            if ($this->webVisitsScheduledForDeletion and $this->webVisitsScheduledForDeletion->contains($l)) {
+                $this->webVisitsScheduledForDeletion->remove($this->webVisitsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildWebVisit $webVisit The ChildWebVisit object to add.
+     */
+    protected function doAddWebVisit(ChildWebVisit $webVisit)
+    {
+        $this->collWebVisits[]= $webVisit;
+        $webVisit->setVictim($this);
+    }
+
+    /**
+     * @param  ChildWebVisit $webVisit The ChildWebVisit object to remove.
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function removeWebVisit(ChildWebVisit $webVisit)
+    {
+        if ($this->getWebVisits()->contains($webVisit)) {
+            $pos = $this->collWebVisits->search($webVisit);
+            $this->collWebVisits->remove($pos);
+            if (null === $this->webVisitsScheduledForDeletion) {
+                $this->webVisitsScheduledForDeletion = clone $this->collWebVisits;
+                $this->webVisitsScheduledForDeletion->clear();
+            }
+            $this->webVisitsScheduledForDeletion[]= $webVisit;
+            $webVisit->setVictim(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Victim is new, it will return
+     * an empty collection; or if this Victim has previously
+     * been saved, it will retrieve related WebVisits from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Victim.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     */
+    public function getWebVisitsJoinMailing(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebVisitQuery::create(null, $criteria);
+        $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getWebVisits($query, $con);
+    }
+
+    /**
+     * Clears out the collWebConversions collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addWebConversions()
+     */
+    public function clearWebConversions()
+    {
+        $this->collWebConversions = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collWebConversions collection loaded partially.
+     */
+    public function resetPartialWebConversions($v = true)
+    {
+        $this->collWebConversionsPartial = $v;
+    }
+
+    /**
+     * Initializes the collWebConversions collection.
+     *
+     * By default this just sets the collWebConversions collection to an empty array (like clearcollWebConversions());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initWebConversions($overrideExisting = true)
+    {
+        if (null !== $this->collWebConversions && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = WebConversionTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collWebConversions = new $collectionClassName;
+        $this->collWebConversions->setModel('\DB\WebConversion');
+    }
+
+    /**
+     * Gets an array of ChildWebConversion objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildVictim is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     * @throws PropelException
+     */
+    public function getWebConversions(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebConversionsPartial && !$this->isNew();
+        if (null === $this->collWebConversions || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collWebConversions) {
+                // return empty collection
+                $this->initWebConversions();
+            } else {
+                $collWebConversions = ChildWebConversionQuery::create(null, $criteria)
+                    ->filterByVictim($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collWebConversionsPartial && count($collWebConversions)) {
+                        $this->initWebConversions(false);
+
+                        foreach ($collWebConversions as $obj) {
+                            if (false == $this->collWebConversions->contains($obj)) {
+                                $this->collWebConversions->append($obj);
+                            }
+                        }
+
+                        $this->collWebConversionsPartial = true;
+                    }
+
+                    return $collWebConversions;
+                }
+
+                if ($partial && $this->collWebConversions) {
+                    foreach ($this->collWebConversions as $obj) {
+                        if ($obj->isNew()) {
+                            $collWebConversions[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collWebConversions = $collWebConversions;
+                $this->collWebConversionsPartial = false;
+            }
+        }
+
+        return $this->collWebConversions;
+    }
+
+    /**
+     * Sets a collection of ChildWebConversion objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $webConversions A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function setWebConversions(Collection $webConversions, ConnectionInterface $con = null)
+    {
+        /** @var ChildWebConversion[] $webConversionsToDelete */
+        $webConversionsToDelete = $this->getWebConversions(new Criteria(), $con)->diff($webConversions);
+
+
+        $this->webConversionsScheduledForDeletion = $webConversionsToDelete;
+
+        foreach ($webConversionsToDelete as $webConversionRemoved) {
+            $webConversionRemoved->setVictim(null);
+        }
+
+        $this->collWebConversions = null;
+        foreach ($webConversions as $webConversion) {
+            $this->addWebConversion($webConversion);
+        }
+
+        $this->collWebConversions = $webConversions;
+        $this->collWebConversionsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related WebConversion objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related WebConversion objects.
+     * @throws PropelException
+     */
+    public function countWebConversions(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebConversionsPartial && !$this->isNew();
+        if (null === $this->collWebConversions || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collWebConversions) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getWebConversions());
+            }
+
+            $query = ChildWebConversionQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByVictim($this)
+                ->count($con);
+        }
+
+        return count($this->collWebConversions);
+    }
+
+    /**
+     * Method called to associate a ChildWebConversion object to this object
+     * through the ChildWebConversion foreign key attribute.
+     *
+     * @param  ChildWebConversion $l ChildWebConversion
+     * @return $this|\DB\Victim The current object (for fluent API support)
+     */
+    public function addWebConversion(ChildWebConversion $l)
+    {
+        if ($this->collWebConversions === null) {
+            $this->initWebConversions();
+            $this->collWebConversionsPartial = true;
+        }
+
+        if (!$this->collWebConversions->contains($l)) {
+            $this->doAddWebConversion($l);
+
+            if ($this->webConversionsScheduledForDeletion and $this->webConversionsScheduledForDeletion->contains($l)) {
+                $this->webConversionsScheduledForDeletion->remove($this->webConversionsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildWebConversion $webConversion The ChildWebConversion object to add.
+     */
+    protected function doAddWebConversion(ChildWebConversion $webConversion)
+    {
+        $this->collWebConversions[]= $webConversion;
+        $webConversion->setVictim($this);
+    }
+
+    /**
+     * @param  ChildWebConversion $webConversion The ChildWebConversion object to remove.
+     * @return $this|ChildVictim The current object (for fluent API support)
+     */
+    public function removeWebConversion(ChildWebConversion $webConversion)
+    {
+        if ($this->getWebConversions()->contains($webConversion)) {
+            $pos = $this->collWebConversions->search($webConversion);
+            $this->collWebConversions->remove($pos);
+            if (null === $this->webConversionsScheduledForDeletion) {
+                $this->webConversionsScheduledForDeletion = clone $this->collWebConversions;
+                $this->webConversionsScheduledForDeletion->clear();
+            }
+            $this->webConversionsScheduledForDeletion[]= $webConversion;
+            $webConversion->setVictim(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Victim is new, it will return
+     * an empty collection; or if this Victim has previously
+     * been saved, it will retrieve related WebConversions from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Victim.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     */
+    public function getWebConversionsJoinMailing(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebConversionQuery::create(null, $criteria);
+        $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getWebConversions($query, $con);
     }
 
     /**
@@ -2711,6 +3488,8 @@ abstract class Victim implements ActiveRecordInterface
         $this->lastname = null;
         $this->email = null;
         $this->description = null;
+        $this->gender = null;
+        $this->birthday = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -2729,6 +3508,16 @@ abstract class Victim implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collWebVisits) {
+                foreach ($this->collWebVisits as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collWebConversions) {
+                foreach ($this->collWebConversions as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collGroupVictimss) {
                 foreach ($this->collGroupVictimss as $o) {
                     $o->clearAllReferences($deep);
@@ -2756,6 +3545,8 @@ abstract class Victim implements ActiveRecordInterface
             }
         } // if ($deep)
 
+        $this->collWebVisits = null;
+        $this->collWebConversions = null;
         $this->collGroupVictimss = null;
         $this->collUserVictimss = null;
         $this->collVictimMailingss = null;

@@ -59,7 +59,7 @@ class MailingTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 8;
+    const NUM_COLUMNS = 14;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class MailingTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 8;
+    const NUM_HYDRATE_COLUMNS = 14;
 
     /**
      * the column name for the id field
@@ -112,6 +112,36 @@ class MailingTableMap extends TableMap
     const COL_TRACKING = 'Mailings.tracking';
 
     /**
+     * the column name for the isSmtp field
+     */
+    const COL_ISSMTP = 'Mailings.isSmtp';
+
+    /**
+     * the column name for the smtpHost field
+     */
+    const COL_SMTPHOST = 'Mailings.smtpHost';
+
+    /**
+     * the column name for the smtpUser field
+     */
+    const COL_SMTPUSER = 'Mailings.smtpUser';
+
+    /**
+     * the column name for the smtpPassword field
+     */
+    const COL_SMTPPASSWORD = 'Mailings.smtpPassword';
+
+    /**
+     * the column name for the smtpSecure field
+     */
+    const COL_SMTPSECURE = 'Mailings.smtpSecure';
+
+    /**
+     * the column name for the smtpPort field
+     */
+    const COL_SMTPPORT = 'Mailings.smtpPort';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -123,11 +153,11 @@ class MailingTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Name', 'Headline', 'Content', 'Description', 'Fromemail', 'Fromname', 'Tracking', ),
-        self::TYPE_CAMELNAME     => array('id', 'name', 'headline', 'content', 'description', 'fromemail', 'fromname', 'tracking', ),
-        self::TYPE_COLNAME       => array(MailingTableMap::COL_ID, MailingTableMap::COL_NAME, MailingTableMap::COL_HEADLINE, MailingTableMap::COL_CONTENT, MailingTableMap::COL_DESCRIPTION, MailingTableMap::COL_FROMEMAIL, MailingTableMap::COL_FROMNAME, MailingTableMap::COL_TRACKING, ),
-        self::TYPE_FIELDNAME     => array('id', 'name', 'headline', 'content', 'description', 'fromEmail', 'fromName', 'tracking', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Id', 'Name', 'Headline', 'Content', 'Description', 'Fromemail', 'Fromname', 'Tracking', 'Issmtp', 'Smtphost', 'Smtpuser', 'Smtppassword', 'Smtpsecure', 'Smtpport', ),
+        self::TYPE_CAMELNAME     => array('id', 'name', 'headline', 'content', 'description', 'fromemail', 'fromname', 'tracking', 'issmtp', 'smtphost', 'smtpuser', 'smtppassword', 'smtpsecure', 'smtpport', ),
+        self::TYPE_COLNAME       => array(MailingTableMap::COL_ID, MailingTableMap::COL_NAME, MailingTableMap::COL_HEADLINE, MailingTableMap::COL_CONTENT, MailingTableMap::COL_DESCRIPTION, MailingTableMap::COL_FROMEMAIL, MailingTableMap::COL_FROMNAME, MailingTableMap::COL_TRACKING, MailingTableMap::COL_ISSMTP, MailingTableMap::COL_SMTPHOST, MailingTableMap::COL_SMTPUSER, MailingTableMap::COL_SMTPPASSWORD, MailingTableMap::COL_SMTPSECURE, MailingTableMap::COL_SMTPPORT, ),
+        self::TYPE_FIELDNAME     => array('id', 'name', 'headline', 'content', 'description', 'fromEmail', 'fromName', 'tracking', 'isSmtp', 'smtpHost', 'smtpUser', 'smtpPassword', 'smtpSecure', 'smtpPort', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, )
     );
 
     /**
@@ -137,11 +167,11 @@ class MailingTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Headline' => 2, 'Content' => 3, 'Description' => 4, 'Fromemail' => 5, 'Fromname' => 6, 'Tracking' => 7, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'headline' => 2, 'content' => 3, 'description' => 4, 'fromemail' => 5, 'fromname' => 6, 'tracking' => 7, ),
-        self::TYPE_COLNAME       => array(MailingTableMap::COL_ID => 0, MailingTableMap::COL_NAME => 1, MailingTableMap::COL_HEADLINE => 2, MailingTableMap::COL_CONTENT => 3, MailingTableMap::COL_DESCRIPTION => 4, MailingTableMap::COL_FROMEMAIL => 5, MailingTableMap::COL_FROMNAME => 6, MailingTableMap::COL_TRACKING => 7, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'headline' => 2, 'content' => 3, 'description' => 4, 'fromEmail' => 5, 'fromName' => 6, 'tracking' => 7, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Name' => 1, 'Headline' => 2, 'Content' => 3, 'Description' => 4, 'Fromemail' => 5, 'Fromname' => 6, 'Tracking' => 7, 'Issmtp' => 8, 'Smtphost' => 9, 'Smtpuser' => 10, 'Smtppassword' => 11, 'Smtpsecure' => 12, 'Smtpport' => 13, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'name' => 1, 'headline' => 2, 'content' => 3, 'description' => 4, 'fromemail' => 5, 'fromname' => 6, 'tracking' => 7, 'issmtp' => 8, 'smtphost' => 9, 'smtpuser' => 10, 'smtppassword' => 11, 'smtpsecure' => 12, 'smtpport' => 13, ),
+        self::TYPE_COLNAME       => array(MailingTableMap::COL_ID => 0, MailingTableMap::COL_NAME => 1, MailingTableMap::COL_HEADLINE => 2, MailingTableMap::COL_CONTENT => 3, MailingTableMap::COL_DESCRIPTION => 4, MailingTableMap::COL_FROMEMAIL => 5, MailingTableMap::COL_FROMNAME => 6, MailingTableMap::COL_TRACKING => 7, MailingTableMap::COL_ISSMTP => 8, MailingTableMap::COL_SMTPHOST => 9, MailingTableMap::COL_SMTPUSER => 10, MailingTableMap::COL_SMTPPASSWORD => 11, MailingTableMap::COL_SMTPSECURE => 12, MailingTableMap::COL_SMTPPORT => 13, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'name' => 1, 'headline' => 2, 'content' => 3, 'description' => 4, 'fromEmail' => 5, 'fromName' => 6, 'tracking' => 7, 'isSmtp' => 8, 'smtpHost' => 9, 'smtpUser' => 10, 'smtpPassword' => 11, 'smtpSecure' => 12, 'smtpPort' => 13, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, )
     );
 
     /**
@@ -169,6 +199,12 @@ class MailingTableMap extends TableMap
         $this->addColumn('fromEmail', 'Fromemail', 'VARCHAR', false, 100, null);
         $this->addColumn('fromName', 'Fromname', 'VARCHAR', false, 100, null);
         $this->addColumn('tracking', 'Tracking', 'TINYINT', false, 1, null);
+        $this->addColumn('isSmtp', 'Issmtp', 'BOOLEAN', false, 1, null);
+        $this->addColumn('smtpHost', 'Smtphost', 'VARCHAR', false, 100, null);
+        $this->addColumn('smtpUser', 'Smtpuser', 'VARCHAR', false, 100, null);
+        $this->addColumn('smtpPassword', 'Smtppassword', 'VARCHAR', false, 100, null);
+        $this->addColumn('smtpSecure', 'Smtpsecure', 'VARCHAR', false, 100, null);
+        $this->addColumn('smtpPort', 'Smtpport', 'VARCHAR', false, 100, null);
     } // initialize()
 
     /**
@@ -176,6 +212,20 @@ class MailingTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('WebVisit', '\\DB\\WebVisit', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':mailing_id',
+    1 => ':id',
+  ),
+), null, null, 'WebVisits', false);
+        $this->addRelation('WebConversion', '\\DB\\WebConversion', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':mailing_id',
+    1 => ':id',
+  ),
+), null, null, 'WebConversions', false);
         $this->addRelation('VictimMailings', '\\DB\\VictimMailings', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
@@ -350,6 +400,12 @@ class MailingTableMap extends TableMap
             $criteria->addSelectColumn(MailingTableMap::COL_FROMEMAIL);
             $criteria->addSelectColumn(MailingTableMap::COL_FROMNAME);
             $criteria->addSelectColumn(MailingTableMap::COL_TRACKING);
+            $criteria->addSelectColumn(MailingTableMap::COL_ISSMTP);
+            $criteria->addSelectColumn(MailingTableMap::COL_SMTPHOST);
+            $criteria->addSelectColumn(MailingTableMap::COL_SMTPUSER);
+            $criteria->addSelectColumn(MailingTableMap::COL_SMTPPASSWORD);
+            $criteria->addSelectColumn(MailingTableMap::COL_SMTPSECURE);
+            $criteria->addSelectColumn(MailingTableMap::COL_SMTPPORT);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
@@ -359,6 +415,12 @@ class MailingTableMap extends TableMap
             $criteria->addSelectColumn($alias . '.fromEmail');
             $criteria->addSelectColumn($alias . '.fromName');
             $criteria->addSelectColumn($alias . '.tracking');
+            $criteria->addSelectColumn($alias . '.isSmtp');
+            $criteria->addSelectColumn($alias . '.smtpHost');
+            $criteria->addSelectColumn($alias . '.smtpUser');
+            $criteria->addSelectColumn($alias . '.smtpPassword');
+            $criteria->addSelectColumn($alias . '.smtpSecure');
+            $criteria->addSelectColumn($alias . '.smtpPort');
         }
     }
 

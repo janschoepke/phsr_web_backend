@@ -25,12 +25,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimQuery orderByLastname($order = Criteria::ASC) Order by the lastname column
  * @method     ChildVictimQuery orderByEmail($order = Criteria::ASC) Order by the email column
  * @method     ChildVictimQuery orderByDescription($order = Criteria::ASC) Order by the description column
+ * @method     ChildVictimQuery orderByGender($order = Criteria::ASC) Order by the gender column
+ * @method     ChildVictimQuery orderByBirthday($order = Criteria::ASC) Order by the birthday column
  *
  * @method     ChildVictimQuery groupById() Group by the id column
  * @method     ChildVictimQuery groupByFirstname() Group by the firstname column
  * @method     ChildVictimQuery groupByLastname() Group by the lastname column
  * @method     ChildVictimQuery groupByEmail() Group by the email column
  * @method     ChildVictimQuery groupByDescription() Group by the description column
+ * @method     ChildVictimQuery groupByGender() Group by the gender column
+ * @method     ChildVictimQuery groupByBirthday() Group by the birthday column
  *
  * @method     ChildVictimQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildVictimQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -39,6 +43,26 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimQuery leftJoinWith($relation) Adds a LEFT JOIN clause and with to the query
  * @method     ChildVictimQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildVictimQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
+ *
+ * @method     ChildVictimQuery leftJoinWebVisit($relationAlias = null) Adds a LEFT JOIN clause to the query using the WebVisit relation
+ * @method     ChildVictimQuery rightJoinWebVisit($relationAlias = null) Adds a RIGHT JOIN clause to the query using the WebVisit relation
+ * @method     ChildVictimQuery innerJoinWebVisit($relationAlias = null) Adds a INNER JOIN clause to the query using the WebVisit relation
+ *
+ * @method     ChildVictimQuery joinWithWebVisit($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the WebVisit relation
+ *
+ * @method     ChildVictimQuery leftJoinWithWebVisit() Adds a LEFT JOIN clause and with to the query using the WebVisit relation
+ * @method     ChildVictimQuery rightJoinWithWebVisit() Adds a RIGHT JOIN clause and with to the query using the WebVisit relation
+ * @method     ChildVictimQuery innerJoinWithWebVisit() Adds a INNER JOIN clause and with to the query using the WebVisit relation
+ *
+ * @method     ChildVictimQuery leftJoinWebConversion($relationAlias = null) Adds a LEFT JOIN clause to the query using the WebConversion relation
+ * @method     ChildVictimQuery rightJoinWebConversion($relationAlias = null) Adds a RIGHT JOIN clause to the query using the WebConversion relation
+ * @method     ChildVictimQuery innerJoinWebConversion($relationAlias = null) Adds a INNER JOIN clause to the query using the WebConversion relation
+ *
+ * @method     ChildVictimQuery joinWithWebConversion($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the WebConversion relation
+ *
+ * @method     ChildVictimQuery leftJoinWithWebConversion() Adds a LEFT JOIN clause and with to the query using the WebConversion relation
+ * @method     ChildVictimQuery rightJoinWithWebConversion() Adds a RIGHT JOIN clause and with to the query using the WebConversion relation
+ * @method     ChildVictimQuery innerJoinWithWebConversion() Adds a INNER JOIN clause and with to the query using the WebConversion relation
  *
  * @method     ChildVictimQuery leftJoinGroupVictims($relationAlias = null) Adds a LEFT JOIN clause to the query using the GroupVictims relation
  * @method     ChildVictimQuery rightJoinGroupVictims($relationAlias = null) Adds a RIGHT JOIN clause to the query using the GroupVictims relation
@@ -70,7 +94,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimQuery rightJoinWithVictimMailings() Adds a RIGHT JOIN clause and with to the query using the VictimMailings relation
  * @method     ChildVictimQuery innerJoinWithVictimMailings() Adds a INNER JOIN clause and with to the query using the VictimMailings relation
  *
- * @method     \DB\GroupVictimsQuery|\DB\UserVictimsQuery|\DB\VictimMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \DB\WebVisitQuery|\DB\WebConversionQuery|\DB\GroupVictimsQuery|\DB\UserVictimsQuery|\DB\VictimMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildVictim findOne(ConnectionInterface $con = null) Return the first ChildVictim matching the query
  * @method     ChildVictim findOneOrCreate(ConnectionInterface $con = null) Return the first ChildVictim matching the query, or a new ChildVictim object populated from the query conditions when no match is found
@@ -79,7 +103,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictim findOneByFirstname(string $firstname) Return the first ChildVictim filtered by the firstname column
  * @method     ChildVictim findOneByLastname(string $lastname) Return the first ChildVictim filtered by the lastname column
  * @method     ChildVictim findOneByEmail(string $email) Return the first ChildVictim filtered by the email column
- * @method     ChildVictim findOneByDescription(string $description) Return the first ChildVictim filtered by the description column *
+ * @method     ChildVictim findOneByDescription(string $description) Return the first ChildVictim filtered by the description column
+ * @method     ChildVictim findOneByGender(boolean $gender) Return the first ChildVictim filtered by the gender column
+ * @method     ChildVictim findOneByBirthday(string $birthday) Return the first ChildVictim filtered by the birthday column *
 
  * @method     ChildVictim requirePk($key, ConnectionInterface $con = null) Return the ChildVictim by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildVictim requireOne(ConnectionInterface $con = null) Return the first ChildVictim matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -89,6 +115,8 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictim requireOneByLastname(string $lastname) Return the first ChildVictim filtered by the lastname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildVictim requireOneByEmail(string $email) Return the first ChildVictim filtered by the email column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildVictim requireOneByDescription(string $description) Return the first ChildVictim filtered by the description column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildVictim requireOneByGender(boolean $gender) Return the first ChildVictim filtered by the gender column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildVictim requireOneByBirthday(string $birthday) Return the first ChildVictim filtered by the birthday column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildVictim[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildVictim objects based on current ModelCriteria
  * @method     ChildVictim[]|ObjectCollection findById(int $id) Return ChildVictim objects filtered by the id column
@@ -96,6 +124,8 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictim[]|ObjectCollection findByLastname(string $lastname) Return ChildVictim objects filtered by the lastname column
  * @method     ChildVictim[]|ObjectCollection findByEmail(string $email) Return ChildVictim objects filtered by the email column
  * @method     ChildVictim[]|ObjectCollection findByDescription(string $description) Return ChildVictim objects filtered by the description column
+ * @method     ChildVictim[]|ObjectCollection findByGender(boolean $gender) Return ChildVictim objects filtered by the gender column
+ * @method     ChildVictim[]|ObjectCollection findByBirthday(string $birthday) Return ChildVictim objects filtered by the birthday column
  * @method     ChildVictim[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -194,7 +224,7 @@ abstract class VictimQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, firstname, lastname, email, description FROM Victims WHERE id = :p0';
+        $sql = 'SELECT id, firstname, lastname, email, description, gender, birthday FROM Victims WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -423,6 +453,222 @@ abstract class VictimQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(VictimTableMap::COL_DESCRIPTION, $description, $comparison);
+    }
+
+    /**
+     * Filter the query on the gender column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByGender(true); // WHERE gender = true
+     * $query->filterByGender('yes'); // WHERE gender = true
+     * </code>
+     *
+     * @param     boolean|string $gender The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildVictimQuery The current query, for fluid interface
+     */
+    public function filterByGender($gender = null, $comparison = null)
+    {
+        if (is_string($gender)) {
+            $gender = in_array(strtolower($gender), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(VictimTableMap::COL_GENDER, $gender, $comparison);
+    }
+
+    /**
+     * Filter the query on the birthday column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByBirthday('2011-03-14'); // WHERE birthday = '2011-03-14'
+     * $query->filterByBirthday('now'); // WHERE birthday = '2011-03-14'
+     * $query->filterByBirthday(array('max' => 'yesterday')); // WHERE birthday > '2011-03-13'
+     * </code>
+     *
+     * @param     mixed $birthday The value to use as filter.
+     *              Values can be integers (unix timestamps), DateTime objects, or strings.
+     *              Empty strings are treated as NULL.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildVictimQuery The current query, for fluid interface
+     */
+    public function filterByBirthday($birthday = null, $comparison = null)
+    {
+        if (is_array($birthday)) {
+            $useMinMax = false;
+            if (isset($birthday['min'])) {
+                $this->addUsingAlias(VictimTableMap::COL_BIRTHDAY, $birthday['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($birthday['max'])) {
+                $this->addUsingAlias(VictimTableMap::COL_BIRTHDAY, $birthday['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(VictimTableMap::COL_BIRTHDAY, $birthday, $comparison);
+    }
+
+    /**
+     * Filter the query by a related \DB\WebVisit object
+     *
+     * @param \DB\WebVisit|ObjectCollection $webVisit the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildVictimQuery The current query, for fluid interface
+     */
+    public function filterByWebVisit($webVisit, $comparison = null)
+    {
+        if ($webVisit instanceof \DB\WebVisit) {
+            return $this
+                ->addUsingAlias(VictimTableMap::COL_ID, $webVisit->getVictimId(), $comparison);
+        } elseif ($webVisit instanceof ObjectCollection) {
+            return $this
+                ->useWebVisitQuery()
+                ->filterByPrimaryKeys($webVisit->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByWebVisit() only accepts arguments of type \DB\WebVisit or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the WebVisit relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildVictimQuery The current query, for fluid interface
+     */
+    public function joinWebVisit($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('WebVisit');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'WebVisit');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the WebVisit relation WebVisit object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\WebVisitQuery A secondary query class using the current class as primary query
+     */
+    public function useWebVisitQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinWebVisit($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'WebVisit', '\DB\WebVisitQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\WebConversion object
+     *
+     * @param \DB\WebConversion|ObjectCollection $webConversion the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildVictimQuery The current query, for fluid interface
+     */
+    public function filterByWebConversion($webConversion, $comparison = null)
+    {
+        if ($webConversion instanceof \DB\WebConversion) {
+            return $this
+                ->addUsingAlias(VictimTableMap::COL_ID, $webConversion->getVictimId(), $comparison);
+        } elseif ($webConversion instanceof ObjectCollection) {
+            return $this
+                ->useWebConversionQuery()
+                ->filterByPrimaryKeys($webConversion->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByWebConversion() only accepts arguments of type \DB\WebConversion or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the WebConversion relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildVictimQuery The current query, for fluid interface
+     */
+    public function joinWebConversion($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('WebConversion');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'WebConversion');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the WebConversion relation WebConversion object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\WebConversionQuery A secondary query class using the current class as primary query
+     */
+    public function useWebConversionQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinWebConversion($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'WebConversion', '\DB\WebConversionQuery');
     }
 
     /**

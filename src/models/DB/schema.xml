@@ -25,6 +25,8 @@
         <column name="lastname" type="varchar" size="100" required="true" />
         <column name="email" type="varchar" size="100" required="true" />
         <column name="description" type="varchar" size="1000" />
+        <column name="gender" type="boolean" />
+        <column name="birthday" type="date" />
     </table>
 
     <table name="Mailings" phpName="Mailing">
@@ -36,6 +38,49 @@
         <column name="fromEmail" type="varchar" size="100" />
         <column name="fromName" type="varchar" size="100" />
         <column name="tracking" type="tinyint" size="1" />
+
+        <column name="isSmtp" type="boolean" />
+        <column name="smtpHost" type="varchar" size="100" />
+        <column name="smtpUser" type="varchar" size="100" />
+        <column name="smtpPassword" type="varchar" size="100" />
+        <column name="smtpSecure" type="varchar" size="100" />
+        <column name="smtpPort" type="varchar" size="100" />
+    </table>
+
+    <table name="WebVisits" phpName="WebVisit">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="mailing_id" type="integer" required="true" />
+        <column name="os" type="varchar" size="100" />
+        <column name="timestamp" type="timestamp" />
+        <column name="url" type="varchar" size="100" />
+        <column name="victim_id" type="integer" />
+        <column name="unknown_id" type="varchar" size="20" />
+        <column name="browser" type="varchar" size="100" />
+        <column name="ip" type="varchar" size="100" />
+
+        <foreign-key foreignTable="Mailings">
+            <reference local="mailing_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Victims">
+            <reference local="victim_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="WebConversions" phpName="WebConversion">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="mailing_id" type="integer" required="true" />
+        <column name="timestamp" type="timestamp" />
+        <column name="victim_id" type="integer" />
+        <column name="unknown_id" type="varchar" size="10" />
+        <column name="conversion_name" type="varchar" size="100" />
+        <column name="form_data" type="varchar" size="1000" />
+
+        <foreign-key foreignTable="Mailings">
+            <reference local="mailing_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Victims">
+            <reference local="victim_id" foreign="id" />
+        </foreign-key>
     </table>
 
     <table name="User_Groups" isCrossRef="true">

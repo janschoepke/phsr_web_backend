@@ -2,8 +2,8 @@
 
 namespace DB\Map;
 
-use DB\Victim;
-use DB\VictimQuery;
+use DB\WebVisit;
+use DB\WebVisitQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'Victims' table.
+ * This class defines the structure of the 'WebVisits' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class VictimTableMap extends TableMap
+class WebVisitTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class VictimTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'DB.Map.VictimTableMap';
+    const CLASS_NAME = 'DB.Map.WebVisitTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class VictimTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'Victims';
+    const TABLE_NAME = 'WebVisits';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\DB\\Victim';
+    const OM_CLASS = '\\DB\\WebVisit';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'DB.Victim';
+    const CLASS_DEFAULT = 'DB.WebVisit';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 7;
+    const NUM_COLUMNS = 9;
 
     /**
      * The number of lazy-loaded columns
@@ -69,42 +69,52 @@ class VictimTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 7;
+    const NUM_HYDRATE_COLUMNS = 9;
 
     /**
      * the column name for the id field
      */
-    const COL_ID = 'Victims.id';
+    const COL_ID = 'WebVisits.id';
 
     /**
-     * the column name for the firstname field
+     * the column name for the mailing_id field
      */
-    const COL_FIRSTNAME = 'Victims.firstname';
+    const COL_MAILING_ID = 'WebVisits.mailing_id';
 
     /**
-     * the column name for the lastname field
+     * the column name for the os field
      */
-    const COL_LASTNAME = 'Victims.lastname';
+    const COL_OS = 'WebVisits.os';
 
     /**
-     * the column name for the email field
+     * the column name for the timestamp field
      */
-    const COL_EMAIL = 'Victims.email';
+    const COL_TIMESTAMP = 'WebVisits.timestamp';
 
     /**
-     * the column name for the description field
+     * the column name for the url field
      */
-    const COL_DESCRIPTION = 'Victims.description';
+    const COL_URL = 'WebVisits.url';
 
     /**
-     * the column name for the gender field
+     * the column name for the victim_id field
      */
-    const COL_GENDER = 'Victims.gender';
+    const COL_VICTIM_ID = 'WebVisits.victim_id';
 
     /**
-     * the column name for the birthday field
+     * the column name for the unknown_id field
      */
-    const COL_BIRTHDAY = 'Victims.birthday';
+    const COL_UNKNOWN_ID = 'WebVisits.unknown_id';
+
+    /**
+     * the column name for the browser field
+     */
+    const COL_BROWSER = 'WebVisits.browser';
+
+    /**
+     * the column name for the ip field
+     */
+    const COL_IP = 'WebVisits.ip';
 
     /**
      * The default string format for model objects of the related table
@@ -118,11 +128,11 @@ class VictimTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Firstname', 'Lastname', 'Email', 'Description', 'Gender', 'Birthday', ),
-        self::TYPE_CAMELNAME     => array('id', 'firstname', 'lastname', 'email', 'description', 'gender', 'birthday', ),
-        self::TYPE_COLNAME       => array(VictimTableMap::COL_ID, VictimTableMap::COL_FIRSTNAME, VictimTableMap::COL_LASTNAME, VictimTableMap::COL_EMAIL, VictimTableMap::COL_DESCRIPTION, VictimTableMap::COL_GENDER, VictimTableMap::COL_BIRTHDAY, ),
-        self::TYPE_FIELDNAME     => array('id', 'firstname', 'lastname', 'email', 'description', 'gender', 'birthday', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id', 'MailingId', 'Os', 'Timestamp', 'Url', 'VictimId', 'UnknownId', 'Browser', 'Ip', ),
+        self::TYPE_CAMELNAME     => array('id', 'mailingId', 'os', 'timestamp', 'url', 'victimId', 'unknownId', 'browser', 'ip', ),
+        self::TYPE_COLNAME       => array(WebVisitTableMap::COL_ID, WebVisitTableMap::COL_MAILING_ID, WebVisitTableMap::COL_OS, WebVisitTableMap::COL_TIMESTAMP, WebVisitTableMap::COL_URL, WebVisitTableMap::COL_VICTIM_ID, WebVisitTableMap::COL_UNKNOWN_ID, WebVisitTableMap::COL_BROWSER, WebVisitTableMap::COL_IP, ),
+        self::TYPE_FIELDNAME     => array('id', 'mailing_id', 'os', 'timestamp', 'url', 'victim_id', 'unknown_id', 'browser', 'ip', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -132,11 +142,11 @@ class VictimTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Firstname' => 1, 'Lastname' => 2, 'Email' => 3, 'Description' => 4, 'Gender' => 5, 'Birthday' => 6, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'firstname' => 1, 'lastname' => 2, 'email' => 3, 'description' => 4, 'gender' => 5, 'birthday' => 6, ),
-        self::TYPE_COLNAME       => array(VictimTableMap::COL_ID => 0, VictimTableMap::COL_FIRSTNAME => 1, VictimTableMap::COL_LASTNAME => 2, VictimTableMap::COL_EMAIL => 3, VictimTableMap::COL_DESCRIPTION => 4, VictimTableMap::COL_GENDER => 5, VictimTableMap::COL_BIRTHDAY => 6, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'firstname' => 1, 'lastname' => 2, 'email' => 3, 'description' => 4, 'gender' => 5, 'birthday' => 6, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'MailingId' => 1, 'Os' => 2, 'Timestamp' => 3, 'Url' => 4, 'VictimId' => 5, 'UnknownId' => 6, 'Browser' => 7, 'Ip' => 8, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'mailingId' => 1, 'os' => 2, 'timestamp' => 3, 'url' => 4, 'victimId' => 5, 'unknownId' => 6, 'browser' => 7, 'ip' => 8, ),
+        self::TYPE_COLNAME       => array(WebVisitTableMap::COL_ID => 0, WebVisitTableMap::COL_MAILING_ID => 1, WebVisitTableMap::COL_OS => 2, WebVisitTableMap::COL_TIMESTAMP => 3, WebVisitTableMap::COL_URL => 4, WebVisitTableMap::COL_VICTIM_ID => 5, WebVisitTableMap::COL_UNKNOWN_ID => 6, WebVisitTableMap::COL_BROWSER => 7, WebVisitTableMap::COL_IP => 8, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'mailing_id' => 1, 'os' => 2, 'timestamp' => 3, 'url' => 4, 'victim_id' => 5, 'unknown_id' => 6, 'browser' => 7, 'ip' => 8, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -149,20 +159,22 @@ class VictimTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('Victims');
-        $this->setPhpName('Victim');
+        $this->setName('WebVisits');
+        $this->setPhpName('WebVisit');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\DB\\Victim');
+        $this->setClassName('\\DB\\WebVisit');
         $this->setPackage('DB');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('firstname', 'Firstname', 'VARCHAR', true, 100, null);
-        $this->addColumn('lastname', 'Lastname', 'VARCHAR', true, 100, null);
-        $this->addColumn('email', 'Email', 'VARCHAR', true, 100, null);
-        $this->addColumn('description', 'Description', 'VARCHAR', false, 1000, null);
-        $this->addColumn('gender', 'Gender', 'BOOLEAN', false, 1, null);
-        $this->addColumn('birthday', 'Birthday', 'DATE', false, null, null);
+        $this->addForeignKey('mailing_id', 'MailingId', 'INTEGER', 'Mailings', 'id', true, null, null);
+        $this->addColumn('os', 'Os', 'VARCHAR', false, 100, null);
+        $this->addColumn('timestamp', 'Timestamp', 'TIMESTAMP', false, null, null);
+        $this->addColumn('url', 'Url', 'VARCHAR', false, 100, null);
+        $this->addForeignKey('victim_id', 'VictimId', 'INTEGER', 'Victims', 'id', false, null, null);
+        $this->addColumn('unknown_id', 'UnknownId', 'VARCHAR', false, 20, null);
+        $this->addColumn('browser', 'Browser', 'VARCHAR', false, 100, null);
+        $this->addColumn('ip', 'Ip', 'VARCHAR', false, 100, null);
     } // initialize()
 
     /**
@@ -170,43 +182,20 @@ class VictimTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('WebVisit', '\\DB\\WebVisit', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('Mailing', '\\DB\\Mailing', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':mailing_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
+        $this->addRelation('Victim', '\\DB\\Victim', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
     0 => ':victim_id',
     1 => ':id',
   ),
-), null, null, 'WebVisits', false);
-        $this->addRelation('WebConversion', '\\DB\\WebConversion', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':victim_id',
-    1 => ':id',
-  ),
-), null, null, 'WebConversions', false);
-        $this->addRelation('GroupVictims', '\\DB\\GroupVictims', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':victim_id',
-    1 => ':id',
-  ),
-), null, null, 'GroupVictimss', false);
-        $this->addRelation('UserVictims', '\\DB\\UserVictims', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':victim_id',
-    1 => ':id',
-  ),
-), null, null, 'UserVictimss', false);
-        $this->addRelation('VictimMailings', '\\DB\\VictimMailings', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':victim_id',
-    1 => ':id',
-  ),
-), null, null, 'VictimMailingss', false);
-        $this->addRelation('Group', '\\DB\\Group', RelationMap::MANY_TO_MANY, array(), null, null, 'Groups');
-        $this->addRelation('User', '\\DB\\User', RelationMap::MANY_TO_MANY, array(), null, null, 'Users');
+), null, null, null, false);
     } // buildRelations()
 
     /**
@@ -266,7 +255,7 @@ class VictimTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? VictimTableMap::CLASS_DEFAULT : VictimTableMap::OM_CLASS;
+        return $withPrefix ? WebVisitTableMap::CLASS_DEFAULT : WebVisitTableMap::OM_CLASS;
     }
 
     /**
@@ -280,22 +269,22 @@ class VictimTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Victim object, last column rank)
+     * @return array           (WebVisit object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = VictimTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = VictimTableMap::getInstanceFromPool($key))) {
+        $key = WebVisitTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = WebVisitTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + VictimTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + WebVisitTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = VictimTableMap::OM_CLASS;
-            /** @var Victim $obj */
+            $cls = WebVisitTableMap::OM_CLASS;
+            /** @var WebVisit $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            VictimTableMap::addInstanceToPool($obj, $key);
+            WebVisitTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -318,18 +307,18 @@ class VictimTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = VictimTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = VictimTableMap::getInstanceFromPool($key))) {
+            $key = WebVisitTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = WebVisitTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Victim $obj */
+                /** @var WebVisit $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                VictimTableMap::addInstanceToPool($obj, $key);
+                WebVisitTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -350,21 +339,25 @@ class VictimTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(VictimTableMap::COL_ID);
-            $criteria->addSelectColumn(VictimTableMap::COL_FIRSTNAME);
-            $criteria->addSelectColumn(VictimTableMap::COL_LASTNAME);
-            $criteria->addSelectColumn(VictimTableMap::COL_EMAIL);
-            $criteria->addSelectColumn(VictimTableMap::COL_DESCRIPTION);
-            $criteria->addSelectColumn(VictimTableMap::COL_GENDER);
-            $criteria->addSelectColumn(VictimTableMap::COL_BIRTHDAY);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_ID);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_MAILING_ID);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_OS);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_TIMESTAMP);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_URL);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_VICTIM_ID);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_UNKNOWN_ID);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_BROWSER);
+            $criteria->addSelectColumn(WebVisitTableMap::COL_IP);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.firstname');
-            $criteria->addSelectColumn($alias . '.lastname');
-            $criteria->addSelectColumn($alias . '.email');
-            $criteria->addSelectColumn($alias . '.description');
-            $criteria->addSelectColumn($alias . '.gender');
-            $criteria->addSelectColumn($alias . '.birthday');
+            $criteria->addSelectColumn($alias . '.mailing_id');
+            $criteria->addSelectColumn($alias . '.os');
+            $criteria->addSelectColumn($alias . '.timestamp');
+            $criteria->addSelectColumn($alias . '.url');
+            $criteria->addSelectColumn($alias . '.victim_id');
+            $criteria->addSelectColumn($alias . '.unknown_id');
+            $criteria->addSelectColumn($alias . '.browser');
+            $criteria->addSelectColumn($alias . '.ip');
         }
     }
 
@@ -377,7 +370,7 @@ class VictimTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(VictimTableMap::DATABASE_NAME)->getTable(VictimTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(WebVisitTableMap::DATABASE_NAME)->getTable(WebVisitTableMap::TABLE_NAME);
     }
 
     /**
@@ -385,16 +378,16 @@ class VictimTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(VictimTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(VictimTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new VictimTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(WebVisitTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(WebVisitTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new WebVisitTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Victim or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a WebVisit or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Victim object or primary key or array of primary keys
+     * @param mixed               $values Criteria or WebVisit object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -405,27 +398,27 @@ class VictimTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(VictimTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(WebVisitTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \DB\Victim) { // it's a model object
+        } elseif ($values instanceof \DB\WebVisit) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(VictimTableMap::DATABASE_NAME);
-            $criteria->add(VictimTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(WebVisitTableMap::DATABASE_NAME);
+            $criteria->add(WebVisitTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = VictimQuery::create()->mergeWith($criteria);
+        $query = WebVisitQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            VictimTableMap::clearInstancePool();
+            WebVisitTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                VictimTableMap::removeInstanceFromPool($singleval);
+                WebVisitTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -433,20 +426,20 @@ class VictimTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the Victims table.
+     * Deletes all rows from the WebVisits table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return VictimQuery::create()->doDeleteAll($con);
+        return WebVisitQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Victim or Criteria object.
+     * Performs an INSERT on the database, given a WebVisit or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Victim object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or WebVisit object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -455,22 +448,22 @@ class VictimTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(VictimTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(WebVisitTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Victim object
+            $criteria = $criteria->buildCriteria(); // build Criteria from WebVisit object
         }
 
-        if ($criteria->containsKey(VictimTableMap::COL_ID) && $criteria->keyContainsValue(VictimTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.VictimTableMap::COL_ID.')');
+        if ($criteria->containsKey(WebVisitTableMap::COL_ID) && $criteria->keyContainsValue(WebVisitTableMap::COL_ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.WebVisitTableMap::COL_ID.')');
         }
 
 
         // Set the correct dbName
-        $query = VictimQuery::create()->mergeWith($criteria);
+        $query = WebVisitQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -479,7 +472,7 @@ class VictimTableMap extends TableMap
         });
     }
 
-} // VictimTableMap
+} // WebVisitTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-VictimTableMap::buildTableMap();
+WebVisitTableMap::buildTableMap();
