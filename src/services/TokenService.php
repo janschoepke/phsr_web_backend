@@ -42,7 +42,13 @@ class TokenService {
 
     function decryptPassword($password) {
         $parts = explode(':', $password);
-        return openssl_decrypt($parts[0], AES_256_CBC, $this->encryptionKey, 0, base64_decode($parts[1]));
+        if ( ! isset($parts[1])) {
+            $parts[1] = null;
+        }
+
+        $decrypted = openssl_decrypt($parts[0], AES_256_CBC, $this->encryptionKey, 0, base64_decode($parts[1]));
+
+        return $decrypted;
     }
 
 

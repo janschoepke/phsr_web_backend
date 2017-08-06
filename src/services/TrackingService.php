@@ -8,12 +8,19 @@
 
 namespace src\services;
 
+use DB\Base\VictimMailingsQuery;
 use DB\MailingQuery;
 use DB\VictimQuery;
 use DB\WebConversion;
 use DB\WebVisit;
 
 class TrackingService {
+
+    function registerEmailConversion($mailingId, $victimId) {
+       $currentVictimMailing = VictimMailingsQuery::create()->filterByMailingId($mailingId)->filterByVictimId($victimId)->findOne();
+       $currentVictimMailing->setOpened(true);
+       $currentVictimMailing->save();
+    }
 
     function isRegisteredVictim($currentUser, $userId) {
         if(substr( $userId, 0, 1 ) !== "R") {
