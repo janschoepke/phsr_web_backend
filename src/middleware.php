@@ -17,6 +17,8 @@ $app->add(function ($req, $res, $next) {
         ->withHeader('Access-Control-Allow-Credentials', 'true');
 });
 
+$checkProxyHeaders = false;
+$app->add(new RKA\Middleware\IpAddress($checkProxyHeaders));
 
 $authMiddleware = function($request, $response, $next) {
     $body = json_decode($request->getBody());

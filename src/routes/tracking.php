@@ -14,6 +14,18 @@ use Psr\Http\Message\ResponseInterface;
 
 $app->group('/tracking', function() use ($app) {
 
+    $app->post('/get-ip-address', function(ServerRequestInterface $request, ResponseInterface $response) {
+        $ipAddress = $request->getAttribute('ip_address');
+
+        $resultData = [
+            "success" => "true",
+            "ip" => $ipAddress
+        ];
+
+        return $response->withStatus(200)
+            ->write(json_encode($resultData));
+    });
+
     $app->post('/webvisit', function (ServerRequestInterface $request, ResponseInterface $response) {
 
         $body = json_decode($request->getBody());
