@@ -1,7 +1,3 @@
-/**
- * Created by janschopke on 18.06.17.
- */
-
 String.prototype.replaceAll = function(str1, str2, ignore) {
     return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
 }
@@ -10,10 +6,17 @@ window.track = (function(){
 
     var settings = {
         "anonymizeip": false,
-        "phsrid": null
+        "phsrid": null,
+        "debug": false
     };
 
     var result = {};
+
+    function log(string) {
+        if(settings.debug) {
+            console.log(string);
+        }
+    }
 
     function getUrlParameter(sParam) {
         var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -137,7 +140,6 @@ window.track = (function(){
                 };
 
                 if(el.dataset.fields) {
-                    console.log(el.dataset.fields)
                     var fieldData = {};
                     var fields = JSON.parse((el.dataset.fields).replaceAll("'", '"'));
                     Object.keys(fields).forEach(function(key) {
@@ -174,18 +176,19 @@ window.track = (function(){
 
     function checkForCompleteResult() {
         if((!!result['ip'] || settings.anonymizeip == true) && !!result['userID'] && !!result['timestamp'] && !!result['browser'] && !!result['os'] && !!result['phsrid'] && !!result['url'] && !!result['mailingid'] && !!result['groupID'] && !!result['uuid']) {
-            console.log(result)
-            console.log('firing request!')
+
+            log('firing request! Containing data:')
+            log(result)
             //AJAX post here.
             var xhr = new XMLHttpRequest();
             xhr.open('POST', settings['phsrserver'] + '/tracking/webvisit');
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 if (xhr.status === 200) {
-                    console.log("success");
+                    log("success");
                 }
                 else if (xhr.status !== 200) {
-                    console.log("fail");
+                    log("fail");
                 }
             };
             xhr.send(JSON.stringify(result));
