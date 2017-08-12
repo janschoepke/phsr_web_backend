@@ -36,6 +36,26 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildGroupQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildGroupQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
  *
+ * @method     ChildGroupQuery leftJoinWebVisit($relationAlias = null) Adds a LEFT JOIN clause to the query using the WebVisit relation
+ * @method     ChildGroupQuery rightJoinWebVisit($relationAlias = null) Adds a RIGHT JOIN clause to the query using the WebVisit relation
+ * @method     ChildGroupQuery innerJoinWebVisit($relationAlias = null) Adds a INNER JOIN clause to the query using the WebVisit relation
+ *
+ * @method     ChildGroupQuery joinWithWebVisit($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the WebVisit relation
+ *
+ * @method     ChildGroupQuery leftJoinWithWebVisit() Adds a LEFT JOIN clause and with to the query using the WebVisit relation
+ * @method     ChildGroupQuery rightJoinWithWebVisit() Adds a RIGHT JOIN clause and with to the query using the WebVisit relation
+ * @method     ChildGroupQuery innerJoinWithWebVisit() Adds a INNER JOIN clause and with to the query using the WebVisit relation
+ *
+ * @method     ChildGroupQuery leftJoinWebConversion($relationAlias = null) Adds a LEFT JOIN clause to the query using the WebConversion relation
+ * @method     ChildGroupQuery rightJoinWebConversion($relationAlias = null) Adds a RIGHT JOIN clause to the query using the WebConversion relation
+ * @method     ChildGroupQuery innerJoinWebConversion($relationAlias = null) Adds a INNER JOIN clause to the query using the WebConversion relation
+ *
+ * @method     ChildGroupQuery joinWithWebConversion($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the WebConversion relation
+ *
+ * @method     ChildGroupQuery leftJoinWithWebConversion() Adds a LEFT JOIN clause and with to the query using the WebConversion relation
+ * @method     ChildGroupQuery rightJoinWithWebConversion() Adds a RIGHT JOIN clause and with to the query using the WebConversion relation
+ * @method     ChildGroupQuery innerJoinWithWebConversion() Adds a INNER JOIN clause and with to the query using the WebConversion relation
+ *
  * @method     ChildGroupQuery leftJoinUserGroups($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserGroups relation
  * @method     ChildGroupQuery rightJoinUserGroups($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserGroups relation
  * @method     ChildGroupQuery innerJoinUserGroups($relationAlias = null) Adds a INNER JOIN clause to the query using the UserGroups relation
@@ -56,6 +76,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildGroupQuery rightJoinWithGroupVictims() Adds a RIGHT JOIN clause and with to the query using the GroupVictims relation
  * @method     ChildGroupQuery innerJoinWithGroupVictims() Adds a INNER JOIN clause and with to the query using the GroupVictims relation
  *
+ * @method     ChildGroupQuery leftJoinVictimMailings($relationAlias = null) Adds a LEFT JOIN clause to the query using the VictimMailings relation
+ * @method     ChildGroupQuery rightJoinVictimMailings($relationAlias = null) Adds a RIGHT JOIN clause to the query using the VictimMailings relation
+ * @method     ChildGroupQuery innerJoinVictimMailings($relationAlias = null) Adds a INNER JOIN clause to the query using the VictimMailings relation
+ *
+ * @method     ChildGroupQuery joinWithVictimMailings($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the VictimMailings relation
+ *
+ * @method     ChildGroupQuery leftJoinWithVictimMailings() Adds a LEFT JOIN clause and with to the query using the VictimMailings relation
+ * @method     ChildGroupQuery rightJoinWithVictimMailings() Adds a RIGHT JOIN clause and with to the query using the VictimMailings relation
+ * @method     ChildGroupQuery innerJoinWithVictimMailings() Adds a INNER JOIN clause and with to the query using the VictimMailings relation
+ *
  * @method     ChildGroupQuery leftJoinGroupMailings($relationAlias = null) Adds a LEFT JOIN clause to the query using the GroupMailings relation
  * @method     ChildGroupQuery rightJoinGroupMailings($relationAlias = null) Adds a RIGHT JOIN clause to the query using the GroupMailings relation
  * @method     ChildGroupQuery innerJoinGroupMailings($relationAlias = null) Adds a INNER JOIN clause to the query using the GroupMailings relation
@@ -66,7 +96,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildGroupQuery rightJoinWithGroupMailings() Adds a RIGHT JOIN clause and with to the query using the GroupMailings relation
  * @method     ChildGroupQuery innerJoinWithGroupMailings() Adds a INNER JOIN clause and with to the query using the GroupMailings relation
  *
- * @method     \DB\UserGroupsQuery|\DB\GroupVictimsQuery|\DB\GroupMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \DB\WebVisitQuery|\DB\WebConversionQuery|\DB\UserGroupsQuery|\DB\GroupVictimsQuery|\DB\VictimMailingsQuery|\DB\GroupMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildGroup findOne(ConnectionInterface $con = null) Return the first ChildGroup matching the query
  * @method     ChildGroup findOneOrCreate(ConnectionInterface $con = null) Return the first ChildGroup matching the query, or a new ChildGroup object populated from the query conditions when no match is found
@@ -366,6 +396,152 @@ abstract class GroupQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related \DB\WebVisit object
+     *
+     * @param \DB\WebVisit|ObjectCollection $webVisit the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildGroupQuery The current query, for fluid interface
+     */
+    public function filterByWebVisit($webVisit, $comparison = null)
+    {
+        if ($webVisit instanceof \DB\WebVisit) {
+            return $this
+                ->addUsingAlias(GroupTableMap::COL_ID, $webVisit->getGroupId(), $comparison);
+        } elseif ($webVisit instanceof ObjectCollection) {
+            return $this
+                ->useWebVisitQuery()
+                ->filterByPrimaryKeys($webVisit->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByWebVisit() only accepts arguments of type \DB\WebVisit or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the WebVisit relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildGroupQuery The current query, for fluid interface
+     */
+    public function joinWebVisit($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('WebVisit');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'WebVisit');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the WebVisit relation WebVisit object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\WebVisitQuery A secondary query class using the current class as primary query
+     */
+    public function useWebVisitQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinWebVisit($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'WebVisit', '\DB\WebVisitQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\WebConversion object
+     *
+     * @param \DB\WebConversion|ObjectCollection $webConversion the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildGroupQuery The current query, for fluid interface
+     */
+    public function filterByWebConversion($webConversion, $comparison = null)
+    {
+        if ($webConversion instanceof \DB\WebConversion) {
+            return $this
+                ->addUsingAlias(GroupTableMap::COL_ID, $webConversion->getGroupId(), $comparison);
+        } elseif ($webConversion instanceof ObjectCollection) {
+            return $this
+                ->useWebConversionQuery()
+                ->filterByPrimaryKeys($webConversion->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByWebConversion() only accepts arguments of type \DB\WebConversion or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the WebConversion relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildGroupQuery The current query, for fluid interface
+     */
+    public function joinWebConversion($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('WebConversion');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'WebConversion');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the WebConversion relation WebConversion object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\WebConversionQuery A secondary query class using the current class as primary query
+     */
+    public function useWebConversionQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinWebConversion($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'WebConversion', '\DB\WebConversionQuery');
+    }
+
+    /**
      * Filter the query by a related \DB\UserGroups object
      *
      * @param \DB\UserGroups|ObjectCollection $userGroups the related object to use as filter
@@ -509,6 +685,79 @@ abstract class GroupQuery extends ModelCriteria
         return $this
             ->joinGroupVictims($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'GroupVictims', '\DB\GroupVictimsQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\VictimMailings object
+     *
+     * @param \DB\VictimMailings|ObjectCollection $victimMailings the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildGroupQuery The current query, for fluid interface
+     */
+    public function filterByVictimMailings($victimMailings, $comparison = null)
+    {
+        if ($victimMailings instanceof \DB\VictimMailings) {
+            return $this
+                ->addUsingAlias(GroupTableMap::COL_ID, $victimMailings->getGroupId(), $comparison);
+        } elseif ($victimMailings instanceof ObjectCollection) {
+            return $this
+                ->useVictimMailingsQuery()
+                ->filterByPrimaryKeys($victimMailings->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByVictimMailings() only accepts arguments of type \DB\VictimMailings or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the VictimMailings relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildGroupQuery The current query, for fluid interface
+     */
+    public function joinVictimMailings($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('VictimMailings');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'VictimMailings');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the VictimMailings relation VictimMailings object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\VictimMailingsQuery A secondary query class using the current class as primary query
+     */
+    public function useVictimMailingsQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinVictimMailings($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'VictimMailings', '\DB\VictimMailingsQuery');
     }
 
     /**

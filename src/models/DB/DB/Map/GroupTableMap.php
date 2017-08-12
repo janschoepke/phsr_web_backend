@@ -146,6 +146,20 @@ class GroupTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('WebVisit', '\\DB\\WebVisit', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':group_id',
+    1 => ':id',
+  ),
+), null, null, 'WebVisits', false);
+        $this->addRelation('WebConversion', '\\DB\\WebConversion', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':group_id',
+    1 => ':id',
+  ),
+), null, null, 'WebConversions', false);
         $this->addRelation('UserGroups', '\\DB\\UserGroups', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
@@ -160,6 +174,13 @@ class GroupTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'GroupVictimss', false);
+        $this->addRelation('VictimMailings', '\\DB\\VictimMailings', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':group_id',
+    1 => ':id',
+  ),
+), null, null, 'VictimMailingss', false);
         $this->addRelation('GroupMailings', '\\DB\\GroupMailings', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (

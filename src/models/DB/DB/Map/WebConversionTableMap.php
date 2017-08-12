@@ -59,7 +59,7 @@ class WebConversionTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 7;
+    const NUM_COLUMNS = 9;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class WebConversionTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 7;
+    const NUM_HYDRATE_COLUMNS = 9;
 
     /**
      * the column name for the id field
@@ -80,6 +80,11 @@ class WebConversionTableMap extends TableMap
      * the column name for the mailing_id field
      */
     const COL_MAILING_ID = 'WebConversions.mailing_id';
+
+    /**
+     * the column name for the group_id field
+     */
+    const COL_GROUP_ID = 'WebConversions.group_id';
 
     /**
      * the column name for the timestamp field
@@ -107,6 +112,11 @@ class WebConversionTableMap extends TableMap
     const COL_FORM_DATA = 'WebConversions.form_data';
 
     /**
+     * the column name for the unique_id field
+     */
+    const COL_UNIQUE_ID = 'WebConversions.unique_id';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -118,11 +128,11 @@ class WebConversionTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'MailingId', 'Timestamp', 'VictimId', 'UnknownId', 'ConversionName', 'FormData', ),
-        self::TYPE_CAMELNAME     => array('id', 'mailingId', 'timestamp', 'victimId', 'unknownId', 'conversionName', 'formData', ),
-        self::TYPE_COLNAME       => array(WebConversionTableMap::COL_ID, WebConversionTableMap::COL_MAILING_ID, WebConversionTableMap::COL_TIMESTAMP, WebConversionTableMap::COL_VICTIM_ID, WebConversionTableMap::COL_UNKNOWN_ID, WebConversionTableMap::COL_CONVERSION_NAME, WebConversionTableMap::COL_FORM_DATA, ),
-        self::TYPE_FIELDNAME     => array('id', 'mailing_id', 'timestamp', 'victim_id', 'unknown_id', 'conversion_name', 'form_data', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id', 'MailingId', 'GroupId', 'Timestamp', 'VictimId', 'UnknownId', 'ConversionName', 'FormData', 'UniqueId', ),
+        self::TYPE_CAMELNAME     => array('id', 'mailingId', 'groupId', 'timestamp', 'victimId', 'unknownId', 'conversionName', 'formData', 'uniqueId', ),
+        self::TYPE_COLNAME       => array(WebConversionTableMap::COL_ID, WebConversionTableMap::COL_MAILING_ID, WebConversionTableMap::COL_GROUP_ID, WebConversionTableMap::COL_TIMESTAMP, WebConversionTableMap::COL_VICTIM_ID, WebConversionTableMap::COL_UNKNOWN_ID, WebConversionTableMap::COL_CONVERSION_NAME, WebConversionTableMap::COL_FORM_DATA, WebConversionTableMap::COL_UNIQUE_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'mailing_id', 'group_id', 'timestamp', 'victim_id', 'unknown_id', 'conversion_name', 'form_data', 'unique_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -132,11 +142,11 @@ class WebConversionTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'MailingId' => 1, 'Timestamp' => 2, 'VictimId' => 3, 'UnknownId' => 4, 'ConversionName' => 5, 'FormData' => 6, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'mailingId' => 1, 'timestamp' => 2, 'victimId' => 3, 'unknownId' => 4, 'conversionName' => 5, 'formData' => 6, ),
-        self::TYPE_COLNAME       => array(WebConversionTableMap::COL_ID => 0, WebConversionTableMap::COL_MAILING_ID => 1, WebConversionTableMap::COL_TIMESTAMP => 2, WebConversionTableMap::COL_VICTIM_ID => 3, WebConversionTableMap::COL_UNKNOWN_ID => 4, WebConversionTableMap::COL_CONVERSION_NAME => 5, WebConversionTableMap::COL_FORM_DATA => 6, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'mailing_id' => 1, 'timestamp' => 2, 'victim_id' => 3, 'unknown_id' => 4, 'conversion_name' => 5, 'form_data' => 6, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'MailingId' => 1, 'GroupId' => 2, 'Timestamp' => 3, 'VictimId' => 4, 'UnknownId' => 5, 'ConversionName' => 6, 'FormData' => 7, 'UniqueId' => 8, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'mailingId' => 1, 'groupId' => 2, 'timestamp' => 3, 'victimId' => 4, 'unknownId' => 5, 'conversionName' => 6, 'formData' => 7, 'uniqueId' => 8, ),
+        self::TYPE_COLNAME       => array(WebConversionTableMap::COL_ID => 0, WebConversionTableMap::COL_MAILING_ID => 1, WebConversionTableMap::COL_GROUP_ID => 2, WebConversionTableMap::COL_TIMESTAMP => 3, WebConversionTableMap::COL_VICTIM_ID => 4, WebConversionTableMap::COL_UNKNOWN_ID => 5, WebConversionTableMap::COL_CONVERSION_NAME => 6, WebConversionTableMap::COL_FORM_DATA => 7, WebConversionTableMap::COL_UNIQUE_ID => 8, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'mailing_id' => 1, 'group_id' => 2, 'timestamp' => 3, 'victim_id' => 4, 'unknown_id' => 5, 'conversion_name' => 6, 'form_data' => 7, 'unique_id' => 8, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -158,11 +168,13 @@ class WebConversionTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('mailing_id', 'MailingId', 'INTEGER', 'Mailings', 'id', true, null, null);
+        $this->addForeignKey('group_id', 'GroupId', 'INTEGER', 'Groups', 'id', false, null, null);
         $this->addColumn('timestamp', 'Timestamp', 'TIMESTAMP', false, null, null);
         $this->addForeignKey('victim_id', 'VictimId', 'INTEGER', 'Victims', 'id', false, null, null);
         $this->addColumn('unknown_id', 'UnknownId', 'VARCHAR', false, 10, null);
         $this->addColumn('conversion_name', 'ConversionName', 'VARCHAR', false, 100, null);
         $this->addColumn('form_data', 'FormData', 'VARCHAR', false, 1000, null);
+        $this->addColumn('unique_id', 'UniqueId', 'VARCHAR', false, 255, null);
     } // initialize()
 
     /**
@@ -181,6 +193,13 @@ class WebConversionTableMap extends TableMap
   0 =>
   array (
     0 => ':victim_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
+        $this->addRelation('Group', '\\DB\\Group', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':group_id',
     1 => ':id',
   ),
 ), null, null, null, false);
@@ -329,19 +348,23 @@ class WebConversionTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(WebConversionTableMap::COL_ID);
             $criteria->addSelectColumn(WebConversionTableMap::COL_MAILING_ID);
+            $criteria->addSelectColumn(WebConversionTableMap::COL_GROUP_ID);
             $criteria->addSelectColumn(WebConversionTableMap::COL_TIMESTAMP);
             $criteria->addSelectColumn(WebConversionTableMap::COL_VICTIM_ID);
             $criteria->addSelectColumn(WebConversionTableMap::COL_UNKNOWN_ID);
             $criteria->addSelectColumn(WebConversionTableMap::COL_CONVERSION_NAME);
             $criteria->addSelectColumn(WebConversionTableMap::COL_FORM_DATA);
+            $criteria->addSelectColumn(WebConversionTableMap::COL_UNIQUE_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.mailing_id');
+            $criteria->addSelectColumn($alias . '.group_id');
             $criteria->addSelectColumn($alias . '.timestamp');
             $criteria->addSelectColumn($alias . '.victim_id');
             $criteria->addSelectColumn($alias . '.unknown_id');
             $criteria->addSelectColumn($alias . '.conversion_name');
             $criteria->addSelectColumn($alias . '.form_data');
+            $criteria->addSelectColumn($alias . '.unique_id');
         }
     }
 

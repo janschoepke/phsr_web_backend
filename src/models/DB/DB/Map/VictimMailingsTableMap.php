@@ -59,7 +59,7 @@ class VictimMailingsTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 7;
+    const NUM_COLUMNS = 9;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class VictimMailingsTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 7;
+    const NUM_HYDRATE_COLUMNS = 9;
 
     /**
      * the column name for the id field
@@ -102,9 +102,19 @@ class VictimMailingsTableMap extends TableMap
     const COL_CLICKED = 'Victim_Mailings.clicked';
 
     /**
-     * the column name for the customParam field
+     * the column name for the conversioned field
      */
-    const COL_CUSTOMPARAM = 'Victim_Mailings.customParam';
+    const COL_CONVERSIONED = 'Victim_Mailings.conversioned';
+
+    /**
+     * the column name for the group_id field
+     */
+    const COL_GROUP_ID = 'Victim_Mailings.group_id';
+
+    /**
+     * the column name for the unique_id field
+     */
+    const COL_UNIQUE_ID = 'Victim_Mailings.unique_id';
 
     /**
      * The default string format for model objects of the related table
@@ -118,11 +128,11 @@ class VictimMailingsTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'VictimId', 'MailingId', 'Timestamp', 'Opened', 'Clicked', 'Customparam', ),
-        self::TYPE_CAMELNAME     => array('id', 'victimId', 'mailingId', 'timestamp', 'opened', 'clicked', 'customparam', ),
-        self::TYPE_COLNAME       => array(VictimMailingsTableMap::COL_ID, VictimMailingsTableMap::COL_VICTIM_ID, VictimMailingsTableMap::COL_MAILING_ID, VictimMailingsTableMap::COL_TIMESTAMP, VictimMailingsTableMap::COL_OPENED, VictimMailingsTableMap::COL_CLICKED, VictimMailingsTableMap::COL_CUSTOMPARAM, ),
-        self::TYPE_FIELDNAME     => array('id', 'victim_id', 'mailing_id', 'timestamp', 'opened', 'clicked', 'customParam', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id', 'VictimId', 'MailingId', 'Timestamp', 'Opened', 'Clicked', 'Conversioned', 'GroupId', 'UniqueId', ),
+        self::TYPE_CAMELNAME     => array('id', 'victimId', 'mailingId', 'timestamp', 'opened', 'clicked', 'conversioned', 'groupId', 'uniqueId', ),
+        self::TYPE_COLNAME       => array(VictimMailingsTableMap::COL_ID, VictimMailingsTableMap::COL_VICTIM_ID, VictimMailingsTableMap::COL_MAILING_ID, VictimMailingsTableMap::COL_TIMESTAMP, VictimMailingsTableMap::COL_OPENED, VictimMailingsTableMap::COL_CLICKED, VictimMailingsTableMap::COL_CONVERSIONED, VictimMailingsTableMap::COL_GROUP_ID, VictimMailingsTableMap::COL_UNIQUE_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'victim_id', 'mailing_id', 'timestamp', 'opened', 'clicked', 'conversioned', 'group_id', 'unique_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -132,11 +142,11 @@ class VictimMailingsTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'VictimId' => 1, 'MailingId' => 2, 'Timestamp' => 3, 'Opened' => 4, 'Clicked' => 5, 'Customparam' => 6, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'victimId' => 1, 'mailingId' => 2, 'timestamp' => 3, 'opened' => 4, 'clicked' => 5, 'customparam' => 6, ),
-        self::TYPE_COLNAME       => array(VictimMailingsTableMap::COL_ID => 0, VictimMailingsTableMap::COL_VICTIM_ID => 1, VictimMailingsTableMap::COL_MAILING_ID => 2, VictimMailingsTableMap::COL_TIMESTAMP => 3, VictimMailingsTableMap::COL_OPENED => 4, VictimMailingsTableMap::COL_CLICKED => 5, VictimMailingsTableMap::COL_CUSTOMPARAM => 6, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'victim_id' => 1, 'mailing_id' => 2, 'timestamp' => 3, 'opened' => 4, 'clicked' => 5, 'customParam' => 6, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'VictimId' => 1, 'MailingId' => 2, 'Timestamp' => 3, 'Opened' => 4, 'Clicked' => 5, 'Conversioned' => 6, 'GroupId' => 7, 'UniqueId' => 8, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'victimId' => 1, 'mailingId' => 2, 'timestamp' => 3, 'opened' => 4, 'clicked' => 5, 'conversioned' => 6, 'groupId' => 7, 'uniqueId' => 8, ),
+        self::TYPE_COLNAME       => array(VictimMailingsTableMap::COL_ID => 0, VictimMailingsTableMap::COL_VICTIM_ID => 1, VictimMailingsTableMap::COL_MAILING_ID => 2, VictimMailingsTableMap::COL_TIMESTAMP => 3, VictimMailingsTableMap::COL_OPENED => 4, VictimMailingsTableMap::COL_CLICKED => 5, VictimMailingsTableMap::COL_CONVERSIONED => 6, VictimMailingsTableMap::COL_GROUP_ID => 7, VictimMailingsTableMap::COL_UNIQUE_ID => 8, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'victim_id' => 1, 'mailing_id' => 2, 'timestamp' => 3, 'opened' => 4, 'clicked' => 5, 'conversioned' => 6, 'group_id' => 7, 'unique_id' => 8, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -163,7 +173,9 @@ class VictimMailingsTableMap extends TableMap
         $this->addColumn('timestamp', 'Timestamp', 'TIMESTAMP', false, null, null);
         $this->addColumn('opened', 'Opened', 'TINYINT', false, null, null);
         $this->addColumn('clicked', 'Clicked', 'TINYINT', false, null, null);
-        $this->addColumn('customParam', 'Customparam', 'VARCHAR', false, 10, null);
+        $this->addColumn('conversioned', 'Conversioned', 'TINYINT', false, null, null);
+        $this->addForeignKey('group_id', 'GroupId', 'INTEGER', 'Groups', 'id', false, null, null);
+        $this->addColumn('unique_id', 'UniqueId', 'VARCHAR', false, 255, null);
     } // initialize()
 
     /**
@@ -182,6 +194,13 @@ class VictimMailingsTableMap extends TableMap
   0 =>
   array (
     0 => ':mailing_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
+        $this->addRelation('Group', '\\DB\\Group', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':group_id',
     1 => ':id',
   ),
 ), null, null, null, false);
@@ -334,7 +353,9 @@ class VictimMailingsTableMap extends TableMap
             $criteria->addSelectColumn(VictimMailingsTableMap::COL_TIMESTAMP);
             $criteria->addSelectColumn(VictimMailingsTableMap::COL_OPENED);
             $criteria->addSelectColumn(VictimMailingsTableMap::COL_CLICKED);
-            $criteria->addSelectColumn(VictimMailingsTableMap::COL_CUSTOMPARAM);
+            $criteria->addSelectColumn(VictimMailingsTableMap::COL_CONVERSIONED);
+            $criteria->addSelectColumn(VictimMailingsTableMap::COL_GROUP_ID);
+            $criteria->addSelectColumn(VictimMailingsTableMap::COL_UNIQUE_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.victim_id');
@@ -342,7 +363,9 @@ class VictimMailingsTableMap extends TableMap
             $criteria->addSelectColumn($alias . '.timestamp');
             $criteria->addSelectColumn($alias . '.opened');
             $criteria->addSelectColumn($alias . '.clicked');
-            $criteria->addSelectColumn($alias . '.customParam');
+            $criteria->addSelectColumn($alias . '.conversioned');
+            $criteria->addSelectColumn($alias . '.group_id');
+            $criteria->addSelectColumn($alias . '.unique_id');
         }
     }
 

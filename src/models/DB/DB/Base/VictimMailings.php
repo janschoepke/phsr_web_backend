@@ -5,6 +5,8 @@ namespace DB\Base;
 use \DateTime;
 use \Exception;
 use \PDO;
+use DB\Group as ChildGroup;
+use DB\GroupQuery as ChildGroupQuery;
 use DB\Mailing as ChildMailing;
 use DB\MailingQuery as ChildMailingQuery;
 use DB\Victim as ChildVictim;
@@ -108,11 +110,25 @@ abstract class VictimMailings implements ActiveRecordInterface
     protected $clicked;
 
     /**
-     * The value for the customparam field.
+     * The value for the conversioned field.
+     *
+     * @var        int
+     */
+    protected $conversioned;
+
+    /**
+     * The value for the group_id field.
+     *
+     * @var        int
+     */
+    protected $group_id;
+
+    /**
+     * The value for the unique_id field.
      *
      * @var        string
      */
-    protected $customparam;
+    protected $unique_id;
 
     /**
      * @var        ChildVictim
@@ -123,6 +139,11 @@ abstract class VictimMailings implements ActiveRecordInterface
      * @var        ChildMailing
      */
     protected $aMailing;
+
+    /**
+     * @var        ChildGroup
+     */
+    protected $aGroup;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -428,13 +449,33 @@ abstract class VictimMailings implements ActiveRecordInterface
     }
 
     /**
-     * Get the [customparam] column value.
+     * Get the [conversioned] column value.
+     *
+     * @return int
+     */
+    public function getConversioned()
+    {
+        return $this->conversioned;
+    }
+
+    /**
+     * Get the [group_id] column value.
+     *
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return $this->group_id;
+    }
+
+    /**
+     * Get the [unique_id] column value.
      *
      * @return string
      */
-    public function getCustomparam()
+    public function getUniqueId()
     {
-        return $this->customparam;
+        return $this->unique_id;
     }
 
     /**
@@ -566,24 +607,68 @@ abstract class VictimMailings implements ActiveRecordInterface
     } // setClicked()
 
     /**
-     * Set the value of [customparam] column.
+     * Set the value of [conversioned] column.
+     *
+     * @param int $v new value
+     * @return $this|\DB\VictimMailings The current object (for fluent API support)
+     */
+    public function setConversioned($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->conversioned !== $v) {
+            $this->conversioned = $v;
+            $this->modifiedColumns[VictimMailingsTableMap::COL_CONVERSIONED] = true;
+        }
+
+        return $this;
+    } // setConversioned()
+
+    /**
+     * Set the value of [group_id] column.
+     *
+     * @param int $v new value
+     * @return $this|\DB\VictimMailings The current object (for fluent API support)
+     */
+    public function setGroupId($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->group_id !== $v) {
+            $this->group_id = $v;
+            $this->modifiedColumns[VictimMailingsTableMap::COL_GROUP_ID] = true;
+        }
+
+        if ($this->aGroup !== null && $this->aGroup->getId() !== $v) {
+            $this->aGroup = null;
+        }
+
+        return $this;
+    } // setGroupId()
+
+    /**
+     * Set the value of [unique_id] column.
      *
      * @param string $v new value
      * @return $this|\DB\VictimMailings The current object (for fluent API support)
      */
-    public function setCustomparam($v)
+    public function setUniqueId($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->customparam !== $v) {
-            $this->customparam = $v;
-            $this->modifiedColumns[VictimMailingsTableMap::COL_CUSTOMPARAM] = true;
+        if ($this->unique_id !== $v) {
+            $this->unique_id = $v;
+            $this->modifiedColumns[VictimMailingsTableMap::COL_UNIQUE_ID] = true;
         }
 
         return $this;
-    } // setCustomparam()
+    } // setUniqueId()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -642,8 +727,14 @@ abstract class VictimMailings implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : VictimMailingsTableMap::translateFieldName('Clicked', TableMap::TYPE_PHPNAME, $indexType)];
             $this->clicked = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : VictimMailingsTableMap::translateFieldName('Customparam', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->customparam = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : VictimMailingsTableMap::translateFieldName('Conversioned', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->conversioned = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : VictimMailingsTableMap::translateFieldName('GroupId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->group_id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : VictimMailingsTableMap::translateFieldName('UniqueId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->unique_id = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -652,7 +743,7 @@ abstract class VictimMailings implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = VictimMailingsTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 9; // 9 = VictimMailingsTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\DB\\VictimMailings'), 0, $e);
@@ -679,6 +770,9 @@ abstract class VictimMailings implements ActiveRecordInterface
         }
         if ($this->aMailing !== null && $this->mailing_id !== $this->aMailing->getId()) {
             $this->aMailing = null;
+        }
+        if ($this->aGroup !== null && $this->group_id !== $this->aGroup->getId()) {
+            $this->aGroup = null;
         }
     } // ensureConsistency
 
@@ -721,6 +815,7 @@ abstract class VictimMailings implements ActiveRecordInterface
 
             $this->aVictim = null;
             $this->aMailing = null;
+            $this->aGroup = null;
         } // if (deep)
     }
 
@@ -843,6 +938,13 @@ abstract class VictimMailings implements ActiveRecordInterface
                 $this->setMailing($this->aMailing);
             }
 
+            if ($this->aGroup !== null) {
+                if ($this->aGroup->isModified() || $this->aGroup->isNew()) {
+                    $affectedRows += $this->aGroup->save($con);
+                }
+                $this->setGroup($this->aGroup);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -898,8 +1000,14 @@ abstract class VictimMailings implements ActiveRecordInterface
         if ($this->isColumnModified(VictimMailingsTableMap::COL_CLICKED)) {
             $modifiedColumns[':p' . $index++]  = 'clicked';
         }
-        if ($this->isColumnModified(VictimMailingsTableMap::COL_CUSTOMPARAM)) {
-            $modifiedColumns[':p' . $index++]  = 'customParam';
+        if ($this->isColumnModified(VictimMailingsTableMap::COL_CONVERSIONED)) {
+            $modifiedColumns[':p' . $index++]  = 'conversioned';
+        }
+        if ($this->isColumnModified(VictimMailingsTableMap::COL_GROUP_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'group_id';
+        }
+        if ($this->isColumnModified(VictimMailingsTableMap::COL_UNIQUE_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'unique_id';
         }
 
         $sql = sprintf(
@@ -930,8 +1038,14 @@ abstract class VictimMailings implements ActiveRecordInterface
                     case 'clicked':
                         $stmt->bindValue($identifier, $this->clicked, PDO::PARAM_INT);
                         break;
-                    case 'customParam':
-                        $stmt->bindValue($identifier, $this->customparam, PDO::PARAM_STR);
+                    case 'conversioned':
+                        $stmt->bindValue($identifier, $this->conversioned, PDO::PARAM_INT);
+                        break;
+                    case 'group_id':
+                        $stmt->bindValue($identifier, $this->group_id, PDO::PARAM_INT);
+                        break;
+                    case 'unique_id':
+                        $stmt->bindValue($identifier, $this->unique_id, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1014,7 +1128,13 @@ abstract class VictimMailings implements ActiveRecordInterface
                 return $this->getClicked();
                 break;
             case 6:
-                return $this->getCustomparam();
+                return $this->getConversioned();
+                break;
+            case 7:
+                return $this->getGroupId();
+                break;
+            case 8:
+                return $this->getUniqueId();
                 break;
             default:
                 return null;
@@ -1052,7 +1172,9 @@ abstract class VictimMailings implements ActiveRecordInterface
             $keys[3] => $this->getTimestamp(),
             $keys[4] => $this->getOpened(),
             $keys[5] => $this->getClicked(),
-            $keys[6] => $this->getCustomparam(),
+            $keys[6] => $this->getConversioned(),
+            $keys[7] => $this->getGroupId(),
+            $keys[8] => $this->getUniqueId(),
         );
         if ($result[$keys[3]] instanceof \DateTimeInterface) {
             $result[$keys[3]] = $result[$keys[3]]->format('c');
@@ -1093,6 +1215,21 @@ abstract class VictimMailings implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->aMailing->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aGroup) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'group';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'Groups';
+                        break;
+                    default:
+                        $key = 'Group';
+                }
+
+                $result[$key] = $this->aGroup->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -1147,7 +1284,13 @@ abstract class VictimMailings implements ActiveRecordInterface
                 $this->setClicked($value);
                 break;
             case 6:
-                $this->setCustomparam($value);
+                $this->setConversioned($value);
+                break;
+            case 7:
+                $this->setGroupId($value);
+                break;
+            case 8:
+                $this->setUniqueId($value);
                 break;
         } // switch()
 
@@ -1194,7 +1337,13 @@ abstract class VictimMailings implements ActiveRecordInterface
             $this->setClicked($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setCustomparam($arr[$keys[6]]);
+            $this->setConversioned($arr[$keys[6]]);
+        }
+        if (array_key_exists($keys[7], $arr)) {
+            $this->setGroupId($arr[$keys[7]]);
+        }
+        if (array_key_exists($keys[8], $arr)) {
+            $this->setUniqueId($arr[$keys[8]]);
         }
     }
 
@@ -1255,8 +1404,14 @@ abstract class VictimMailings implements ActiveRecordInterface
         if ($this->isColumnModified(VictimMailingsTableMap::COL_CLICKED)) {
             $criteria->add(VictimMailingsTableMap::COL_CLICKED, $this->clicked);
         }
-        if ($this->isColumnModified(VictimMailingsTableMap::COL_CUSTOMPARAM)) {
-            $criteria->add(VictimMailingsTableMap::COL_CUSTOMPARAM, $this->customparam);
+        if ($this->isColumnModified(VictimMailingsTableMap::COL_CONVERSIONED)) {
+            $criteria->add(VictimMailingsTableMap::COL_CONVERSIONED, $this->conversioned);
+        }
+        if ($this->isColumnModified(VictimMailingsTableMap::COL_GROUP_ID)) {
+            $criteria->add(VictimMailingsTableMap::COL_GROUP_ID, $this->group_id);
+        }
+        if ($this->isColumnModified(VictimMailingsTableMap::COL_UNIQUE_ID)) {
+            $criteria->add(VictimMailingsTableMap::COL_UNIQUE_ID, $this->unique_id);
         }
 
         return $criteria;
@@ -1349,7 +1504,9 @@ abstract class VictimMailings implements ActiveRecordInterface
         $copyObj->setTimestamp($this->getTimestamp());
         $copyObj->setOpened($this->getOpened());
         $copyObj->setClicked($this->getClicked());
-        $copyObj->setCustomparam($this->getCustomparam());
+        $copyObj->setConversioned($this->getConversioned());
+        $copyObj->setGroupId($this->getGroupId());
+        $copyObj->setUniqueId($this->getUniqueId());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1481,6 +1638,57 @@ abstract class VictimMailings implements ActiveRecordInterface
     }
 
     /**
+     * Declares an association between this object and a ChildGroup object.
+     *
+     * @param  ChildGroup $v
+     * @return $this|\DB\VictimMailings The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setGroup(ChildGroup $v = null)
+    {
+        if ($v === null) {
+            $this->setGroupId(NULL);
+        } else {
+            $this->setGroupId($v->getId());
+        }
+
+        $this->aGroup = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildGroup object, it will not be re-added.
+        if ($v !== null) {
+            $v->addVictimMailings($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildGroup object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildGroup The associated ChildGroup object.
+     * @throws PropelException
+     */
+    public function getGroup(ConnectionInterface $con = null)
+    {
+        if ($this->aGroup === null && ($this->group_id !== null)) {
+            $this->aGroup = ChildGroupQuery::create()->findPk($this->group_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aGroup->addVictimMailingss($this);
+             */
+        }
+
+        return $this->aGroup;
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
@@ -1493,13 +1701,18 @@ abstract class VictimMailings implements ActiveRecordInterface
         if (null !== $this->aMailing) {
             $this->aMailing->removeVictimMailings($this);
         }
+        if (null !== $this->aGroup) {
+            $this->aGroup->removeVictimMailings($this);
+        }
         $this->id = null;
         $this->victim_id = null;
         $this->mailing_id = null;
         $this->timestamp = null;
         $this->opened = null;
         $this->clicked = null;
-        $this->customparam = null;
+        $this->conversioned = null;
+        $this->group_id = null;
+        $this->unique_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1522,6 +1735,7 @@ abstract class VictimMailings implements ActiveRecordInterface
 
         $this->aVictim = null;
         $this->aMailing = null;
+        $this->aGroup = null;
     }
 
     /**

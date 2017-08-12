@@ -5,6 +5,8 @@ namespace DB\Base;
 use \DateTime;
 use \Exception;
 use \PDO;
+use DB\Group as ChildGroup;
+use DB\GroupQuery as ChildGroupQuery;
 use DB\Mailing as ChildMailing;
 use DB\MailingQuery as ChildMailingQuery;
 use DB\Victim as ChildVictim;
@@ -80,6 +82,13 @@ abstract class WebConversion implements ActiveRecordInterface
     protected $mailing_id;
 
     /**
+     * The value for the group_id field.
+     *
+     * @var        int
+     */
+    protected $group_id;
+
+    /**
      * The value for the timestamp field.
      *
      * @var        DateTime
@@ -115,6 +124,13 @@ abstract class WebConversion implements ActiveRecordInterface
     protected $form_data;
 
     /**
+     * The value for the unique_id field.
+     *
+     * @var        string
+     */
+    protected $unique_id;
+
+    /**
      * @var        ChildMailing
      */
     protected $aMailing;
@@ -123,6 +139,11 @@ abstract class WebConversion implements ActiveRecordInterface
      * @var        ChildVictim
      */
     protected $aVictim;
+
+    /**
+     * @var        ChildGroup
+     */
+    protected $aGroup;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -378,6 +399,16 @@ abstract class WebConversion implements ActiveRecordInterface
     }
 
     /**
+     * Get the [group_id] column value.
+     *
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return $this->group_id;
+    }
+
+    /**
      * Get the [optionally formatted] temporal [timestamp] column value.
      *
      *
@@ -438,6 +469,16 @@ abstract class WebConversion implements ActiveRecordInterface
     }
 
     /**
+     * Get the [unique_id] column value.
+     *
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return $this->unique_id;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -480,6 +521,30 @@ abstract class WebConversion implements ActiveRecordInterface
 
         return $this;
     } // setMailingId()
+
+    /**
+     * Set the value of [group_id] column.
+     *
+     * @param int $v new value
+     * @return $this|\DB\WebConversion The current object (for fluent API support)
+     */
+    public function setGroupId($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->group_id !== $v) {
+            $this->group_id = $v;
+            $this->modifiedColumns[WebConversionTableMap::COL_GROUP_ID] = true;
+        }
+
+        if ($this->aGroup !== null && $this->aGroup->getId() !== $v) {
+            $this->aGroup = null;
+        }
+
+        return $this;
+    } // setGroupId()
 
     /**
      * Sets the value of [timestamp] column to a normalized version of the date/time value specified.
@@ -586,6 +651,26 @@ abstract class WebConversion implements ActiveRecordInterface
     } // setFormData()
 
     /**
+     * Set the value of [unique_id] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\WebConversion The current object (for fluent API support)
+     */
+    public function setUniqueId($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->unique_id !== $v) {
+            $this->unique_id = $v;
+            $this->modifiedColumns[WebConversionTableMap::COL_UNIQUE_ID] = true;
+        }
+
+        return $this;
+    } // setUniqueId()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -627,23 +712,29 @@ abstract class WebConversion implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : WebConversionTableMap::translateFieldName('MailingId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mailing_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : WebConversionTableMap::translateFieldName('Timestamp', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : WebConversionTableMap::translateFieldName('GroupId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->group_id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : WebConversionTableMap::translateFieldName('Timestamp', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->timestamp = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : WebConversionTableMap::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : WebConversionTableMap::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->victim_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : WebConversionTableMap::translateFieldName('UnknownId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : WebConversionTableMap::translateFieldName('UnknownId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->unknown_id = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : WebConversionTableMap::translateFieldName('ConversionName', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : WebConversionTableMap::translateFieldName('ConversionName', TableMap::TYPE_PHPNAME, $indexType)];
             $this->conversion_name = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : WebConversionTableMap::translateFieldName('FormData', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : WebConversionTableMap::translateFieldName('FormData', TableMap::TYPE_PHPNAME, $indexType)];
             $this->form_data = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : WebConversionTableMap::translateFieldName('UniqueId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->unique_id = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -652,7 +743,7 @@ abstract class WebConversion implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = WebConversionTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 9; // 9 = WebConversionTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\DB\\WebConversion'), 0, $e);
@@ -676,6 +767,9 @@ abstract class WebConversion implements ActiveRecordInterface
     {
         if ($this->aMailing !== null && $this->mailing_id !== $this->aMailing->getId()) {
             $this->aMailing = null;
+        }
+        if ($this->aGroup !== null && $this->group_id !== $this->aGroup->getId()) {
+            $this->aGroup = null;
         }
         if ($this->aVictim !== null && $this->victim_id !== $this->aVictim->getId()) {
             $this->aVictim = null;
@@ -721,6 +815,7 @@ abstract class WebConversion implements ActiveRecordInterface
 
             $this->aMailing = null;
             $this->aVictim = null;
+            $this->aGroup = null;
         } // if (deep)
     }
 
@@ -843,6 +938,13 @@ abstract class WebConversion implements ActiveRecordInterface
                 $this->setVictim($this->aVictim);
             }
 
+            if ($this->aGroup !== null) {
+                if ($this->aGroup->isModified() || $this->aGroup->isNew()) {
+                    $affectedRows += $this->aGroup->save($con);
+                }
+                $this->setGroup($this->aGroup);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -886,6 +988,9 @@ abstract class WebConversion implements ActiveRecordInterface
         if ($this->isColumnModified(WebConversionTableMap::COL_MAILING_ID)) {
             $modifiedColumns[':p' . $index++]  = 'mailing_id';
         }
+        if ($this->isColumnModified(WebConversionTableMap::COL_GROUP_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'group_id';
+        }
         if ($this->isColumnModified(WebConversionTableMap::COL_TIMESTAMP)) {
             $modifiedColumns[':p' . $index++]  = 'timestamp';
         }
@@ -900,6 +1005,9 @@ abstract class WebConversion implements ActiveRecordInterface
         }
         if ($this->isColumnModified(WebConversionTableMap::COL_FORM_DATA)) {
             $modifiedColumns[':p' . $index++]  = 'form_data';
+        }
+        if ($this->isColumnModified(WebConversionTableMap::COL_UNIQUE_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'unique_id';
         }
 
         $sql = sprintf(
@@ -918,6 +1026,9 @@ abstract class WebConversion implements ActiveRecordInterface
                     case 'mailing_id':
                         $stmt->bindValue($identifier, $this->mailing_id, PDO::PARAM_INT);
                         break;
+                    case 'group_id':
+                        $stmt->bindValue($identifier, $this->group_id, PDO::PARAM_INT);
+                        break;
                     case 'timestamp':
                         $stmt->bindValue($identifier, $this->timestamp ? $this->timestamp->format("Y-m-d H:i:s.u") : null, PDO::PARAM_STR);
                         break;
@@ -932,6 +1043,9 @@ abstract class WebConversion implements ActiveRecordInterface
                         break;
                     case 'form_data':
                         $stmt->bindValue($identifier, $this->form_data, PDO::PARAM_STR);
+                        break;
+                    case 'unique_id':
+                        $stmt->bindValue($identifier, $this->unique_id, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1002,19 +1116,25 @@ abstract class WebConversion implements ActiveRecordInterface
                 return $this->getMailingId();
                 break;
             case 2:
-                return $this->getTimestamp();
+                return $this->getGroupId();
                 break;
             case 3:
-                return $this->getVictimId();
+                return $this->getTimestamp();
                 break;
             case 4:
-                return $this->getUnknownId();
+                return $this->getVictimId();
                 break;
             case 5:
-                return $this->getConversionName();
+                return $this->getUnknownId();
                 break;
             case 6:
+                return $this->getConversionName();
+                break;
+            case 7:
                 return $this->getFormData();
+                break;
+            case 8:
+                return $this->getUniqueId();
                 break;
             default:
                 return null;
@@ -1048,14 +1168,16 @@ abstract class WebConversion implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getMailingId(),
-            $keys[2] => $this->getTimestamp(),
-            $keys[3] => $this->getVictimId(),
-            $keys[4] => $this->getUnknownId(),
-            $keys[5] => $this->getConversionName(),
-            $keys[6] => $this->getFormData(),
+            $keys[2] => $this->getGroupId(),
+            $keys[3] => $this->getTimestamp(),
+            $keys[4] => $this->getVictimId(),
+            $keys[5] => $this->getUnknownId(),
+            $keys[6] => $this->getConversionName(),
+            $keys[7] => $this->getFormData(),
+            $keys[8] => $this->getUniqueId(),
         );
-        if ($result[$keys[2]] instanceof \DateTimeInterface) {
-            $result[$keys[2]] = $result[$keys[2]]->format('c');
+        if ($result[$keys[3]] instanceof \DateTimeInterface) {
+            $result[$keys[3]] = $result[$keys[3]]->format('c');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1093,6 +1215,21 @@ abstract class WebConversion implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->aVictim->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aGroup) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'group';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'Groups';
+                        break;
+                    default:
+                        $key = 'Group';
+                }
+
+                $result[$key] = $this->aGroup->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -1135,19 +1272,25 @@ abstract class WebConversion implements ActiveRecordInterface
                 $this->setMailingId($value);
                 break;
             case 2:
-                $this->setTimestamp($value);
+                $this->setGroupId($value);
                 break;
             case 3:
-                $this->setVictimId($value);
+                $this->setTimestamp($value);
                 break;
             case 4:
-                $this->setUnknownId($value);
+                $this->setVictimId($value);
                 break;
             case 5:
-                $this->setConversionName($value);
+                $this->setUnknownId($value);
                 break;
             case 6:
+                $this->setConversionName($value);
+                break;
+            case 7:
                 $this->setFormData($value);
+                break;
+            case 8:
+                $this->setUniqueId($value);
                 break;
         } // switch()
 
@@ -1182,19 +1325,25 @@ abstract class WebConversion implements ActiveRecordInterface
             $this->setMailingId($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setTimestamp($arr[$keys[2]]);
+            $this->setGroupId($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setVictimId($arr[$keys[3]]);
+            $this->setTimestamp($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setUnknownId($arr[$keys[4]]);
+            $this->setVictimId($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setConversionName($arr[$keys[5]]);
+            $this->setUnknownId($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setFormData($arr[$keys[6]]);
+            $this->setConversionName($arr[$keys[6]]);
+        }
+        if (array_key_exists($keys[7], $arr)) {
+            $this->setFormData($arr[$keys[7]]);
+        }
+        if (array_key_exists($keys[8], $arr)) {
+            $this->setUniqueId($arr[$keys[8]]);
         }
     }
 
@@ -1243,6 +1392,9 @@ abstract class WebConversion implements ActiveRecordInterface
         if ($this->isColumnModified(WebConversionTableMap::COL_MAILING_ID)) {
             $criteria->add(WebConversionTableMap::COL_MAILING_ID, $this->mailing_id);
         }
+        if ($this->isColumnModified(WebConversionTableMap::COL_GROUP_ID)) {
+            $criteria->add(WebConversionTableMap::COL_GROUP_ID, $this->group_id);
+        }
         if ($this->isColumnModified(WebConversionTableMap::COL_TIMESTAMP)) {
             $criteria->add(WebConversionTableMap::COL_TIMESTAMP, $this->timestamp);
         }
@@ -1257,6 +1409,9 @@ abstract class WebConversion implements ActiveRecordInterface
         }
         if ($this->isColumnModified(WebConversionTableMap::COL_FORM_DATA)) {
             $criteria->add(WebConversionTableMap::COL_FORM_DATA, $this->form_data);
+        }
+        if ($this->isColumnModified(WebConversionTableMap::COL_UNIQUE_ID)) {
+            $criteria->add(WebConversionTableMap::COL_UNIQUE_ID, $this->unique_id);
         }
 
         return $criteria;
@@ -1345,11 +1500,13 @@ abstract class WebConversion implements ActiveRecordInterface
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setMailingId($this->getMailingId());
+        $copyObj->setGroupId($this->getGroupId());
         $copyObj->setTimestamp($this->getTimestamp());
         $copyObj->setVictimId($this->getVictimId());
         $copyObj->setUnknownId($this->getUnknownId());
         $copyObj->setConversionName($this->getConversionName());
         $copyObj->setFormData($this->getFormData());
+        $copyObj->setUniqueId($this->getUniqueId());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1481,6 +1638,57 @@ abstract class WebConversion implements ActiveRecordInterface
     }
 
     /**
+     * Declares an association between this object and a ChildGroup object.
+     *
+     * @param  ChildGroup $v
+     * @return $this|\DB\WebConversion The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setGroup(ChildGroup $v = null)
+    {
+        if ($v === null) {
+            $this->setGroupId(NULL);
+        } else {
+            $this->setGroupId($v->getId());
+        }
+
+        $this->aGroup = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildGroup object, it will not be re-added.
+        if ($v !== null) {
+            $v->addWebConversion($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildGroup object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildGroup The associated ChildGroup object.
+     * @throws PropelException
+     */
+    public function getGroup(ConnectionInterface $con = null)
+    {
+        if ($this->aGroup === null && ($this->group_id !== null)) {
+            $this->aGroup = ChildGroupQuery::create()->findPk($this->group_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aGroup->addWebConversions($this);
+             */
+        }
+
+        return $this->aGroup;
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
@@ -1493,13 +1701,18 @@ abstract class WebConversion implements ActiveRecordInterface
         if (null !== $this->aVictim) {
             $this->aVictim->removeWebConversion($this);
         }
+        if (null !== $this->aGroup) {
+            $this->aGroup->removeWebConversion($this);
+        }
         $this->id = null;
         $this->mailing_id = null;
+        $this->group_id = null;
         $this->timestamp = null;
         $this->victim_id = null;
         $this->unknown_id = null;
         $this->conversion_name = null;
         $this->form_data = null;
+        $this->unique_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1522,6 +1735,7 @@ abstract class WebConversion implements ActiveRecordInterface
 
         $this->aMailing = null;
         $this->aVictim = null;
+        $this->aGroup = null;
     }
 
     /**

@@ -50,6 +50,7 @@
     <table name="WebVisits" phpName="WebVisit">
         <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
         <column name="mailing_id" type="integer" required="true" />
+        <column name="group_id" type="integer" />
         <column name="os" type="varchar" size="100" />
         <column name="timestamp" type="timestamp" />
         <column name="url" type="varchar" size="100" />
@@ -57,29 +58,38 @@
         <column name="unknown_id" type="varchar" size="20" />
         <column name="browser" type="varchar" size="100" />
         <column name="ip" type="varchar" size="100" />
+        <column name="unique_id" type="varchar" />
 
         <foreign-key foreignTable="Mailings">
             <reference local="mailing_id" foreign="id" />
         </foreign-key>
         <foreign-key foreignTable="Victims">
             <reference local="victim_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Groups">
+            <reference local="group_id" foreign="id" />
         </foreign-key>
     </table>
 
     <table name="WebConversions" phpName="WebConversion">
         <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
         <column name="mailing_id" type="integer" required="true" />
+        <column name="group_id" type="integer" />
         <column name="timestamp" type="timestamp" />
         <column name="victim_id" type="integer" />
         <column name="unknown_id" type="varchar" size="10" />
         <column name="conversion_name" type="varchar" size="100" />
         <column name="form_data" type="varchar" size="1000" />
+        <column name="unique_id" type="varchar" />
 
         <foreign-key foreignTable="Mailings">
             <reference local="mailing_id" foreign="id" />
         </foreign-key>
         <foreign-key foreignTable="Victims">
             <reference local="victim_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Groups">
+            <reference local="group_id" foreign="id" />
         </foreign-key>
     </table>
 
@@ -126,13 +136,18 @@
         <column name="timestamp" type="timestamp" />
         <column name="opened" type="tinyint" />
         <column name="clicked" type="tinyint" />
-        <column name="customParam" type="varchar" size="10" />
+        <column name="conversioned" type="tinyint" />
+        <column name="group_id" type="integer" />
+        <column name="unique_id" type="varchar" />
 
         <foreign-key foreignTable="Victims">
             <reference local="victim_id" foreign="id" />
         </foreign-key>
         <foreign-key foreignTable="Mailings">
             <reference local="mailing_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="Groups">
+            <reference local="group_id" foreign="id" />
         </foreign-key>
     </table>
 

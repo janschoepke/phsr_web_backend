@@ -26,7 +26,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimMailingsQuery orderByTimestamp($order = Criteria::ASC) Order by the timestamp column
  * @method     ChildVictimMailingsQuery orderByOpened($order = Criteria::ASC) Order by the opened column
  * @method     ChildVictimMailingsQuery orderByClicked($order = Criteria::ASC) Order by the clicked column
- * @method     ChildVictimMailingsQuery orderByCustomparam($order = Criteria::ASC) Order by the customParam column
+ * @method     ChildVictimMailingsQuery orderByConversioned($order = Criteria::ASC) Order by the conversioned column
+ * @method     ChildVictimMailingsQuery orderByGroupId($order = Criteria::ASC) Order by the group_id column
+ * @method     ChildVictimMailingsQuery orderByUniqueId($order = Criteria::ASC) Order by the unique_id column
  *
  * @method     ChildVictimMailingsQuery groupById() Group by the id column
  * @method     ChildVictimMailingsQuery groupByVictimId() Group by the victim_id column
@@ -34,7 +36,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimMailingsQuery groupByTimestamp() Group by the timestamp column
  * @method     ChildVictimMailingsQuery groupByOpened() Group by the opened column
  * @method     ChildVictimMailingsQuery groupByClicked() Group by the clicked column
- * @method     ChildVictimMailingsQuery groupByCustomparam() Group by the customParam column
+ * @method     ChildVictimMailingsQuery groupByConversioned() Group by the conversioned column
+ * @method     ChildVictimMailingsQuery groupByGroupId() Group by the group_id column
+ * @method     ChildVictimMailingsQuery groupByUniqueId() Group by the unique_id column
  *
  * @method     ChildVictimMailingsQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildVictimMailingsQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -64,7 +68,17 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimMailingsQuery rightJoinWithMailing() Adds a RIGHT JOIN clause and with to the query using the Mailing relation
  * @method     ChildVictimMailingsQuery innerJoinWithMailing() Adds a INNER JOIN clause and with to the query using the Mailing relation
  *
- * @method     \DB\VictimQuery|\DB\MailingQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildVictimMailingsQuery leftJoinGroup($relationAlias = null) Adds a LEFT JOIN clause to the query using the Group relation
+ * @method     ChildVictimMailingsQuery rightJoinGroup($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Group relation
+ * @method     ChildVictimMailingsQuery innerJoinGroup($relationAlias = null) Adds a INNER JOIN clause to the query using the Group relation
+ *
+ * @method     ChildVictimMailingsQuery joinWithGroup($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Group relation
+ *
+ * @method     ChildVictimMailingsQuery leftJoinWithGroup() Adds a LEFT JOIN clause and with to the query using the Group relation
+ * @method     ChildVictimMailingsQuery rightJoinWithGroup() Adds a RIGHT JOIN clause and with to the query using the Group relation
+ * @method     ChildVictimMailingsQuery innerJoinWithGroup() Adds a INNER JOIN clause and with to the query using the Group relation
+ *
+ * @method     \DB\VictimQuery|\DB\MailingQuery|\DB\GroupQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildVictimMailings findOne(ConnectionInterface $con = null) Return the first ChildVictimMailings matching the query
  * @method     ChildVictimMailings findOneOrCreate(ConnectionInterface $con = null) Return the first ChildVictimMailings matching the query, or a new ChildVictimMailings object populated from the query conditions when no match is found
@@ -75,7 +89,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimMailings findOneByTimestamp(string $timestamp) Return the first ChildVictimMailings filtered by the timestamp column
  * @method     ChildVictimMailings findOneByOpened(int $opened) Return the first ChildVictimMailings filtered by the opened column
  * @method     ChildVictimMailings findOneByClicked(int $clicked) Return the first ChildVictimMailings filtered by the clicked column
- * @method     ChildVictimMailings findOneByCustomparam(string $customParam) Return the first ChildVictimMailings filtered by the customParam column *
+ * @method     ChildVictimMailings findOneByConversioned(int $conversioned) Return the first ChildVictimMailings filtered by the conversioned column
+ * @method     ChildVictimMailings findOneByGroupId(int $group_id) Return the first ChildVictimMailings filtered by the group_id column
+ * @method     ChildVictimMailings findOneByUniqueId(string $unique_id) Return the first ChildVictimMailings filtered by the unique_id column *
 
  * @method     ChildVictimMailings requirePk($key, ConnectionInterface $con = null) Return the ChildVictimMailings by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildVictimMailings requireOne(ConnectionInterface $con = null) Return the first ChildVictimMailings matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -86,7 +102,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimMailings requireOneByTimestamp(string $timestamp) Return the first ChildVictimMailings filtered by the timestamp column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildVictimMailings requireOneByOpened(int $opened) Return the first ChildVictimMailings filtered by the opened column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildVictimMailings requireOneByClicked(int $clicked) Return the first ChildVictimMailings filtered by the clicked column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildVictimMailings requireOneByCustomparam(string $customParam) Return the first ChildVictimMailings filtered by the customParam column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildVictimMailings requireOneByConversioned(int $conversioned) Return the first ChildVictimMailings filtered by the conversioned column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildVictimMailings requireOneByGroupId(int $group_id) Return the first ChildVictimMailings filtered by the group_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildVictimMailings requireOneByUniqueId(string $unique_id) Return the first ChildVictimMailings filtered by the unique_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildVictimMailings[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildVictimMailings objects based on current ModelCriteria
  * @method     ChildVictimMailings[]|ObjectCollection findById(int $id) Return ChildVictimMailings objects filtered by the id column
@@ -95,7 +113,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildVictimMailings[]|ObjectCollection findByTimestamp(string $timestamp) Return ChildVictimMailings objects filtered by the timestamp column
  * @method     ChildVictimMailings[]|ObjectCollection findByOpened(int $opened) Return ChildVictimMailings objects filtered by the opened column
  * @method     ChildVictimMailings[]|ObjectCollection findByClicked(int $clicked) Return ChildVictimMailings objects filtered by the clicked column
- * @method     ChildVictimMailings[]|ObjectCollection findByCustomparam(string $customParam) Return ChildVictimMailings objects filtered by the customParam column
+ * @method     ChildVictimMailings[]|ObjectCollection findByConversioned(int $conversioned) Return ChildVictimMailings objects filtered by the conversioned column
+ * @method     ChildVictimMailings[]|ObjectCollection findByGroupId(int $group_id) Return ChildVictimMailings objects filtered by the group_id column
+ * @method     ChildVictimMailings[]|ObjectCollection findByUniqueId(string $unique_id) Return ChildVictimMailings objects filtered by the unique_id column
  * @method     ChildVictimMailings[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -194,7 +214,7 @@ abstract class VictimMailingsQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, victim_id, mailing_id, timestamp, opened, clicked, customParam FROM Victim_Mailings WHERE id = :p0';
+        $sql = 'SELECT id, victim_id, mailing_id, timestamp, opened, clicked, conversioned, group_id, unique_id FROM Victim_Mailings WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -537,28 +557,112 @@ abstract class VictimMailingsQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the customParam column
+     * Filter the query on the conversioned column
      *
      * Example usage:
      * <code>
-     * $query->filterByCustomparam('fooValue');   // WHERE customParam = 'fooValue'
-     * $query->filterByCustomparam('%fooValue%', Criteria::LIKE); // WHERE customParam LIKE '%fooValue%'
+     * $query->filterByConversioned(1234); // WHERE conversioned = 1234
+     * $query->filterByConversioned(array(12, 34)); // WHERE conversioned IN (12, 34)
+     * $query->filterByConversioned(array('min' => 12)); // WHERE conversioned > 12
      * </code>
      *
-     * @param     string $customparam The value to use as filter.
+     * @param     mixed $conversioned The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return $this|ChildVictimMailingsQuery The current query, for fluid interface
      */
-    public function filterByCustomparam($customparam = null, $comparison = null)
+    public function filterByConversioned($conversioned = null, $comparison = null)
     {
-        if (null === $comparison) {
-            if (is_array($customparam)) {
+        if (is_array($conversioned)) {
+            $useMinMax = false;
+            if (isset($conversioned['min'])) {
+                $this->addUsingAlias(VictimMailingsTableMap::COL_CONVERSIONED, $conversioned['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($conversioned['max'])) {
+                $this->addUsingAlias(VictimMailingsTableMap::COL_CONVERSIONED, $conversioned['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
                 $comparison = Criteria::IN;
             }
         }
 
-        return $this->addUsingAlias(VictimMailingsTableMap::COL_CUSTOMPARAM, $customparam, $comparison);
+        return $this->addUsingAlias(VictimMailingsTableMap::COL_CONVERSIONED, $conversioned, $comparison);
+    }
+
+    /**
+     * Filter the query on the group_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByGroupId(1234); // WHERE group_id = 1234
+     * $query->filterByGroupId(array(12, 34)); // WHERE group_id IN (12, 34)
+     * $query->filterByGroupId(array('min' => 12)); // WHERE group_id > 12
+     * </code>
+     *
+     * @see       filterByGroup()
+     *
+     * @param     mixed $groupId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildVictimMailingsQuery The current query, for fluid interface
+     */
+    public function filterByGroupId($groupId = null, $comparison = null)
+    {
+        if (is_array($groupId)) {
+            $useMinMax = false;
+            if (isset($groupId['min'])) {
+                $this->addUsingAlias(VictimMailingsTableMap::COL_GROUP_ID, $groupId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($groupId['max'])) {
+                $this->addUsingAlias(VictimMailingsTableMap::COL_GROUP_ID, $groupId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(VictimMailingsTableMap::COL_GROUP_ID, $groupId, $comparison);
+    }
+
+    /**
+     * Filter the query on the unique_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByUniqueId('fooValue');   // WHERE unique_id = 'fooValue'
+     * $query->filterByUniqueId('%fooValue%', Criteria::LIKE); // WHERE unique_id LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $uniqueId The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildVictimMailingsQuery The current query, for fluid interface
+     */
+    public function filterByUniqueId($uniqueId = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($uniqueId)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(VictimMailingsTableMap::COL_UNIQUE_ID, $uniqueId, $comparison);
     }
 
     /**
@@ -713,6 +817,83 @@ abstract class VictimMailingsQuery extends ModelCriteria
         return $this
             ->joinMailing($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Mailing', '\DB\MailingQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\Group object
+     *
+     * @param \DB\Group|ObjectCollection $group The related object(s) to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
+     *
+     * @return ChildVictimMailingsQuery The current query, for fluid interface
+     */
+    public function filterByGroup($group, $comparison = null)
+    {
+        if ($group instanceof \DB\Group) {
+            return $this
+                ->addUsingAlias(VictimMailingsTableMap::COL_GROUP_ID, $group->getId(), $comparison);
+        } elseif ($group instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(VictimMailingsTableMap::COL_GROUP_ID, $group->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByGroup() only accepts arguments of type \DB\Group or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Group relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildVictimMailingsQuery The current query, for fluid interface
+     */
+    public function joinGroup($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Group');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Group');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Group relation Group object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\GroupQuery A secondary query class using the current class as primary query
+     */
+    public function useGroupQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinGroup($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Group', '\DB\GroupQuery');
     }
 
     /**

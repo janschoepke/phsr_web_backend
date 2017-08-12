@@ -1984,6 +1984,31 @@ abstract class Victim implements ActiveRecordInterface
         return $this->getWebVisits($query, $con);
     }
 
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Victim is new, it will return
+     * an empty collection; or if this Victim has previously
+     * been saved, it will retrieve related WebVisits from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Victim.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     */
+    public function getWebVisitsJoinGroup(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebVisitQuery::create(null, $criteria);
+        $query->joinWith('Group', $joinBehavior);
+
+        return $this->getWebVisits($query, $con);
+    }
+
     /**
      * Clears out the collWebConversions collection
      *
@@ -2230,6 +2255,31 @@ abstract class Victim implements ActiveRecordInterface
     {
         $query = ChildWebConversionQuery::create(null, $criteria);
         $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getWebConversions($query, $con);
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Victim is new, it will return
+     * an empty collection; or if this Victim has previously
+     * been saved, it will retrieve related WebConversions from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Victim.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     */
+    public function getWebConversionsJoinGroup(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebConversionQuery::create(null, $criteria);
+        $query->joinWith('Group', $joinBehavior);
 
         return $this->getWebConversions($query, $con);
     }
@@ -2986,6 +3036,31 @@ abstract class Victim implements ActiveRecordInterface
     {
         $query = ChildVictimMailingsQuery::create(null, $criteria);
         $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getVictimMailingss($query, $con);
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Victim is new, it will return
+     * an empty collection; or if this Victim has previously
+     * been saved, it will retrieve related VictimMailingss from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Victim.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildVictimMailings[] List of ChildVictimMailings objects
+     */
+    public function getVictimMailingssJoinGroup(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildVictimMailingsQuery::create(null, $criteria);
+        $query->joinWith('Group', $joinBehavior);
 
         return $this->getVictimMailingss($query, $con);
     }

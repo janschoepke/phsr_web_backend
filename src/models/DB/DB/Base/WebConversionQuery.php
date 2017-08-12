@@ -22,19 +22,23 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildWebConversionQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildWebConversionQuery orderByMailingId($order = Criteria::ASC) Order by the mailing_id column
+ * @method     ChildWebConversionQuery orderByGroupId($order = Criteria::ASC) Order by the group_id column
  * @method     ChildWebConversionQuery orderByTimestamp($order = Criteria::ASC) Order by the timestamp column
  * @method     ChildWebConversionQuery orderByVictimId($order = Criteria::ASC) Order by the victim_id column
  * @method     ChildWebConversionQuery orderByUnknownId($order = Criteria::ASC) Order by the unknown_id column
  * @method     ChildWebConversionQuery orderByConversionName($order = Criteria::ASC) Order by the conversion_name column
  * @method     ChildWebConversionQuery orderByFormData($order = Criteria::ASC) Order by the form_data column
+ * @method     ChildWebConversionQuery orderByUniqueId($order = Criteria::ASC) Order by the unique_id column
  *
  * @method     ChildWebConversionQuery groupById() Group by the id column
  * @method     ChildWebConversionQuery groupByMailingId() Group by the mailing_id column
+ * @method     ChildWebConversionQuery groupByGroupId() Group by the group_id column
  * @method     ChildWebConversionQuery groupByTimestamp() Group by the timestamp column
  * @method     ChildWebConversionQuery groupByVictimId() Group by the victim_id column
  * @method     ChildWebConversionQuery groupByUnknownId() Group by the unknown_id column
  * @method     ChildWebConversionQuery groupByConversionName() Group by the conversion_name column
  * @method     ChildWebConversionQuery groupByFormData() Group by the form_data column
+ * @method     ChildWebConversionQuery groupByUniqueId() Group by the unique_id column
  *
  * @method     ChildWebConversionQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildWebConversionQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -64,38 +68,54 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildWebConversionQuery rightJoinWithVictim() Adds a RIGHT JOIN clause and with to the query using the Victim relation
  * @method     ChildWebConversionQuery innerJoinWithVictim() Adds a INNER JOIN clause and with to the query using the Victim relation
  *
- * @method     \DB\MailingQuery|\DB\VictimQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildWebConversionQuery leftJoinGroup($relationAlias = null) Adds a LEFT JOIN clause to the query using the Group relation
+ * @method     ChildWebConversionQuery rightJoinGroup($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Group relation
+ * @method     ChildWebConversionQuery innerJoinGroup($relationAlias = null) Adds a INNER JOIN clause to the query using the Group relation
+ *
+ * @method     ChildWebConversionQuery joinWithGroup($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Group relation
+ *
+ * @method     ChildWebConversionQuery leftJoinWithGroup() Adds a LEFT JOIN clause and with to the query using the Group relation
+ * @method     ChildWebConversionQuery rightJoinWithGroup() Adds a RIGHT JOIN clause and with to the query using the Group relation
+ * @method     ChildWebConversionQuery innerJoinWithGroup() Adds a INNER JOIN clause and with to the query using the Group relation
+ *
+ * @method     \DB\MailingQuery|\DB\VictimQuery|\DB\GroupQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildWebConversion findOne(ConnectionInterface $con = null) Return the first ChildWebConversion matching the query
  * @method     ChildWebConversion findOneOrCreate(ConnectionInterface $con = null) Return the first ChildWebConversion matching the query, or a new ChildWebConversion object populated from the query conditions when no match is found
  *
  * @method     ChildWebConversion findOneById(int $id) Return the first ChildWebConversion filtered by the id column
  * @method     ChildWebConversion findOneByMailingId(int $mailing_id) Return the first ChildWebConversion filtered by the mailing_id column
+ * @method     ChildWebConversion findOneByGroupId(int $group_id) Return the first ChildWebConversion filtered by the group_id column
  * @method     ChildWebConversion findOneByTimestamp(string $timestamp) Return the first ChildWebConversion filtered by the timestamp column
  * @method     ChildWebConversion findOneByVictimId(int $victim_id) Return the first ChildWebConversion filtered by the victim_id column
  * @method     ChildWebConversion findOneByUnknownId(string $unknown_id) Return the first ChildWebConversion filtered by the unknown_id column
  * @method     ChildWebConversion findOneByConversionName(string $conversion_name) Return the first ChildWebConversion filtered by the conversion_name column
- * @method     ChildWebConversion findOneByFormData(string $form_data) Return the first ChildWebConversion filtered by the form_data column *
+ * @method     ChildWebConversion findOneByFormData(string $form_data) Return the first ChildWebConversion filtered by the form_data column
+ * @method     ChildWebConversion findOneByUniqueId(string $unique_id) Return the first ChildWebConversion filtered by the unique_id column *
 
  * @method     ChildWebConversion requirePk($key, ConnectionInterface $con = null) Return the ChildWebConversion by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOne(ConnectionInterface $con = null) Return the first ChildWebConversion matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildWebConversion requireOneById(int $id) Return the first ChildWebConversion filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOneByMailingId(int $mailing_id) Return the first ChildWebConversion filtered by the mailing_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildWebConversion requireOneByGroupId(int $group_id) Return the first ChildWebConversion filtered by the group_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOneByTimestamp(string $timestamp) Return the first ChildWebConversion filtered by the timestamp column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOneByVictimId(int $victim_id) Return the first ChildWebConversion filtered by the victim_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOneByUnknownId(string $unknown_id) Return the first ChildWebConversion filtered by the unknown_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOneByConversionName(string $conversion_name) Return the first ChildWebConversion filtered by the conversion_name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebConversion requireOneByFormData(string $form_data) Return the first ChildWebConversion filtered by the form_data column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildWebConversion requireOneByUniqueId(string $unique_id) Return the first ChildWebConversion filtered by the unique_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildWebConversion[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildWebConversion objects based on current ModelCriteria
  * @method     ChildWebConversion[]|ObjectCollection findById(int $id) Return ChildWebConversion objects filtered by the id column
  * @method     ChildWebConversion[]|ObjectCollection findByMailingId(int $mailing_id) Return ChildWebConversion objects filtered by the mailing_id column
+ * @method     ChildWebConversion[]|ObjectCollection findByGroupId(int $group_id) Return ChildWebConversion objects filtered by the group_id column
  * @method     ChildWebConversion[]|ObjectCollection findByTimestamp(string $timestamp) Return ChildWebConversion objects filtered by the timestamp column
  * @method     ChildWebConversion[]|ObjectCollection findByVictimId(int $victim_id) Return ChildWebConversion objects filtered by the victim_id column
  * @method     ChildWebConversion[]|ObjectCollection findByUnknownId(string $unknown_id) Return ChildWebConversion objects filtered by the unknown_id column
  * @method     ChildWebConversion[]|ObjectCollection findByConversionName(string $conversion_name) Return ChildWebConversion objects filtered by the conversion_name column
  * @method     ChildWebConversion[]|ObjectCollection findByFormData(string $form_data) Return ChildWebConversion objects filtered by the form_data column
+ * @method     ChildWebConversion[]|ObjectCollection findByUniqueId(string $unique_id) Return ChildWebConversion objects filtered by the unique_id column
  * @method     ChildWebConversion[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -194,7 +214,7 @@ abstract class WebConversionQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, mailing_id, timestamp, victim_id, unknown_id, conversion_name, form_data FROM WebConversions WHERE id = :p0';
+        $sql = 'SELECT id, mailing_id, group_id, timestamp, victim_id, unknown_id, conversion_name, form_data, unique_id FROM WebConversions WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -369,6 +389,49 @@ abstract class WebConversionQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the group_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByGroupId(1234); // WHERE group_id = 1234
+     * $query->filterByGroupId(array(12, 34)); // WHERE group_id IN (12, 34)
+     * $query->filterByGroupId(array('min' => 12)); // WHERE group_id > 12
+     * </code>
+     *
+     * @see       filterByGroup()
+     *
+     * @param     mixed $groupId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildWebConversionQuery The current query, for fluid interface
+     */
+    public function filterByGroupId($groupId = null, $comparison = null)
+    {
+        if (is_array($groupId)) {
+            $useMinMax = false;
+            if (isset($groupId['min'])) {
+                $this->addUsingAlias(WebConversionTableMap::COL_GROUP_ID, $groupId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($groupId['max'])) {
+                $this->addUsingAlias(WebConversionTableMap::COL_GROUP_ID, $groupId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(WebConversionTableMap::COL_GROUP_ID, $groupId, $comparison);
+    }
+
+    /**
      * Filter the query on the timestamp column
      *
      * Example usage:
@@ -530,6 +593,31 @@ abstract class WebConversionQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the unique_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByUniqueId('fooValue');   // WHERE unique_id = 'fooValue'
+     * $query->filterByUniqueId('%fooValue%', Criteria::LIKE); // WHERE unique_id LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $uniqueId The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildWebConversionQuery The current query, for fluid interface
+     */
+    public function filterByUniqueId($uniqueId = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($uniqueId)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(WebConversionTableMap::COL_UNIQUE_ID, $uniqueId, $comparison);
+    }
+
+    /**
      * Filter the query by a related \DB\Mailing object
      *
      * @param \DB\Mailing|ObjectCollection $mailing The related object(s) to use as filter
@@ -681,6 +769,83 @@ abstract class WebConversionQuery extends ModelCriteria
         return $this
             ->joinVictim($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Victim', '\DB\VictimQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\Group object
+     *
+     * @param \DB\Group|ObjectCollection $group The related object(s) to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
+     *
+     * @return ChildWebConversionQuery The current query, for fluid interface
+     */
+    public function filterByGroup($group, $comparison = null)
+    {
+        if ($group instanceof \DB\Group) {
+            return $this
+                ->addUsingAlias(WebConversionTableMap::COL_GROUP_ID, $group->getId(), $comparison);
+        } elseif ($group instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(WebConversionTableMap::COL_GROUP_ID, $group->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByGroup() only accepts arguments of type \DB\Group or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Group relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildWebConversionQuery The current query, for fluid interface
+     */
+    public function joinGroup($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Group');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Group');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Group relation Group object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\GroupQuery A secondary query class using the current class as primary query
+     */
+    public function useGroupQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinGroup($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Group', '\DB\GroupQuery');
     }
 
     /**

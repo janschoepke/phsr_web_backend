@@ -22,6 +22,7 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildWebVisitQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildWebVisitQuery orderByMailingId($order = Criteria::ASC) Order by the mailing_id column
+ * @method     ChildWebVisitQuery orderByGroupId($order = Criteria::ASC) Order by the group_id column
  * @method     ChildWebVisitQuery orderByOs($order = Criteria::ASC) Order by the os column
  * @method     ChildWebVisitQuery orderByTimestamp($order = Criteria::ASC) Order by the timestamp column
  * @method     ChildWebVisitQuery orderByUrl($order = Criteria::ASC) Order by the url column
@@ -29,9 +30,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildWebVisitQuery orderByUnknownId($order = Criteria::ASC) Order by the unknown_id column
  * @method     ChildWebVisitQuery orderByBrowser($order = Criteria::ASC) Order by the browser column
  * @method     ChildWebVisitQuery orderByIp($order = Criteria::ASC) Order by the ip column
+ * @method     ChildWebVisitQuery orderByUniqueId($order = Criteria::ASC) Order by the unique_id column
  *
  * @method     ChildWebVisitQuery groupById() Group by the id column
  * @method     ChildWebVisitQuery groupByMailingId() Group by the mailing_id column
+ * @method     ChildWebVisitQuery groupByGroupId() Group by the group_id column
  * @method     ChildWebVisitQuery groupByOs() Group by the os column
  * @method     ChildWebVisitQuery groupByTimestamp() Group by the timestamp column
  * @method     ChildWebVisitQuery groupByUrl() Group by the url column
@@ -39,6 +42,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildWebVisitQuery groupByUnknownId() Group by the unknown_id column
  * @method     ChildWebVisitQuery groupByBrowser() Group by the browser column
  * @method     ChildWebVisitQuery groupByIp() Group by the ip column
+ * @method     ChildWebVisitQuery groupByUniqueId() Group by the unique_id column
  *
  * @method     ChildWebVisitQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildWebVisitQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -68,26 +72,39 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildWebVisitQuery rightJoinWithVictim() Adds a RIGHT JOIN clause and with to the query using the Victim relation
  * @method     ChildWebVisitQuery innerJoinWithVictim() Adds a INNER JOIN clause and with to the query using the Victim relation
  *
- * @method     \DB\MailingQuery|\DB\VictimQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildWebVisitQuery leftJoinGroup($relationAlias = null) Adds a LEFT JOIN clause to the query using the Group relation
+ * @method     ChildWebVisitQuery rightJoinGroup($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Group relation
+ * @method     ChildWebVisitQuery innerJoinGroup($relationAlias = null) Adds a INNER JOIN clause to the query using the Group relation
+ *
+ * @method     ChildWebVisitQuery joinWithGroup($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Group relation
+ *
+ * @method     ChildWebVisitQuery leftJoinWithGroup() Adds a LEFT JOIN clause and with to the query using the Group relation
+ * @method     ChildWebVisitQuery rightJoinWithGroup() Adds a RIGHT JOIN clause and with to the query using the Group relation
+ * @method     ChildWebVisitQuery innerJoinWithGroup() Adds a INNER JOIN clause and with to the query using the Group relation
+ *
+ * @method     \DB\MailingQuery|\DB\VictimQuery|\DB\GroupQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildWebVisit findOne(ConnectionInterface $con = null) Return the first ChildWebVisit matching the query
  * @method     ChildWebVisit findOneOrCreate(ConnectionInterface $con = null) Return the first ChildWebVisit matching the query, or a new ChildWebVisit object populated from the query conditions when no match is found
  *
  * @method     ChildWebVisit findOneById(int $id) Return the first ChildWebVisit filtered by the id column
  * @method     ChildWebVisit findOneByMailingId(int $mailing_id) Return the first ChildWebVisit filtered by the mailing_id column
+ * @method     ChildWebVisit findOneByGroupId(int $group_id) Return the first ChildWebVisit filtered by the group_id column
  * @method     ChildWebVisit findOneByOs(string $os) Return the first ChildWebVisit filtered by the os column
  * @method     ChildWebVisit findOneByTimestamp(string $timestamp) Return the first ChildWebVisit filtered by the timestamp column
  * @method     ChildWebVisit findOneByUrl(string $url) Return the first ChildWebVisit filtered by the url column
  * @method     ChildWebVisit findOneByVictimId(int $victim_id) Return the first ChildWebVisit filtered by the victim_id column
  * @method     ChildWebVisit findOneByUnknownId(string $unknown_id) Return the first ChildWebVisit filtered by the unknown_id column
  * @method     ChildWebVisit findOneByBrowser(string $browser) Return the first ChildWebVisit filtered by the browser column
- * @method     ChildWebVisit findOneByIp(string $ip) Return the first ChildWebVisit filtered by the ip column *
+ * @method     ChildWebVisit findOneByIp(string $ip) Return the first ChildWebVisit filtered by the ip column
+ * @method     ChildWebVisit findOneByUniqueId(string $unique_id) Return the first ChildWebVisit filtered by the unique_id column *
 
  * @method     ChildWebVisit requirePk($key, ConnectionInterface $con = null) Return the ChildWebVisit by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOne(ConnectionInterface $con = null) Return the first ChildWebVisit matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildWebVisit requireOneById(int $id) Return the first ChildWebVisit filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOneByMailingId(int $mailing_id) Return the first ChildWebVisit filtered by the mailing_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildWebVisit requireOneByGroupId(int $group_id) Return the first ChildWebVisit filtered by the group_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOneByOs(string $os) Return the first ChildWebVisit filtered by the os column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOneByTimestamp(string $timestamp) Return the first ChildWebVisit filtered by the timestamp column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOneByUrl(string $url) Return the first ChildWebVisit filtered by the url column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -95,10 +112,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildWebVisit requireOneByUnknownId(string $unknown_id) Return the first ChildWebVisit filtered by the unknown_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOneByBrowser(string $browser) Return the first ChildWebVisit filtered by the browser column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildWebVisit requireOneByIp(string $ip) Return the first ChildWebVisit filtered by the ip column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildWebVisit requireOneByUniqueId(string $unique_id) Return the first ChildWebVisit filtered by the unique_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildWebVisit[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildWebVisit objects based on current ModelCriteria
  * @method     ChildWebVisit[]|ObjectCollection findById(int $id) Return ChildWebVisit objects filtered by the id column
  * @method     ChildWebVisit[]|ObjectCollection findByMailingId(int $mailing_id) Return ChildWebVisit objects filtered by the mailing_id column
+ * @method     ChildWebVisit[]|ObjectCollection findByGroupId(int $group_id) Return ChildWebVisit objects filtered by the group_id column
  * @method     ChildWebVisit[]|ObjectCollection findByOs(string $os) Return ChildWebVisit objects filtered by the os column
  * @method     ChildWebVisit[]|ObjectCollection findByTimestamp(string $timestamp) Return ChildWebVisit objects filtered by the timestamp column
  * @method     ChildWebVisit[]|ObjectCollection findByUrl(string $url) Return ChildWebVisit objects filtered by the url column
@@ -106,6 +125,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildWebVisit[]|ObjectCollection findByUnknownId(string $unknown_id) Return ChildWebVisit objects filtered by the unknown_id column
  * @method     ChildWebVisit[]|ObjectCollection findByBrowser(string $browser) Return ChildWebVisit objects filtered by the browser column
  * @method     ChildWebVisit[]|ObjectCollection findByIp(string $ip) Return ChildWebVisit objects filtered by the ip column
+ * @method     ChildWebVisit[]|ObjectCollection findByUniqueId(string $unique_id) Return ChildWebVisit objects filtered by the unique_id column
  * @method     ChildWebVisit[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -204,7 +224,7 @@ abstract class WebVisitQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, mailing_id, os, timestamp, url, victim_id, unknown_id, browser, ip FROM WebVisits WHERE id = :p0';
+        $sql = 'SELECT id, mailing_id, group_id, os, timestamp, url, victim_id, unknown_id, browser, ip, unique_id FROM WebVisits WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -376,6 +396,49 @@ abstract class WebVisitQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(WebVisitTableMap::COL_MAILING_ID, $mailingId, $comparison);
+    }
+
+    /**
+     * Filter the query on the group_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByGroupId(1234); // WHERE group_id = 1234
+     * $query->filterByGroupId(array(12, 34)); // WHERE group_id IN (12, 34)
+     * $query->filterByGroupId(array('min' => 12)); // WHERE group_id > 12
+     * </code>
+     *
+     * @see       filterByGroup()
+     *
+     * @param     mixed $groupId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildWebVisitQuery The current query, for fluid interface
+     */
+    public function filterByGroupId($groupId = null, $comparison = null)
+    {
+        if (is_array($groupId)) {
+            $useMinMax = false;
+            if (isset($groupId['min'])) {
+                $this->addUsingAlias(WebVisitTableMap::COL_GROUP_ID, $groupId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($groupId['max'])) {
+                $this->addUsingAlias(WebVisitTableMap::COL_GROUP_ID, $groupId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(WebVisitTableMap::COL_GROUP_ID, $groupId, $comparison);
     }
 
     /**
@@ -590,6 +653,31 @@ abstract class WebVisitQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the unique_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByUniqueId('fooValue');   // WHERE unique_id = 'fooValue'
+     * $query->filterByUniqueId('%fooValue%', Criteria::LIKE); // WHERE unique_id LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $uniqueId The value to use as filter.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildWebVisitQuery The current query, for fluid interface
+     */
+    public function filterByUniqueId($uniqueId = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($uniqueId)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(WebVisitTableMap::COL_UNIQUE_ID, $uniqueId, $comparison);
+    }
+
+    /**
      * Filter the query by a related \DB\Mailing object
      *
      * @param \DB\Mailing|ObjectCollection $mailing The related object(s) to use as filter
@@ -741,6 +829,83 @@ abstract class WebVisitQuery extends ModelCriteria
         return $this
             ->joinVictim($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Victim', '\DB\VictimQuery');
+    }
+
+    /**
+     * Filter the query by a related \DB\Group object
+     *
+     * @param \DB\Group|ObjectCollection $group The related object(s) to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
+     *
+     * @return ChildWebVisitQuery The current query, for fluid interface
+     */
+    public function filterByGroup($group, $comparison = null)
+    {
+        if ($group instanceof \DB\Group) {
+            return $this
+                ->addUsingAlias(WebVisitTableMap::COL_GROUP_ID, $group->getId(), $comparison);
+        } elseif ($group instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(WebVisitTableMap::COL_GROUP_ID, $group->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByGroup() only accepts arguments of type \DB\Group or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Group relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildWebVisitQuery The current query, for fluid interface
+     */
+    public function joinGroup($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Group');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Group');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Group relation Group object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\GroupQuery A secondary query class using the current class as primary query
+     */
+    public function useGroupQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinGroup($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Group', '\DB\GroupQuery');
     }
 
     /**

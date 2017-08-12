@@ -17,11 +17,20 @@ use DB\UserGroups as ChildUserGroups;
 use DB\UserGroupsQuery as ChildUserGroupsQuery;
 use DB\UserQuery as ChildUserQuery;
 use DB\Victim as ChildVictim;
+use DB\VictimMailings as ChildVictimMailings;
+use DB\VictimMailingsQuery as ChildVictimMailingsQuery;
 use DB\VictimQuery as ChildVictimQuery;
+use DB\WebConversion as ChildWebConversion;
+use DB\WebConversionQuery as ChildWebConversionQuery;
+use DB\WebVisit as ChildWebVisit;
+use DB\WebVisitQuery as ChildWebVisitQuery;
 use DB\Map\GroupMailingsTableMap;
 use DB\Map\GroupTableMap;
 use DB\Map\GroupVictimsTableMap;
 use DB\Map\UserGroupsTableMap;
+use DB\Map\VictimMailingsTableMap;
+use DB\Map\WebConversionTableMap;
+use DB\Map\WebVisitTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -98,6 +107,18 @@ abstract class Group implements ActiveRecordInterface
     protected $description;
 
     /**
+     * @var        ObjectCollection|ChildWebVisit[] Collection to store aggregation of ChildWebVisit objects.
+     */
+    protected $collWebVisits;
+    protected $collWebVisitsPartial;
+
+    /**
+     * @var        ObjectCollection|ChildWebConversion[] Collection to store aggregation of ChildWebConversion objects.
+     */
+    protected $collWebConversions;
+    protected $collWebConversionsPartial;
+
+    /**
      * @var        ObjectCollection|ChildUserGroups[] Collection to store aggregation of ChildUserGroups objects.
      */
     protected $collUserGroupss;
@@ -108,6 +129,12 @@ abstract class Group implements ActiveRecordInterface
      */
     protected $collGroupVictimss;
     protected $collGroupVictimssPartial;
+
+    /**
+     * @var        ObjectCollection|ChildVictimMailings[] Collection to store aggregation of ChildVictimMailings objects.
+     */
+    protected $collVictimMailingss;
+    protected $collVictimMailingssPartial;
 
     /**
      * @var        ObjectCollection|ChildGroupMailings[] Collection to store aggregation of ChildGroupMailings objects.
@@ -173,6 +200,18 @@ abstract class Group implements ActiveRecordInterface
 
     /**
      * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildWebVisit[]
+     */
+    protected $webVisitsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildWebConversion[]
+     */
+    protected $webConversionsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
      * @var ObjectCollection|ChildUserGroups[]
      */
     protected $userGroupssScheduledForDeletion = null;
@@ -182,6 +221,12 @@ abstract class Group implements ActiveRecordInterface
      * @var ObjectCollection|ChildGroupVictims[]
      */
     protected $groupVictimssScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildVictimMailings[]
+     */
+    protected $victimMailingssScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -617,9 +662,15 @@ abstract class Group implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->collWebVisits = null;
+
+            $this->collWebConversions = null;
+
             $this->collUserGroupss = null;
 
             $this->collGroupVictimss = null;
+
+            $this->collVictimMailingss = null;
 
             $this->collGroupMailingss = null;
 
@@ -827,6 +878,42 @@ abstract class Group implements ActiveRecordInterface
             }
 
 
+            if ($this->webVisitsScheduledForDeletion !== null) {
+                if (!$this->webVisitsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->webVisitsScheduledForDeletion as $webVisit) {
+                        // need to save related object because we set the relation to null
+                        $webVisit->save($con);
+                    }
+                    $this->webVisitsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collWebVisits !== null) {
+                foreach ($this->collWebVisits as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->webConversionsScheduledForDeletion !== null) {
+                if (!$this->webConversionsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->webConversionsScheduledForDeletion as $webConversion) {
+                        // need to save related object because we set the relation to null
+                        $webConversion->save($con);
+                    }
+                    $this->webConversionsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collWebConversions !== null) {
+                foreach ($this->collWebConversions as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             if ($this->userGroupssScheduledForDeletion !== null) {
                 if (!$this->userGroupssScheduledForDeletion->isEmpty()) {
                     \DB\UserGroupsQuery::create()
@@ -855,6 +942,24 @@ abstract class Group implements ActiveRecordInterface
 
             if ($this->collGroupVictimss !== null) {
                 foreach ($this->collGroupVictimss as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
+            if ($this->victimMailingssScheduledForDeletion !== null) {
+                if (!$this->victimMailingssScheduledForDeletion->isEmpty()) {
+                    foreach ($this->victimMailingssScheduledForDeletion as $victimMailings) {
+                        // need to save related object because we set the relation to null
+                        $victimMailings->save($con);
+                    }
+                    $this->victimMailingssScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collVictimMailingss !== null) {
+                foreach ($this->collVictimMailingss as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -1044,6 +1149,36 @@ abstract class Group implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
+            if (null !== $this->collWebVisits) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'webVisits';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'WebVisitss';
+                        break;
+                    default:
+                        $key = 'WebVisits';
+                }
+
+                $result[$key] = $this->collWebVisits->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collWebConversions) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'webConversions';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'WebConversionss';
+                        break;
+                    default:
+                        $key = 'WebConversions';
+                }
+
+                $result[$key] = $this->collWebConversions->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
             if (null !== $this->collUserGroupss) {
 
                 switch ($keyType) {
@@ -1073,6 +1208,21 @@ abstract class Group implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->collGroupVictimss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collVictimMailingss) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'victimMailingss';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'Victim_Mailingss';
+                        break;
+                    default:
+                        $key = 'VictimMailingss';
+                }
+
+                $result[$key] = $this->collVictimMailingss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collGroupMailingss) {
 
@@ -1311,6 +1461,18 @@ abstract class Group implements ActiveRecordInterface
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
 
+            foreach ($this->getWebVisits() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addWebVisit($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getWebConversions() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addWebConversion($relObj->copy($deepCopy));
+                }
+            }
+
             foreach ($this->getUserGroupss() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addUserGroups($relObj->copy($deepCopy));
@@ -1320,6 +1482,12 @@ abstract class Group implements ActiveRecordInterface
             foreach ($this->getGroupVictimss() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addGroupVictims($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getVictimMailingss() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addVictimMailings($relObj->copy($deepCopy));
                 }
             }
 
@@ -1370,6 +1538,14 @@ abstract class Group implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
+        if ('WebVisit' == $relationName) {
+            $this->initWebVisits();
+            return;
+        }
+        if ('WebConversion' == $relationName) {
+            $this->initWebConversions();
+            return;
+        }
         if ('UserGroups' == $relationName) {
             $this->initUserGroupss();
             return;
@@ -1378,10 +1554,564 @@ abstract class Group implements ActiveRecordInterface
             $this->initGroupVictimss();
             return;
         }
+        if ('VictimMailings' == $relationName) {
+            $this->initVictimMailingss();
+            return;
+        }
         if ('GroupMailings' == $relationName) {
             $this->initGroupMailingss();
             return;
         }
+    }
+
+    /**
+     * Clears out the collWebVisits collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addWebVisits()
+     */
+    public function clearWebVisits()
+    {
+        $this->collWebVisits = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collWebVisits collection loaded partially.
+     */
+    public function resetPartialWebVisits($v = true)
+    {
+        $this->collWebVisitsPartial = $v;
+    }
+
+    /**
+     * Initializes the collWebVisits collection.
+     *
+     * By default this just sets the collWebVisits collection to an empty array (like clearcollWebVisits());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initWebVisits($overrideExisting = true)
+    {
+        if (null !== $this->collWebVisits && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = WebVisitTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collWebVisits = new $collectionClassName;
+        $this->collWebVisits->setModel('\DB\WebVisit');
+    }
+
+    /**
+     * Gets an array of ChildWebVisit objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildGroup is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     * @throws PropelException
+     */
+    public function getWebVisits(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebVisitsPartial && !$this->isNew();
+        if (null === $this->collWebVisits || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collWebVisits) {
+                // return empty collection
+                $this->initWebVisits();
+            } else {
+                $collWebVisits = ChildWebVisitQuery::create(null, $criteria)
+                    ->filterByGroup($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collWebVisitsPartial && count($collWebVisits)) {
+                        $this->initWebVisits(false);
+
+                        foreach ($collWebVisits as $obj) {
+                            if (false == $this->collWebVisits->contains($obj)) {
+                                $this->collWebVisits->append($obj);
+                            }
+                        }
+
+                        $this->collWebVisitsPartial = true;
+                    }
+
+                    return $collWebVisits;
+                }
+
+                if ($partial && $this->collWebVisits) {
+                    foreach ($this->collWebVisits as $obj) {
+                        if ($obj->isNew()) {
+                            $collWebVisits[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collWebVisits = $collWebVisits;
+                $this->collWebVisitsPartial = false;
+            }
+        }
+
+        return $this->collWebVisits;
+    }
+
+    /**
+     * Sets a collection of ChildWebVisit objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $webVisits A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildGroup The current object (for fluent API support)
+     */
+    public function setWebVisits(Collection $webVisits, ConnectionInterface $con = null)
+    {
+        /** @var ChildWebVisit[] $webVisitsToDelete */
+        $webVisitsToDelete = $this->getWebVisits(new Criteria(), $con)->diff($webVisits);
+
+
+        $this->webVisitsScheduledForDeletion = $webVisitsToDelete;
+
+        foreach ($webVisitsToDelete as $webVisitRemoved) {
+            $webVisitRemoved->setGroup(null);
+        }
+
+        $this->collWebVisits = null;
+        foreach ($webVisits as $webVisit) {
+            $this->addWebVisit($webVisit);
+        }
+
+        $this->collWebVisits = $webVisits;
+        $this->collWebVisitsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related WebVisit objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related WebVisit objects.
+     * @throws PropelException
+     */
+    public function countWebVisits(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebVisitsPartial && !$this->isNew();
+        if (null === $this->collWebVisits || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collWebVisits) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getWebVisits());
+            }
+
+            $query = ChildWebVisitQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByGroup($this)
+                ->count($con);
+        }
+
+        return count($this->collWebVisits);
+    }
+
+    /**
+     * Method called to associate a ChildWebVisit object to this object
+     * through the ChildWebVisit foreign key attribute.
+     *
+     * @param  ChildWebVisit $l ChildWebVisit
+     * @return $this|\DB\Group The current object (for fluent API support)
+     */
+    public function addWebVisit(ChildWebVisit $l)
+    {
+        if ($this->collWebVisits === null) {
+            $this->initWebVisits();
+            $this->collWebVisitsPartial = true;
+        }
+
+        if (!$this->collWebVisits->contains($l)) {
+            $this->doAddWebVisit($l);
+
+            if ($this->webVisitsScheduledForDeletion and $this->webVisitsScheduledForDeletion->contains($l)) {
+                $this->webVisitsScheduledForDeletion->remove($this->webVisitsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildWebVisit $webVisit The ChildWebVisit object to add.
+     */
+    protected function doAddWebVisit(ChildWebVisit $webVisit)
+    {
+        $this->collWebVisits[]= $webVisit;
+        $webVisit->setGroup($this);
+    }
+
+    /**
+     * @param  ChildWebVisit $webVisit The ChildWebVisit object to remove.
+     * @return $this|ChildGroup The current object (for fluent API support)
+     */
+    public function removeWebVisit(ChildWebVisit $webVisit)
+    {
+        if ($this->getWebVisits()->contains($webVisit)) {
+            $pos = $this->collWebVisits->search($webVisit);
+            $this->collWebVisits->remove($pos);
+            if (null === $this->webVisitsScheduledForDeletion) {
+                $this->webVisitsScheduledForDeletion = clone $this->collWebVisits;
+                $this->webVisitsScheduledForDeletion->clear();
+            }
+            $this->webVisitsScheduledForDeletion[]= $webVisit;
+            $webVisit->setGroup(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Group is new, it will return
+     * an empty collection; or if this Group has previously
+     * been saved, it will retrieve related WebVisits from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Group.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     */
+    public function getWebVisitsJoinMailing(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebVisitQuery::create(null, $criteria);
+        $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getWebVisits($query, $con);
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Group is new, it will return
+     * an empty collection; or if this Group has previously
+     * been saved, it will retrieve related WebVisits from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Group.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebVisit[] List of ChildWebVisit objects
+     */
+    public function getWebVisitsJoinVictim(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebVisitQuery::create(null, $criteria);
+        $query->joinWith('Victim', $joinBehavior);
+
+        return $this->getWebVisits($query, $con);
+    }
+
+    /**
+     * Clears out the collWebConversions collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addWebConversions()
+     */
+    public function clearWebConversions()
+    {
+        $this->collWebConversions = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collWebConversions collection loaded partially.
+     */
+    public function resetPartialWebConversions($v = true)
+    {
+        $this->collWebConversionsPartial = $v;
+    }
+
+    /**
+     * Initializes the collWebConversions collection.
+     *
+     * By default this just sets the collWebConversions collection to an empty array (like clearcollWebConversions());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initWebConversions($overrideExisting = true)
+    {
+        if (null !== $this->collWebConversions && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = WebConversionTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collWebConversions = new $collectionClassName;
+        $this->collWebConversions->setModel('\DB\WebConversion');
+    }
+
+    /**
+     * Gets an array of ChildWebConversion objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildGroup is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     * @throws PropelException
+     */
+    public function getWebConversions(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebConversionsPartial && !$this->isNew();
+        if (null === $this->collWebConversions || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collWebConversions) {
+                // return empty collection
+                $this->initWebConversions();
+            } else {
+                $collWebConversions = ChildWebConversionQuery::create(null, $criteria)
+                    ->filterByGroup($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collWebConversionsPartial && count($collWebConversions)) {
+                        $this->initWebConversions(false);
+
+                        foreach ($collWebConversions as $obj) {
+                            if (false == $this->collWebConversions->contains($obj)) {
+                                $this->collWebConversions->append($obj);
+                            }
+                        }
+
+                        $this->collWebConversionsPartial = true;
+                    }
+
+                    return $collWebConversions;
+                }
+
+                if ($partial && $this->collWebConversions) {
+                    foreach ($this->collWebConversions as $obj) {
+                        if ($obj->isNew()) {
+                            $collWebConversions[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collWebConversions = $collWebConversions;
+                $this->collWebConversionsPartial = false;
+            }
+        }
+
+        return $this->collWebConversions;
+    }
+
+    /**
+     * Sets a collection of ChildWebConversion objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $webConversions A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildGroup The current object (for fluent API support)
+     */
+    public function setWebConversions(Collection $webConversions, ConnectionInterface $con = null)
+    {
+        /** @var ChildWebConversion[] $webConversionsToDelete */
+        $webConversionsToDelete = $this->getWebConversions(new Criteria(), $con)->diff($webConversions);
+
+
+        $this->webConversionsScheduledForDeletion = $webConversionsToDelete;
+
+        foreach ($webConversionsToDelete as $webConversionRemoved) {
+            $webConversionRemoved->setGroup(null);
+        }
+
+        $this->collWebConversions = null;
+        foreach ($webConversions as $webConversion) {
+            $this->addWebConversion($webConversion);
+        }
+
+        $this->collWebConversions = $webConversions;
+        $this->collWebConversionsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related WebConversion objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related WebConversion objects.
+     * @throws PropelException
+     */
+    public function countWebConversions(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collWebConversionsPartial && !$this->isNew();
+        if (null === $this->collWebConversions || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collWebConversions) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getWebConversions());
+            }
+
+            $query = ChildWebConversionQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByGroup($this)
+                ->count($con);
+        }
+
+        return count($this->collWebConversions);
+    }
+
+    /**
+     * Method called to associate a ChildWebConversion object to this object
+     * through the ChildWebConversion foreign key attribute.
+     *
+     * @param  ChildWebConversion $l ChildWebConversion
+     * @return $this|\DB\Group The current object (for fluent API support)
+     */
+    public function addWebConversion(ChildWebConversion $l)
+    {
+        if ($this->collWebConversions === null) {
+            $this->initWebConversions();
+            $this->collWebConversionsPartial = true;
+        }
+
+        if (!$this->collWebConversions->contains($l)) {
+            $this->doAddWebConversion($l);
+
+            if ($this->webConversionsScheduledForDeletion and $this->webConversionsScheduledForDeletion->contains($l)) {
+                $this->webConversionsScheduledForDeletion->remove($this->webConversionsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildWebConversion $webConversion The ChildWebConversion object to add.
+     */
+    protected function doAddWebConversion(ChildWebConversion $webConversion)
+    {
+        $this->collWebConversions[]= $webConversion;
+        $webConversion->setGroup($this);
+    }
+
+    /**
+     * @param  ChildWebConversion $webConversion The ChildWebConversion object to remove.
+     * @return $this|ChildGroup The current object (for fluent API support)
+     */
+    public function removeWebConversion(ChildWebConversion $webConversion)
+    {
+        if ($this->getWebConversions()->contains($webConversion)) {
+            $pos = $this->collWebConversions->search($webConversion);
+            $this->collWebConversions->remove($pos);
+            if (null === $this->webConversionsScheduledForDeletion) {
+                $this->webConversionsScheduledForDeletion = clone $this->collWebConversions;
+                $this->webConversionsScheduledForDeletion->clear();
+            }
+            $this->webConversionsScheduledForDeletion[]= $webConversion;
+            $webConversion->setGroup(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Group is new, it will return
+     * an empty collection; or if this Group has previously
+     * been saved, it will retrieve related WebConversions from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Group.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     */
+    public function getWebConversionsJoinMailing(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebConversionQuery::create(null, $criteria);
+        $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getWebConversions($query, $con);
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Group is new, it will return
+     * an empty collection; or if this Group has previously
+     * been saved, it will retrieve related WebConversions from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Group.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildWebConversion[] List of ChildWebConversion objects
+     */
+    public function getWebConversionsJoinVictim(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildWebConversionQuery::create(null, $criteria);
+        $query->joinWith('Victim', $joinBehavior);
+
+        return $this->getWebConversions($query, $con);
     }
 
     /**
@@ -1888,6 +2618,281 @@ abstract class Group implements ActiveRecordInterface
         $query->joinWith('Victim', $joinBehavior);
 
         return $this->getGroupVictimss($query, $con);
+    }
+
+    /**
+     * Clears out the collVictimMailingss collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addVictimMailingss()
+     */
+    public function clearVictimMailingss()
+    {
+        $this->collVictimMailingss = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collVictimMailingss collection loaded partially.
+     */
+    public function resetPartialVictimMailingss($v = true)
+    {
+        $this->collVictimMailingssPartial = $v;
+    }
+
+    /**
+     * Initializes the collVictimMailingss collection.
+     *
+     * By default this just sets the collVictimMailingss collection to an empty array (like clearcollVictimMailingss());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initVictimMailingss($overrideExisting = true)
+    {
+        if (null !== $this->collVictimMailingss && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = VictimMailingsTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collVictimMailingss = new $collectionClassName;
+        $this->collVictimMailingss->setModel('\DB\VictimMailings');
+    }
+
+    /**
+     * Gets an array of ChildVictimMailings objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildGroup is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildVictimMailings[] List of ChildVictimMailings objects
+     * @throws PropelException
+     */
+    public function getVictimMailingss(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collVictimMailingssPartial && !$this->isNew();
+        if (null === $this->collVictimMailingss || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collVictimMailingss) {
+                // return empty collection
+                $this->initVictimMailingss();
+            } else {
+                $collVictimMailingss = ChildVictimMailingsQuery::create(null, $criteria)
+                    ->filterByGroup($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collVictimMailingssPartial && count($collVictimMailingss)) {
+                        $this->initVictimMailingss(false);
+
+                        foreach ($collVictimMailingss as $obj) {
+                            if (false == $this->collVictimMailingss->contains($obj)) {
+                                $this->collVictimMailingss->append($obj);
+                            }
+                        }
+
+                        $this->collVictimMailingssPartial = true;
+                    }
+
+                    return $collVictimMailingss;
+                }
+
+                if ($partial && $this->collVictimMailingss) {
+                    foreach ($this->collVictimMailingss as $obj) {
+                        if ($obj->isNew()) {
+                            $collVictimMailingss[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collVictimMailingss = $collVictimMailingss;
+                $this->collVictimMailingssPartial = false;
+            }
+        }
+
+        return $this->collVictimMailingss;
+    }
+
+    /**
+     * Sets a collection of ChildVictimMailings objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $victimMailingss A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildGroup The current object (for fluent API support)
+     */
+    public function setVictimMailingss(Collection $victimMailingss, ConnectionInterface $con = null)
+    {
+        /** @var ChildVictimMailings[] $victimMailingssToDelete */
+        $victimMailingssToDelete = $this->getVictimMailingss(new Criteria(), $con)->diff($victimMailingss);
+
+
+        $this->victimMailingssScheduledForDeletion = $victimMailingssToDelete;
+
+        foreach ($victimMailingssToDelete as $victimMailingsRemoved) {
+            $victimMailingsRemoved->setGroup(null);
+        }
+
+        $this->collVictimMailingss = null;
+        foreach ($victimMailingss as $victimMailings) {
+            $this->addVictimMailings($victimMailings);
+        }
+
+        $this->collVictimMailingss = $victimMailingss;
+        $this->collVictimMailingssPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related VictimMailings objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related VictimMailings objects.
+     * @throws PropelException
+     */
+    public function countVictimMailingss(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collVictimMailingssPartial && !$this->isNew();
+        if (null === $this->collVictimMailingss || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collVictimMailingss) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getVictimMailingss());
+            }
+
+            $query = ChildVictimMailingsQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByGroup($this)
+                ->count($con);
+        }
+
+        return count($this->collVictimMailingss);
+    }
+
+    /**
+     * Method called to associate a ChildVictimMailings object to this object
+     * through the ChildVictimMailings foreign key attribute.
+     *
+     * @param  ChildVictimMailings $l ChildVictimMailings
+     * @return $this|\DB\Group The current object (for fluent API support)
+     */
+    public function addVictimMailings(ChildVictimMailings $l)
+    {
+        if ($this->collVictimMailingss === null) {
+            $this->initVictimMailingss();
+            $this->collVictimMailingssPartial = true;
+        }
+
+        if (!$this->collVictimMailingss->contains($l)) {
+            $this->doAddVictimMailings($l);
+
+            if ($this->victimMailingssScheduledForDeletion and $this->victimMailingssScheduledForDeletion->contains($l)) {
+                $this->victimMailingssScheduledForDeletion->remove($this->victimMailingssScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildVictimMailings $victimMailings The ChildVictimMailings object to add.
+     */
+    protected function doAddVictimMailings(ChildVictimMailings $victimMailings)
+    {
+        $this->collVictimMailingss[]= $victimMailings;
+        $victimMailings->setGroup($this);
+    }
+
+    /**
+     * @param  ChildVictimMailings $victimMailings The ChildVictimMailings object to remove.
+     * @return $this|ChildGroup The current object (for fluent API support)
+     */
+    public function removeVictimMailings(ChildVictimMailings $victimMailings)
+    {
+        if ($this->getVictimMailingss()->contains($victimMailings)) {
+            $pos = $this->collVictimMailingss->search($victimMailings);
+            $this->collVictimMailingss->remove($pos);
+            if (null === $this->victimMailingssScheduledForDeletion) {
+                $this->victimMailingssScheduledForDeletion = clone $this->collVictimMailingss;
+                $this->victimMailingssScheduledForDeletion->clear();
+            }
+            $this->victimMailingssScheduledForDeletion[]= $victimMailings;
+            $victimMailings->setGroup(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Group is new, it will return
+     * an empty collection; or if this Group has previously
+     * been saved, it will retrieve related VictimMailingss from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Group.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildVictimMailings[] List of ChildVictimMailings objects
+     */
+    public function getVictimMailingssJoinVictim(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildVictimMailingsQuery::create(null, $criteria);
+        $query->joinWith('Victim', $joinBehavior);
+
+        return $this->getVictimMailingss($query, $con);
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this Group is new, it will return
+     * an empty collection; or if this Group has previously
+     * been saved, it will retrieve related VictimMailingss from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in Group.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildVictimMailings[] List of ChildVictimMailings objects
+     */
+    public function getVictimMailingssJoinMailing(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildVictimMailingsQuery::create(null, $criteria);
+        $query->joinWith('Mailing', $joinBehavior);
+
+        return $this->getVictimMailingss($query, $con);
     }
 
     /**
@@ -2900,6 +3905,16 @@ abstract class Group implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collWebVisits) {
+                foreach ($this->collWebVisits as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collWebConversions) {
+                foreach ($this->collWebConversions as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collUserGroupss) {
                 foreach ($this->collUserGroupss as $o) {
                     $o->clearAllReferences($deep);
@@ -2907,6 +3922,11 @@ abstract class Group implements ActiveRecordInterface
             }
             if ($this->collGroupVictimss) {
                 foreach ($this->collGroupVictimss as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collVictimMailingss) {
+                foreach ($this->collVictimMailingss as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
@@ -2932,8 +3952,11 @@ abstract class Group implements ActiveRecordInterface
             }
         } // if ($deep)
 
+        $this->collWebVisits = null;
+        $this->collWebConversions = null;
         $this->collUserGroupss = null;
         $this->collGroupVictimss = null;
+        $this->collVictimMailingss = null;
         $this->collGroupMailingss = null;
         $this->collUsers = null;
         $this->collVictims = null;

@@ -5,6 +5,8 @@ namespace DB\Base;
 use \DateTime;
 use \Exception;
 use \PDO;
+use DB\Group as ChildGroup;
+use DB\GroupQuery as ChildGroupQuery;
 use DB\Mailing as ChildMailing;
 use DB\MailingQuery as ChildMailingQuery;
 use DB\Victim as ChildVictim;
@@ -80,6 +82,13 @@ abstract class WebVisit implements ActiveRecordInterface
     protected $mailing_id;
 
     /**
+     * The value for the group_id field.
+     *
+     * @var        int
+     */
+    protected $group_id;
+
+    /**
      * The value for the os field.
      *
      * @var        string
@@ -129,6 +138,13 @@ abstract class WebVisit implements ActiveRecordInterface
     protected $ip;
 
     /**
+     * The value for the unique_id field.
+     *
+     * @var        string
+     */
+    protected $unique_id;
+
+    /**
      * @var        ChildMailing
      */
     protected $aMailing;
@@ -137,6 +153,11 @@ abstract class WebVisit implements ActiveRecordInterface
      * @var        ChildVictim
      */
     protected $aVictim;
+
+    /**
+     * @var        ChildGroup
+     */
+    protected $aGroup;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -392,6 +413,16 @@ abstract class WebVisit implements ActiveRecordInterface
     }
 
     /**
+     * Get the [group_id] column value.
+     *
+     * @return int
+     */
+    public function getGroupId()
+    {
+        return $this->group_id;
+    }
+
+    /**
      * Get the [os] column value.
      *
      * @return string
@@ -472,6 +503,16 @@ abstract class WebVisit implements ActiveRecordInterface
     }
 
     /**
+     * Get the [unique_id] column value.
+     *
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return $this->unique_id;
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -514,6 +555,30 @@ abstract class WebVisit implements ActiveRecordInterface
 
         return $this;
     } // setMailingId()
+
+    /**
+     * Set the value of [group_id] column.
+     *
+     * @param int $v new value
+     * @return $this|\DB\WebVisit The current object (for fluent API support)
+     */
+    public function setGroupId($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->group_id !== $v) {
+            $this->group_id = $v;
+            $this->modifiedColumns[WebVisitTableMap::COL_GROUP_ID] = true;
+        }
+
+        if ($this->aGroup !== null && $this->aGroup->getId() !== $v) {
+            $this->aGroup = null;
+        }
+
+        return $this;
+    } // setGroupId()
 
     /**
      * Set the value of [os] column.
@@ -660,6 +725,26 @@ abstract class WebVisit implements ActiveRecordInterface
     } // setIp()
 
     /**
+     * Set the value of [unique_id] column.
+     *
+     * @param string $v new value
+     * @return $this|\DB\WebVisit The current object (for fluent API support)
+     */
+    public function setUniqueId($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->unique_id !== $v) {
+            $this->unique_id = $v;
+            $this->modifiedColumns[WebVisitTableMap::COL_UNIQUE_ID] = true;
+        }
+
+        return $this;
+    } // setUniqueId()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -701,29 +786,35 @@ abstract class WebVisit implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : WebVisitTableMap::translateFieldName('MailingId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mailing_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : WebVisitTableMap::translateFieldName('Os', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : WebVisitTableMap::translateFieldName('GroupId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->group_id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : WebVisitTableMap::translateFieldName('Os', TableMap::TYPE_PHPNAME, $indexType)];
             $this->os = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : WebVisitTableMap::translateFieldName('Timestamp', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : WebVisitTableMap::translateFieldName('Timestamp', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->timestamp = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : WebVisitTableMap::translateFieldName('Url', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : WebVisitTableMap::translateFieldName('Url', TableMap::TYPE_PHPNAME, $indexType)];
             $this->url = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : WebVisitTableMap::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : WebVisitTableMap::translateFieldName('VictimId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->victim_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : WebVisitTableMap::translateFieldName('UnknownId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : WebVisitTableMap::translateFieldName('UnknownId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->unknown_id = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : WebVisitTableMap::translateFieldName('Browser', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : WebVisitTableMap::translateFieldName('Browser', TableMap::TYPE_PHPNAME, $indexType)];
             $this->browser = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : WebVisitTableMap::translateFieldName('Ip', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : WebVisitTableMap::translateFieldName('Ip', TableMap::TYPE_PHPNAME, $indexType)];
             $this->ip = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 10 + $startcol : WebVisitTableMap::translateFieldName('UniqueId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->unique_id = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -732,7 +823,7 @@ abstract class WebVisit implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 9; // 9 = WebVisitTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 11; // 11 = WebVisitTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\DB\\WebVisit'), 0, $e);
@@ -756,6 +847,9 @@ abstract class WebVisit implements ActiveRecordInterface
     {
         if ($this->aMailing !== null && $this->mailing_id !== $this->aMailing->getId()) {
             $this->aMailing = null;
+        }
+        if ($this->aGroup !== null && $this->group_id !== $this->aGroup->getId()) {
+            $this->aGroup = null;
         }
         if ($this->aVictim !== null && $this->victim_id !== $this->aVictim->getId()) {
             $this->aVictim = null;
@@ -801,6 +895,7 @@ abstract class WebVisit implements ActiveRecordInterface
 
             $this->aMailing = null;
             $this->aVictim = null;
+            $this->aGroup = null;
         } // if (deep)
     }
 
@@ -923,6 +1018,13 @@ abstract class WebVisit implements ActiveRecordInterface
                 $this->setVictim($this->aVictim);
             }
 
+            if ($this->aGroup !== null) {
+                if ($this->aGroup->isModified() || $this->aGroup->isNew()) {
+                    $affectedRows += $this->aGroup->save($con);
+                }
+                $this->setGroup($this->aGroup);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -966,6 +1068,9 @@ abstract class WebVisit implements ActiveRecordInterface
         if ($this->isColumnModified(WebVisitTableMap::COL_MAILING_ID)) {
             $modifiedColumns[':p' . $index++]  = 'mailing_id';
         }
+        if ($this->isColumnModified(WebVisitTableMap::COL_GROUP_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'group_id';
+        }
         if ($this->isColumnModified(WebVisitTableMap::COL_OS)) {
             $modifiedColumns[':p' . $index++]  = 'os';
         }
@@ -987,6 +1092,9 @@ abstract class WebVisit implements ActiveRecordInterface
         if ($this->isColumnModified(WebVisitTableMap::COL_IP)) {
             $modifiedColumns[':p' . $index++]  = 'ip';
         }
+        if ($this->isColumnModified(WebVisitTableMap::COL_UNIQUE_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'unique_id';
+        }
 
         $sql = sprintf(
             'INSERT INTO WebVisits (%s) VALUES (%s)',
@@ -1003,6 +1111,9 @@ abstract class WebVisit implements ActiveRecordInterface
                         break;
                     case 'mailing_id':
                         $stmt->bindValue($identifier, $this->mailing_id, PDO::PARAM_INT);
+                        break;
+                    case 'group_id':
+                        $stmt->bindValue($identifier, $this->group_id, PDO::PARAM_INT);
                         break;
                     case 'os':
                         $stmt->bindValue($identifier, $this->os, PDO::PARAM_STR);
@@ -1024,6 +1135,9 @@ abstract class WebVisit implements ActiveRecordInterface
                         break;
                     case 'ip':
                         $stmt->bindValue($identifier, $this->ip, PDO::PARAM_STR);
+                        break;
+                    case 'unique_id':
+                        $stmt->bindValue($identifier, $this->unique_id, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -1094,25 +1208,31 @@ abstract class WebVisit implements ActiveRecordInterface
                 return $this->getMailingId();
                 break;
             case 2:
-                return $this->getOs();
+                return $this->getGroupId();
                 break;
             case 3:
-                return $this->getTimestamp();
+                return $this->getOs();
                 break;
             case 4:
-                return $this->getUrl();
+                return $this->getTimestamp();
                 break;
             case 5:
-                return $this->getVictimId();
+                return $this->getUrl();
                 break;
             case 6:
-                return $this->getUnknownId();
+                return $this->getVictimId();
                 break;
             case 7:
-                return $this->getBrowser();
+                return $this->getUnknownId();
                 break;
             case 8:
+                return $this->getBrowser();
+                break;
+            case 9:
                 return $this->getIp();
+                break;
+            case 10:
+                return $this->getUniqueId();
                 break;
             default:
                 return null;
@@ -1146,16 +1266,18 @@ abstract class WebVisit implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getMailingId(),
-            $keys[2] => $this->getOs(),
-            $keys[3] => $this->getTimestamp(),
-            $keys[4] => $this->getUrl(),
-            $keys[5] => $this->getVictimId(),
-            $keys[6] => $this->getUnknownId(),
-            $keys[7] => $this->getBrowser(),
-            $keys[8] => $this->getIp(),
+            $keys[2] => $this->getGroupId(),
+            $keys[3] => $this->getOs(),
+            $keys[4] => $this->getTimestamp(),
+            $keys[5] => $this->getUrl(),
+            $keys[6] => $this->getVictimId(),
+            $keys[7] => $this->getUnknownId(),
+            $keys[8] => $this->getBrowser(),
+            $keys[9] => $this->getIp(),
+            $keys[10] => $this->getUniqueId(),
         );
-        if ($result[$keys[3]] instanceof \DateTimeInterface) {
-            $result[$keys[3]] = $result[$keys[3]]->format('c');
+        if ($result[$keys[4]] instanceof \DateTimeInterface) {
+            $result[$keys[4]] = $result[$keys[4]]->format('c');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1193,6 +1315,21 @@ abstract class WebVisit implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->aVictim->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aGroup) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'group';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'Groups';
+                        break;
+                    default:
+                        $key = 'Group';
+                }
+
+                $result[$key] = $this->aGroup->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -1235,25 +1372,31 @@ abstract class WebVisit implements ActiveRecordInterface
                 $this->setMailingId($value);
                 break;
             case 2:
-                $this->setOs($value);
+                $this->setGroupId($value);
                 break;
             case 3:
-                $this->setTimestamp($value);
+                $this->setOs($value);
                 break;
             case 4:
-                $this->setUrl($value);
+                $this->setTimestamp($value);
                 break;
             case 5:
-                $this->setVictimId($value);
+                $this->setUrl($value);
                 break;
             case 6:
-                $this->setUnknownId($value);
+                $this->setVictimId($value);
                 break;
             case 7:
-                $this->setBrowser($value);
+                $this->setUnknownId($value);
                 break;
             case 8:
+                $this->setBrowser($value);
+                break;
+            case 9:
                 $this->setIp($value);
+                break;
+            case 10:
+                $this->setUniqueId($value);
                 break;
         } // switch()
 
@@ -1288,25 +1431,31 @@ abstract class WebVisit implements ActiveRecordInterface
             $this->setMailingId($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setOs($arr[$keys[2]]);
+            $this->setGroupId($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setTimestamp($arr[$keys[3]]);
+            $this->setOs($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setUrl($arr[$keys[4]]);
+            $this->setTimestamp($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setVictimId($arr[$keys[5]]);
+            $this->setUrl($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setUnknownId($arr[$keys[6]]);
+            $this->setVictimId($arr[$keys[6]]);
         }
         if (array_key_exists($keys[7], $arr)) {
-            $this->setBrowser($arr[$keys[7]]);
+            $this->setUnknownId($arr[$keys[7]]);
         }
         if (array_key_exists($keys[8], $arr)) {
-            $this->setIp($arr[$keys[8]]);
+            $this->setBrowser($arr[$keys[8]]);
+        }
+        if (array_key_exists($keys[9], $arr)) {
+            $this->setIp($arr[$keys[9]]);
+        }
+        if (array_key_exists($keys[10], $arr)) {
+            $this->setUniqueId($arr[$keys[10]]);
         }
     }
 
@@ -1355,6 +1504,9 @@ abstract class WebVisit implements ActiveRecordInterface
         if ($this->isColumnModified(WebVisitTableMap::COL_MAILING_ID)) {
             $criteria->add(WebVisitTableMap::COL_MAILING_ID, $this->mailing_id);
         }
+        if ($this->isColumnModified(WebVisitTableMap::COL_GROUP_ID)) {
+            $criteria->add(WebVisitTableMap::COL_GROUP_ID, $this->group_id);
+        }
         if ($this->isColumnModified(WebVisitTableMap::COL_OS)) {
             $criteria->add(WebVisitTableMap::COL_OS, $this->os);
         }
@@ -1375,6 +1527,9 @@ abstract class WebVisit implements ActiveRecordInterface
         }
         if ($this->isColumnModified(WebVisitTableMap::COL_IP)) {
             $criteria->add(WebVisitTableMap::COL_IP, $this->ip);
+        }
+        if ($this->isColumnModified(WebVisitTableMap::COL_UNIQUE_ID)) {
+            $criteria->add(WebVisitTableMap::COL_UNIQUE_ID, $this->unique_id);
         }
 
         return $criteria;
@@ -1463,6 +1618,7 @@ abstract class WebVisit implements ActiveRecordInterface
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setMailingId($this->getMailingId());
+        $copyObj->setGroupId($this->getGroupId());
         $copyObj->setOs($this->getOs());
         $copyObj->setTimestamp($this->getTimestamp());
         $copyObj->setUrl($this->getUrl());
@@ -1470,6 +1626,7 @@ abstract class WebVisit implements ActiveRecordInterface
         $copyObj->setUnknownId($this->getUnknownId());
         $copyObj->setBrowser($this->getBrowser());
         $copyObj->setIp($this->getIp());
+        $copyObj->setUniqueId($this->getUniqueId());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1601,6 +1758,57 @@ abstract class WebVisit implements ActiveRecordInterface
     }
 
     /**
+     * Declares an association between this object and a ChildGroup object.
+     *
+     * @param  ChildGroup $v
+     * @return $this|\DB\WebVisit The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setGroup(ChildGroup $v = null)
+    {
+        if ($v === null) {
+            $this->setGroupId(NULL);
+        } else {
+            $this->setGroupId($v->getId());
+        }
+
+        $this->aGroup = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildGroup object, it will not be re-added.
+        if ($v !== null) {
+            $v->addWebVisit($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildGroup object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildGroup The associated ChildGroup object.
+     * @throws PropelException
+     */
+    public function getGroup(ConnectionInterface $con = null)
+    {
+        if ($this->aGroup === null && ($this->group_id !== null)) {
+            $this->aGroup = ChildGroupQuery::create()->findPk($this->group_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aGroup->addWebVisits($this);
+             */
+        }
+
+        return $this->aGroup;
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
@@ -1613,8 +1821,12 @@ abstract class WebVisit implements ActiveRecordInterface
         if (null !== $this->aVictim) {
             $this->aVictim->removeWebVisit($this);
         }
+        if (null !== $this->aGroup) {
+            $this->aGroup->removeWebVisit($this);
+        }
         $this->id = null;
         $this->mailing_id = null;
+        $this->group_id = null;
         $this->os = null;
         $this->timestamp = null;
         $this->url = null;
@@ -1622,6 +1834,7 @@ abstract class WebVisit implements ActiveRecordInterface
         $this->unknown_id = null;
         $this->browser = null;
         $this->ip = null;
+        $this->unique_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1644,6 +1857,7 @@ abstract class WebVisit implements ActiveRecordInterface
 
         $this->aMailing = null;
         $this->aVictim = null;
+        $this->aGroup = null;
     }
 
     /**
