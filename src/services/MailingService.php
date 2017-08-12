@@ -17,9 +17,10 @@ use DB\GroupMailingsQuery;
 use DB\Mailing;
 use DB\UserMailingsQuery;
 use DB\UserQuery;
-use DB\VictimQuery;
+use DB\WebVisitQuery;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
+use Propel\Runtime\Propel;
+use PDO;
 
 class MailingService
 {
@@ -101,34 +102,31 @@ class MailingService
         return $text;
     }
 
-    function replaceLinkVariable($text, $userid) {
+    function replaceLinkVariable($text, $userid, $groupid, $victimUuid) {
         if (strpos($text, '(phsr:link') !== false) {
 
             preg_match_all('/\((phsr:link[A-Za-z0-9 :|\/.]+?)\)/', $text, $matches);
             foreach($matches[0] as $match) {
                 $temp = str_replace(")", "", $match);
                 $options = explode('|', $temp);
-                $userParam = substr($options[2], -1) == '/' ? '?user='. $userid: '/?user='. $userid;
+                $userParam = '?user='. $userid . '&group=' . $groupid . '&uuid=' . $victimUuid;
                 $text = str_replace($match, '<a href="' . $options[2] . $userParam . '">' . $options[1] . "</a>", $text);
             }
         }
         return $text;
     }
 
-    function replaceVariables($text, $firstname, $lastname, $email, $gender, $userId) {
+    function replaceVariables($text, $firstname, $lastname, $email, $gender, $userId, $groupId, $victimUuid) {
         $tempText = $this->replaceFirstnameVariable($text, $firstname);
         $tempText = $this->replaceLastnameVariable($tempText, $lastname);
         $tempText = $this->replaceEmailVariable($tempText, $email);
         $tempText = $this->replaceSalutationVariable($tempText, $gender);
-        $tempText = $this->replaceLinkVariable($tempText, $userId);
+        $tempText = $this->replaceLinkVariable($tempText, $userId, $groupId, $victimUuid);
         return $tempText;
     }
 
-    function insertTrackingPixel($text, $userId, $mailingId) {
-        $imageLink = '<img src="http://' . $_SERVER['HTTP_HOST'] . '/resources/image.gif?m=' . $mailingId . "&user=" .$userId . '" />';
-        //$imageLink = '<img src="https://' . $_SERVER['HTTP_HOST'] . '/resources/image.gif">';
-        //$imageLink = '<img src="https://www.raidhuntr.de/phsr-logo.png">';
-        //$imageLink = '<img src="https://assets-email1.unidays.world/Campaigns/SystemEmails/7290d70e-0699-490a-a720-1b3d9d2869c6">';
+    function insertTrackingPixel($text, $userId, $mailingId, $victimUuid) {
+        $imageLink = '<img src="http://' . $_SERVER['HTTP_HOST'] . '/resources/image.gif?m=' . $mailingId . "&user=" .$userId . "&uuid=" . $victimUuid . '" />';
 
         if(strpos($text, '</body>') !== false) {
             //closing body-tag found in email source.
@@ -165,9 +163,11 @@ class MailingService
 
                 if($mailing['Issmtp']) {
                     foreach($victims as $victim) {
-                        $specificHeadline = $this->replaceVariables($mailing['Headline'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id']);
-                        $specificContent = $this->replaceVariables($mailing['Content'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id']);
-                        $specificContentWTrackingPx = $this->insertTrackingPixel($specificContent, $victim['Id'], $mailing['Id']);
+                        $victimUuid = uniqid();
+
+                        $specificHeadline = $this->replaceVariables($mailing['Headline'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id'], $groupId, $victimUuid);
+                        $specificContent = $this->replaceVariables($mailing['Content'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id'], $groupId, $victimUuid);
+                        $specificContentWTrackingPx = $this->insertTrackingPixel($specificContent, $victim['Id'], $mailing['Id'], $victimUuid);
 
                         $currentVictimMailing = new VictimMailings();
                         $currentVictimMailing->setVictimId($victim['Id']);
@@ -175,15 +175,20 @@ class MailingService
                         $currentVictimMailing->setTimestamp(time());
                         $currentVictimMailing->setOpened(false);
                         $currentVictimMailing->setClicked(false);
+                        $currentVictimMailing->setConversioned(false);
+                        $currentVictimMailing->setGroupId($groupId);
+                        $currentVictimMailing->setUniqueId($victimUuid);
                         $currentVictimMailing->save();
 
                         $this->sendSMTPMail($mailing['Fromemail'], $mailing['Fromname'], $victim['Email'], $victim['Firstname'] . ' ' . $victim['Lastname'], $specificHeadline, $specificContentWTrackingPx, $mailing['Smtphost'], $mailing['Smtpuser'], $mailing['Smtppassword'], $mailing['Smtpsecure'], $mailing['Smtpport']);
                     }
                 } else {
                     foreach($victims as $victim) {
-                        $specificHeadline = $this->replaceVariables($mailing['Headline'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id']);
-                        $specificContent = $this->replaceVariables($mailing['Content'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id']);
-                        $specificContentWTrackingPx = $this->insertTrackingPixel($specificContent, $victim['Id'], $mailing['Id']);
+                        $victimUuid = uniqid();
+
+                        $specificHeadline = $this->replaceVariables($mailing['Headline'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id'], $groupId, $victimUuid);
+                        $specificContent = $this->replaceVariables($mailing['Content'], $victim['Firstname'], $victim['Lastname'], $victim['Email'], $victim['Gender'], $victim['Id'], $groupId, $victimUuid);
+                        $specificContentWTrackingPx = $this->insertTrackingPixel($specificContent, $victim['Id'], $mailing['Id'], $victimUuid);
 
                         $currentVictimMailing = new VictimMailings();
                         $currentVictimMailing->setVictimId($victim['Id']);
@@ -191,6 +196,9 @@ class MailingService
                         $currentVictimMailing->setTimestamp(time());
                         $currentVictimMailing->setOpened(false);
                         $currentVictimMailing->setClicked(false);
+                        $currentVictimMailing->setConversioned(false);
+                        $currentVictimMailing->setGroupId($groupId);
+                        $currentVictimMailing->setUniqueId($victimUuid);
                         $currentVictimMailing->save();
 
                         $this->sendMail($mailing['Fromemail'], $mailing['Fromname'], $victim['Email'], $victim['Firstname'] . ' ' . $victim['Lastname'], $specificHeadline, $specificContentWTrackingPx);
@@ -361,6 +369,73 @@ class MailingService
                 throw new \ApplicationException("There is no such mailing.");
                 return false;
             }
+        } else {
+            throw new \ApplicationException("There is no such user.");
+            return false;
+        }
+    }
+
+    function getSentMailingIdsByUser($userMail) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $mailings = MailingQuery::create()->filterByUser($currentUser)->find()->toArray();
+
+            $tempMailing = [];
+
+            foreach($mailings as $mailing) {
+                $tempMailing = GroupMailingsQuery::create()->filterByMailingId($mailing['Id'])->find()->toArray();
+
+            }
+            return $tempMailing;
+        } else {
+            throw new \ApplicationException("There is no such user.");
+            return false;
+        }
+    }
+
+    function execCustomSQLStatement($sql, $map) {
+        $con = Propel::getConnection();
+
+        $stmt = $con->prepare($sql);
+        $stmt->execute($map);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result;
+    }
+
+    function getAllSentMailings($userMail) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $sentMailings = $this->getSentMailingIdsByUser($userMail);
+
+            $sentMailingsData = [];
+
+            for($i = 0; $i < sizeof($sentMailings); $i++) {
+                $tempResult = [];
+                $tempStatData = VictimMailingsQuery::create()->filterByMailingId($sentMailings[$i]['MailingId'])->filterByGroupId($sentMailings[$i]['GroupId'])->joinWithVictim()->find()->toArray();
+                $tempMailingData = MailingQuery::create()->filterById($sentMailings[$i]['MailingId'])->findOne()->toArray();
+                $tempGroupData = GroupQuery::create()->filterById($sentMailings[$i]['GroupId'])->findOne()->toArray();
+                $tempBrowserData = WebVisitQuery::create()->withColumn('COUNT(browser)', 'CountBrowser')->select(array('browser', 'CountBrowser'))->filterByMailingId($sentMailings[$i]['MailingId'])->filterByGroupId($sentMailings[$i]['GroupId'])->groupByBrowser()->orderByCountBrowser()->find()->toArray();
+                $tempOsData = WebVisitQuery::create()->withColumn('COUNT(os)', 'CountOs')->select(array('os', 'CountOs'))->groupByOs()->orderByCountOs()->filterByMailingId($sentMailings[$i]['MailingId'])->filterByGroupId($sentMailings[$i]['GroupId'])->find()->toArray();
+
+                $webVisitSQL = "SELECT AVG(COUNTER) AS avgVisits, SUM(COUNTER) AS totalVisits, COUNT(victim_id) AS totalVisitors FROM (SELECT COUNT(unique_id) AS COUNTER, victim_id FROM `WebVisits` WHERE mailing_id = :mailingid AND group_id = :groupid GROUP BY unique_id) a";
+                $webVisitData = $this->execCustomSQLStatement($webVisitSQL, array(':mailingid' => $sentMailings[$i]['MailingId'], ':groupid' => $sentMailings[$i]['GroupId']));
+
+                $webConversionSQL = "SELECT AVG(COUNTER) AS avgConversions, SUM(COUNTER) AS totalConversions, COUNT(victim_id) AS totalConversioners FROM (SELECT COUNT(unique_id) AS COUNTER, victim_id FROM `WebConversions` WHERE mailing_id = :mailingid AND group_id = :groupid GROUP BY unique_id) a";
+                $webConversionData = $this->execCustomSQLStatement($webConversionSQL, array(':mailingid' => $sentMailings[$i]['MailingId'], ':groupid' => $sentMailings[$i]['GroupId']));
+
+                $tempResult['statData'] = $tempStatData;
+                $tempResult['mailingsData'] = $tempMailingData;
+                $tempResult['groupData'] = $tempGroupData;
+                $tempResult['browserData'] = $tempBrowserData;
+                $tempResult['osData'] = $tempOsData;
+                $tempResult['webVisitData'] = $webVisitData;
+                $tempResult['webConversionData'] = $webConversionData;
+                array_push($sentMailingsData, $tempResult);
+            }
+
+            return $sentMailingsData;
+
         } else {
             throw new \ApplicationException("There is no such user.");
             return false;
