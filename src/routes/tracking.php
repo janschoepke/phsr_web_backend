@@ -19,16 +19,18 @@ $app->group('/tracking', function() use ($app) {
         $body = json_decode($request->getBody());
 
         $mailingId = htmlspecialchars($body->mailingid);
+        $groupId = htmlspecialchars($body->groupID);
         $userId = htmlspecialchars($body->userID);
         $url = htmlspecialchars($body->url);
         $browser = htmlspecialchars($body->browser);
         $ip = htmlspecialchars($body->ip);
         $os = htmlspecialchars($body->os);
         $timestamp = htmlspecialchars($body->timestamp);
+        $uuid = htmlspecialchars($body->uuid);
 
         try {
             $trackingService = $this->trackingService;
-            $trackingService->registerWebVisit($mailingId, $userId, $url, $browser, $ip, $os, $timestamp);
+            $trackingService->registerWebVisit($mailingId, $userId, $url, $browser, $ip, $os, $timestamp, $groupId, $uuid);
         } catch (\ApplicationException $ae) {
             return $response->withStatus(403)
                 ->write(json_encode(["success" => "false", "code" => $ae->getCode(), "message" => $ae->getMessage()]));
@@ -47,15 +49,16 @@ $app->group('/tracking', function() use ($app) {
         $body = json_decode($request->getBody());
 
         $mailingId = htmlspecialchars($body->mailingid);
+        $groupId = htmlspecialchars($body->groupID);
         $timestamp = htmlspecialchars($body->timestamp);
         $userId = htmlspecialchars($body->userID);
         $conversionName = htmlspecialchars($body->conversion);
         $formData = $body->fieldData;
-        echo $formData;
+        $uuid = htmlspecialchars($body->uuid);
 
         try {
             $trackingService = $this->trackingService;
-            $trackingService->registerWebConversion($mailingId, $timestamp, $userId, $conversionName, $formData);
+            $trackingService->registerWebConversion($mailingId, $timestamp, $userId, $conversionName, $formData, $groupId, $uuid);
         } catch (\ApplicationException $ae) {
             return $response->withStatus(403)
                 ->write(json_encode(["success" => "false", "code" => $ae->getCode(), "message" => $ae->getMessage()]));

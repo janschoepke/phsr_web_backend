@@ -16,8 +16,8 @@ use DB\WebVisit;
 
 class TrackingService {
 
-    function registerEmailConversion($mailingId, $victimId) {
-       $currentVictimMailing = VictimMailingsQuery::create()->filterByMailingId($mailingId)->filterByVictimId($victimId)->findOne();
+    function registerEmailConversion($mailingId, $victimId, $uuid) {
+       $currentVictimMailing = VictimMailingsQuery::create()->filterByMailingId($mailingId)->filterByVictimId($victimId)->filterByUniqueId($uuid)->findOne();
        $currentVictimMailing->setOpened(true);
        $currentVictimMailing->save();
     }
@@ -32,7 +32,7 @@ class TrackingService {
         return false;
     }
 
-    function registerWebVisit($mailingId, $userId, $url, $browser, $ip, $os, $timestamp) {
+    function registerWebVisit($mailingId, $userId, $url, $browser, $ip, $os, $timestamp, $groupId, $uuid) {
         $currentMailing = MailingQuery::create()->filterById($mailingId)->findOne();
         if(!is_null($currentMailing)) {
             $currentUser = $currentMailing->getUsers()->getFirst();
@@ -41,10 +41,17 @@ class TrackingService {
                 $webVisit = new WebVisit();
                 if($this->isRegisteredVictim($currentUser, $userId)) {
                     $webVisit->setVictimId($userId);
+                    $victimMailing = VictimMailingsQuery::create()->filterByVictimId($userId)->filterByMailingId($mailingId)->filterByUniqueId($uuid)->findOne();
+                    $victimMailing->setClicked(true);
+                    $victimMailing->save();
                 } else {
                     $webVisit->setUnknownId($userId);
                     $webVisit->setVictimId(null);
                 }
+                if($groupId != -1) {
+                    $webVisit->setGroupId($groupId);
+                }
+                $webVisit->setUniqueId($uuid);
                 $webVisit->setMailing($currentMailing);
                 $webVisit->setUrl($url);
                 $webVisit->setBrowser($browser);
@@ -63,7 +70,7 @@ class TrackingService {
         }
     }
 
-    function registerWebConversion($mailingId, $timestamp, $userId, $conversionName, $formData) {
+    function registerWebConversion($mailingId, $timestamp, $userId, $conversionName, $formData, $groupId, $uuid) {
         $currentMailing = MailingQuery::create()->filterById($mailingId)->findOne();
         if(!is_null($currentMailing)) {
             $currentUser = $currentMailing->getUsers()->getFirst();
@@ -72,11 +79,18 @@ class TrackingService {
                 $webConversion = new WebConversion();
                 if($this->isRegisteredVictim($currentUser, $userId)) {
                     $webConversion->setVictimId($userId);
+                    $victimMailing = VictimMailingsQuery::create()->filterByVictimId($userId)->filterByMailingId($mailingId)->filterByUniqueId($uuid)->findOne();
+                    $victimMailing->setConversioned(true);
+                    $victimMailing->save();
                 } else {
                     $webConversion->setUnknownId($userId);
                     $webConversion->setVictimId(null);
                 }
 
+                if($groupId != -1) {
+                    $webConversion->setGroupId($groupId);
+                }
+                $webConversion->setUniqueId($uuid);
                 $webConversion->setMailing($currentMailing);
                 $webConversion->setTimestamp($timestamp);
                 $webConversion->setConversionName($conversionName);
