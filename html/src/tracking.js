@@ -2,6 +2,10 @@
  * Created by janschopke on 18.06.17.
  */
 
+String.prototype.replaceAll = function(str1, str2, ignore) {
+    return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+}
+
 window.track = (function(){
 
     var settings = {
@@ -57,6 +61,24 @@ window.track = (function(){
         }
     }
 
+    function getCurrentUUID () {
+        var uuid = getUrlParameter('uuid');
+        if(uuid === null) {
+            uuid = -1;
+        }
+        result['uuid'] = uuid;
+        checkForCompleteResult();
+    }
+
+    function getGroupID () {
+        var groupid = getUrlParameter('group');
+        if(groupid === null) {
+            groupid = -1;
+        }
+        result['groupID'] = groupid;
+        checkForCompleteResult();
+    }
+
     function getCurrentBrowser () {
         var ua= navigator.userAgent, tem,
             M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
@@ -99,40 +121,41 @@ window.track = (function(){
         xhr.send();
     }
 
-    function prepareWebsite() {
-        var script1 = document.createElement('script');
-        script1.src = 'bower_components/jquery/dist/jquery.min.js';
-
-        var scripts = document.getElementsByTagName('script');
-        var last = scripts[scripts.length -1];
-        document.body.insertBefore(script1, last);
-
-        generateDataReport();
-    }
-
     function prepareFormSubmit() {
-        var allForms = document.querySelectorAll('[data-phsr]');
+        var allForms = document.querySelectorAll('[data-conversion]');
 
-        allForms.forEach(function(el, i, a) {
+        allForms.forEach(function(el) {
             el.onsubmit = function(event) {
                 event.preventDefault();
+                var formResult = {
+                    'mailingid' : result.mailingid,
+                    'timestamp': result.timestamp,
+                    'userID': result.userID,
+                    'conversion': el.dataset.conversion,
+                    'groupID': result.groupID,
+                    'uuid': result.uuid
+                };
+
+                if(el.dataset.fields) {
+                    console.log(el.dataset.fields)
+                    var fieldData = {};
+                    var fields = JSON.parse((el.dataset.fields).replaceAll("'", '"'));
+                    Object.keys(fields).forEach(function(key) {
+                        fieldData[key] = document.getElementById(fields[key]).value;
+                    });
+                    formResult["fieldData"] = JSON.stringify(fieldData);
+                }
 
                 var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'janschoe.uberspace.com/phsr/form');
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.onload = function() {
-                    if (xhr.status === 200 && xhr.responseText !== newName) {
-                        alert('Something went wrong.  Name is now ' + xhr.responseText);
-                    }
-                    else if (xhr.status !== 200) {
-                        alert('Request failed.  Returned status of ' + xhr.status);
-                    }
-                };
-                xhr.send(JSON.stringify(result));
-                this.submit();
+                xhr.open("POST", settings['phsrserver'] + '/tracking/webconversion');
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                var that = this;
+                xhr.onreadystatechange = function() {
+                    that.submit();
+                }
+                xhr.send(JSON.stringify(formResult));
             }
         });
-        console.log(allForms);
     }
 
     function generateDataReport() {
@@ -141,6 +164,8 @@ window.track = (function(){
         getCurrentBrowser();
         getCurrentOperatingSystem();
         getCurrentUserID();
+        getGroupID();
+        getCurrentUUID();
 
         if(!settings.anonymizeip) {
             getCurrentIpAddress();
@@ -148,8 +173,9 @@ window.track = (function(){
     }
 
     function checkForCompleteResult() {
-        if((!!result['ip'] || settings.anonymizeip == true) && !!result['userID'] && !!result['timestamp'] && !!result['browser'] && !!result['os'] && !!result['phsrid'] && !!result['url'] && !!result['mailingid']) {
+        if((!!result['ip'] || settings.anonymizeip == true) && !!result['userID'] && !!result['timestamp'] && !!result['browser'] && !!result['os'] && !!result['phsrid'] && !!result['url'] && !!result['mailingid'] && !!result['groupID'] && !!result['uuid']) {
             console.log(result)
+            console.log('firing request!')
             //AJAX post here.
             var xhr = new XMLHttpRequest();
             xhr.open('POST', settings['phsrserver'] + '/tracking/webvisit');
@@ -171,7 +197,7 @@ window.track = (function(){
             for(var key in json) settings[key] = json[key];
             result['phsrid'] = settings['phsrid'];
             result['mailingid'] = settings['mailingid'];
-            prepareWebsite();
+            generateDataReport();
             prepareFormSubmit();
         }
     };
