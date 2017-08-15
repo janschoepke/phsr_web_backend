@@ -26,6 +26,13 @@ $app->group('/tracking', function() use ($app) {
             ->write(json_encode($resultData));
     });
 
+    $app->get('/get-ip-address', function(ServerRequestInterface $request, ResponseInterface $response) {
+        $ipAddress = $request->getAttribute('ip_address');
+
+        return $response->withStatus(200)
+            ->write($ipAddress);
+    });
+
     $app->post('/webvisit', function (ServerRequestInterface $request, ResponseInterface $response) {
 
         $body = json_decode($request->getBody());
