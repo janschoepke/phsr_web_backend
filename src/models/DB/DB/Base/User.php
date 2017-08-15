@@ -8,11 +8,15 @@ use DB\Group as ChildGroup;
 use DB\GroupQuery as ChildGroupQuery;
 use DB\Mailing as ChildMailing;
 use DB\MailingQuery as ChildMailingQuery;
+use DB\MalwareCampaign as ChildMalwareCampaign;
+use DB\MalwareCampaignQuery as ChildMalwareCampaignQuery;
 use DB\User as ChildUser;
 use DB\UserGroups as ChildUserGroups;
 use DB\UserGroupsQuery as ChildUserGroupsQuery;
 use DB\UserMailings as ChildUserMailings;
 use DB\UserMailingsQuery as ChildUserMailingsQuery;
+use DB\UserMalwareCampaigns as ChildUserMalwareCampaigns;
+use DB\UserMalwareCampaignsQuery as ChildUserMalwareCampaignsQuery;
 use DB\UserQuery as ChildUserQuery;
 use DB\UserVictims as ChildUserVictims;
 use DB\UserVictimsQuery as ChildUserVictimsQuery;
@@ -20,6 +24,7 @@ use DB\Victim as ChildVictim;
 use DB\VictimQuery as ChildVictimQuery;
 use DB\Map\UserGroupsTableMap;
 use DB\Map\UserMailingsTableMap;
+use DB\Map\UserMalwareCampaignsTableMap;
 use DB\Map\UserTableMap;
 use DB\Map\UserVictimsTableMap;
 use Propel\Runtime\Propel;
@@ -119,6 +124,12 @@ abstract class User implements ActiveRecordInterface
     protected $salt;
 
     /**
+     * @var        ObjectCollection|ChildUserMalwareCampaigns[] Collection to store aggregation of ChildUserMalwareCampaigns objects.
+     */
+    protected $collUserMalwareCampaignss;
+    protected $collUserMalwareCampaignssPartial;
+
+    /**
      * @var        ObjectCollection|ChildUserGroups[] Collection to store aggregation of ChildUserGroups objects.
      */
     protected $collUserGroupss;
@@ -135,6 +146,16 @@ abstract class User implements ActiveRecordInterface
      */
     protected $collUserMailingss;
     protected $collUserMailingssPartial;
+
+    /**
+     * @var        ObjectCollection|ChildMalwareCampaign[] Cross Collection to store aggregation of ChildMalwareCampaign objects.
+     */
+    protected $collMalwareCampaigns;
+
+    /**
+     * @var bool
+     */
+    protected $collMalwareCampaignsPartial;
 
     /**
      * @var        ObjectCollection|ChildGroup[] Cross Collection to store aggregation of ChildGroup objects.
@@ -176,6 +197,12 @@ abstract class User implements ActiveRecordInterface
 
     /**
      * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildMalwareCampaign[]
+     */
+    protected $malwareCampaignsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
      * @var ObjectCollection|ChildGroup[]
      */
     protected $groupsScheduledForDeletion = null;
@@ -191,6 +218,12 @@ abstract class User implements ActiveRecordInterface
      * @var ObjectCollection|ChildMailing[]
      */
     protected $mailingsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildUserMalwareCampaigns[]
+     */
+    protected $userMalwareCampaignssScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -737,12 +770,15 @@ abstract class User implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->collUserMalwareCampaignss = null;
+
             $this->collUserGroupss = null;
 
             $this->collUserVictimss = null;
 
             $this->collUserMailingss = null;
 
+            $this->collMalwareCampaigns = null;
             $this->collGroups = null;
             $this->collVictims = null;
             $this->collMailings = null;
@@ -860,6 +896,35 @@ abstract class User implements ActiveRecordInterface
                 $this->resetModified();
             }
 
+            if ($this->malwareCampaignsScheduledForDeletion !== null) {
+                if (!$this->malwareCampaignsScheduledForDeletion->isEmpty()) {
+                    $pks = array();
+                    foreach ($this->malwareCampaignsScheduledForDeletion as $entry) {
+                        $entryPk = [];
+
+                        $entryPk[0] = $this->getId();
+                        $entryPk[1] = $entry->getId();
+                        $pks[] = $entryPk;
+                    }
+
+                    \DB\UserMalwareCampaignsQuery::create()
+                        ->filterByPrimaryKeys($pks)
+                        ->delete($con);
+
+                    $this->malwareCampaignsScheduledForDeletion = null;
+                }
+
+            }
+
+            if ($this->collMalwareCampaigns) {
+                foreach ($this->collMalwareCampaigns as $malwareCampaign) {
+                    if (!$malwareCampaign->isDeleted() && ($malwareCampaign->isNew() || $malwareCampaign->isModified())) {
+                        $malwareCampaign->save($con);
+                    }
+                }
+            }
+
+
             if ($this->groupsScheduledForDeletion !== null) {
                 if (!$this->groupsScheduledForDeletion->isEmpty()) {
                     $pks = array();
@@ -946,6 +1011,23 @@ abstract class User implements ActiveRecordInterface
                 }
             }
 
+
+            if ($this->userMalwareCampaignssScheduledForDeletion !== null) {
+                if (!$this->userMalwareCampaignssScheduledForDeletion->isEmpty()) {
+                    \DB\UserMalwareCampaignsQuery::create()
+                        ->filterByPrimaryKeys($this->userMalwareCampaignssScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->userMalwareCampaignssScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collUserMalwareCampaignss !== null) {
+                foreach ($this->collUserMalwareCampaignss as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
 
             if ($this->userGroupssScheduledForDeletion !== null) {
                 if (!$this->userGroupssScheduledForDeletion->isEmpty()) {
@@ -1194,6 +1276,21 @@ abstract class User implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
+            if (null !== $this->collUserMalwareCampaignss) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'userMalwareCampaignss';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'User_Malware_Campaignss';
+                        break;
+                    default:
+                        $key = 'UserMalwareCampaignss';
+                }
+
+                $result[$key] = $this->collUserMalwareCampaignss->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
             if (null !== $this->collUserGroupss) {
 
                 switch ($keyType) {
@@ -1491,6 +1588,12 @@ abstract class User implements ActiveRecordInterface
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
 
+            foreach ($this->getUserMalwareCampaignss() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addUserMalwareCampaigns($relObj->copy($deepCopy));
+                }
+            }
+
             foreach ($this->getUserGroupss() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addUserGroups($relObj->copy($deepCopy));
@@ -1550,6 +1653,10 @@ abstract class User implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
+        if ('UserMalwareCampaigns' == $relationName) {
+            $this->initUserMalwareCampaignss();
+            return;
+        }
         if ('UserGroups' == $relationName) {
             $this->initUserGroupss();
             return;
@@ -1562,6 +1669,259 @@ abstract class User implements ActiveRecordInterface
             $this->initUserMailingss();
             return;
         }
+    }
+
+    /**
+     * Clears out the collUserMalwareCampaignss collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUserMalwareCampaignss()
+     */
+    public function clearUserMalwareCampaignss()
+    {
+        $this->collUserMalwareCampaignss = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collUserMalwareCampaignss collection loaded partially.
+     */
+    public function resetPartialUserMalwareCampaignss($v = true)
+    {
+        $this->collUserMalwareCampaignssPartial = $v;
+    }
+
+    /**
+     * Initializes the collUserMalwareCampaignss collection.
+     *
+     * By default this just sets the collUserMalwareCampaignss collection to an empty array (like clearcollUserMalwareCampaignss());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initUserMalwareCampaignss($overrideExisting = true)
+    {
+        if (null !== $this->collUserMalwareCampaignss && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = UserMalwareCampaignsTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collUserMalwareCampaignss = new $collectionClassName;
+        $this->collUserMalwareCampaignss->setModel('\DB\UserMalwareCampaigns');
+    }
+
+    /**
+     * Gets an array of ChildUserMalwareCampaigns objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildUser is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildUserMalwareCampaigns[] List of ChildUserMalwareCampaigns objects
+     * @throws PropelException
+     */
+    public function getUserMalwareCampaignss(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUserMalwareCampaignssPartial && !$this->isNew();
+        if (null === $this->collUserMalwareCampaignss || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collUserMalwareCampaignss) {
+                // return empty collection
+                $this->initUserMalwareCampaignss();
+            } else {
+                $collUserMalwareCampaignss = ChildUserMalwareCampaignsQuery::create(null, $criteria)
+                    ->filterByUser($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collUserMalwareCampaignssPartial && count($collUserMalwareCampaignss)) {
+                        $this->initUserMalwareCampaignss(false);
+
+                        foreach ($collUserMalwareCampaignss as $obj) {
+                            if (false == $this->collUserMalwareCampaignss->contains($obj)) {
+                                $this->collUserMalwareCampaignss->append($obj);
+                            }
+                        }
+
+                        $this->collUserMalwareCampaignssPartial = true;
+                    }
+
+                    return $collUserMalwareCampaignss;
+                }
+
+                if ($partial && $this->collUserMalwareCampaignss) {
+                    foreach ($this->collUserMalwareCampaignss as $obj) {
+                        if ($obj->isNew()) {
+                            $collUserMalwareCampaignss[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUserMalwareCampaignss = $collUserMalwareCampaignss;
+                $this->collUserMalwareCampaignssPartial = false;
+            }
+        }
+
+        return $this->collUserMalwareCampaignss;
+    }
+
+    /**
+     * Sets a collection of ChildUserMalwareCampaigns objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $userMalwareCampaignss A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildUser The current object (for fluent API support)
+     */
+    public function setUserMalwareCampaignss(Collection $userMalwareCampaignss, ConnectionInterface $con = null)
+    {
+        /** @var ChildUserMalwareCampaigns[] $userMalwareCampaignssToDelete */
+        $userMalwareCampaignssToDelete = $this->getUserMalwareCampaignss(new Criteria(), $con)->diff($userMalwareCampaignss);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->userMalwareCampaignssScheduledForDeletion = clone $userMalwareCampaignssToDelete;
+
+        foreach ($userMalwareCampaignssToDelete as $userMalwareCampaignsRemoved) {
+            $userMalwareCampaignsRemoved->setUser(null);
+        }
+
+        $this->collUserMalwareCampaignss = null;
+        foreach ($userMalwareCampaignss as $userMalwareCampaigns) {
+            $this->addUserMalwareCampaigns($userMalwareCampaigns);
+        }
+
+        $this->collUserMalwareCampaignss = $userMalwareCampaignss;
+        $this->collUserMalwareCampaignssPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related UserMalwareCampaigns objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related UserMalwareCampaigns objects.
+     * @throws PropelException
+     */
+    public function countUserMalwareCampaignss(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUserMalwareCampaignssPartial && !$this->isNew();
+        if (null === $this->collUserMalwareCampaignss || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUserMalwareCampaignss) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getUserMalwareCampaignss());
+            }
+
+            $query = ChildUserMalwareCampaignsQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByUser($this)
+                ->count($con);
+        }
+
+        return count($this->collUserMalwareCampaignss);
+    }
+
+    /**
+     * Method called to associate a ChildUserMalwareCampaigns object to this object
+     * through the ChildUserMalwareCampaigns foreign key attribute.
+     *
+     * @param  ChildUserMalwareCampaigns $l ChildUserMalwareCampaigns
+     * @return $this|\DB\User The current object (for fluent API support)
+     */
+    public function addUserMalwareCampaigns(ChildUserMalwareCampaigns $l)
+    {
+        if ($this->collUserMalwareCampaignss === null) {
+            $this->initUserMalwareCampaignss();
+            $this->collUserMalwareCampaignssPartial = true;
+        }
+
+        if (!$this->collUserMalwareCampaignss->contains($l)) {
+            $this->doAddUserMalwareCampaigns($l);
+
+            if ($this->userMalwareCampaignssScheduledForDeletion and $this->userMalwareCampaignssScheduledForDeletion->contains($l)) {
+                $this->userMalwareCampaignssScheduledForDeletion->remove($this->userMalwareCampaignssScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildUserMalwareCampaigns $userMalwareCampaigns The ChildUserMalwareCampaigns object to add.
+     */
+    protected function doAddUserMalwareCampaigns(ChildUserMalwareCampaigns $userMalwareCampaigns)
+    {
+        $this->collUserMalwareCampaignss[]= $userMalwareCampaigns;
+        $userMalwareCampaigns->setUser($this);
+    }
+
+    /**
+     * @param  ChildUserMalwareCampaigns $userMalwareCampaigns The ChildUserMalwareCampaigns object to remove.
+     * @return $this|ChildUser The current object (for fluent API support)
+     */
+    public function removeUserMalwareCampaigns(ChildUserMalwareCampaigns $userMalwareCampaigns)
+    {
+        if ($this->getUserMalwareCampaignss()->contains($userMalwareCampaigns)) {
+            $pos = $this->collUserMalwareCampaignss->search($userMalwareCampaigns);
+            $this->collUserMalwareCampaignss->remove($pos);
+            if (null === $this->userMalwareCampaignssScheduledForDeletion) {
+                $this->userMalwareCampaignssScheduledForDeletion = clone $this->collUserMalwareCampaignss;
+                $this->userMalwareCampaignssScheduledForDeletion->clear();
+            }
+            $this->userMalwareCampaignssScheduledForDeletion[]= clone $userMalwareCampaigns;
+            $userMalwareCampaigns->setUser(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this User is new, it will return
+     * an empty collection; or if this User has previously
+     * been saved, it will retrieve related UserMalwareCampaignss from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in User.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildUserMalwareCampaigns[] List of ChildUserMalwareCampaigns objects
+     */
+    public function getUserMalwareCampaignssJoinMalwareCampaign(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildUserMalwareCampaignsQuery::create(null, $criteria);
+        $query->joinWith('MalwareCampaign', $joinBehavior);
+
+        return $this->getUserMalwareCampaignss($query, $con);
     }
 
     /**
@@ -2324,6 +2684,249 @@ abstract class User implements ActiveRecordInterface
     }
 
     /**
+     * Clears out the collMalwareCampaigns collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addMalwareCampaigns()
+     */
+    public function clearMalwareCampaigns()
+    {
+        $this->collMalwareCampaigns = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Initializes the collMalwareCampaigns crossRef collection.
+     *
+     * By default this just sets the collMalwareCampaigns collection to an empty collection (like clearMalwareCampaigns());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @return void
+     */
+    public function initMalwareCampaigns()
+    {
+        $collectionClassName = UserMalwareCampaignsTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collMalwareCampaigns = new $collectionClassName;
+        $this->collMalwareCampaignsPartial = true;
+        $this->collMalwareCampaigns->setModel('\DB\MalwareCampaign');
+    }
+
+    /**
+     * Checks if the collMalwareCampaigns collection is loaded.
+     *
+     * @return bool
+     */
+    public function isMalwareCampaignsLoaded()
+    {
+        return null !== $this->collMalwareCampaigns;
+    }
+
+    /**
+     * Gets a collection of ChildMalwareCampaign objects related by a many-to-many relationship
+     * to the current object by way of the User_Malware_Campaigns cross-reference table.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildUser is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return ObjectCollection|ChildMalwareCampaign[] List of ChildMalwareCampaign objects
+     */
+    public function getMalwareCampaigns(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collMalwareCampaignsPartial && !$this->isNew();
+        if (null === $this->collMalwareCampaigns || null !== $criteria || $partial) {
+            if ($this->isNew()) {
+                // return empty collection
+                if (null === $this->collMalwareCampaigns) {
+                    $this->initMalwareCampaigns();
+                }
+            } else {
+
+                $query = ChildMalwareCampaignQuery::create(null, $criteria)
+                    ->filterByUser($this);
+                $collMalwareCampaigns = $query->find($con);
+                if (null !== $criteria) {
+                    return $collMalwareCampaigns;
+                }
+
+                if ($partial && $this->collMalwareCampaigns) {
+                    //make sure that already added objects gets added to the list of the database.
+                    foreach ($this->collMalwareCampaigns as $obj) {
+                        if (!$collMalwareCampaigns->contains($obj)) {
+                            $collMalwareCampaigns[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collMalwareCampaigns = $collMalwareCampaigns;
+                $this->collMalwareCampaignsPartial = false;
+            }
+        }
+
+        return $this->collMalwareCampaigns;
+    }
+
+    /**
+     * Sets a collection of MalwareCampaign objects related by a many-to-many relationship
+     * to the current object by way of the User_Malware_Campaigns cross-reference table.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param  Collection $malwareCampaigns A Propel collection.
+     * @param  ConnectionInterface $con Optional connection object
+     * @return $this|ChildUser The current object (for fluent API support)
+     */
+    public function setMalwareCampaigns(Collection $malwareCampaigns, ConnectionInterface $con = null)
+    {
+        $this->clearMalwareCampaigns();
+        $currentMalwareCampaigns = $this->getMalwareCampaigns();
+
+        $malwareCampaignsScheduledForDeletion = $currentMalwareCampaigns->diff($malwareCampaigns);
+
+        foreach ($malwareCampaignsScheduledForDeletion as $toDelete) {
+            $this->removeMalwareCampaign($toDelete);
+        }
+
+        foreach ($malwareCampaigns as $malwareCampaign) {
+            if (!$currentMalwareCampaigns->contains($malwareCampaign)) {
+                $this->doAddMalwareCampaign($malwareCampaign);
+            }
+        }
+
+        $this->collMalwareCampaignsPartial = false;
+        $this->collMalwareCampaigns = $malwareCampaigns;
+
+        return $this;
+    }
+
+    /**
+     * Gets the number of MalwareCampaign objects related by a many-to-many relationship
+     * to the current object by way of the User_Malware_Campaigns cross-reference table.
+     *
+     * @param      Criteria $criteria Optional query object to filter the query
+     * @param      boolean $distinct Set to true to force count distinct
+     * @param      ConnectionInterface $con Optional connection object
+     *
+     * @return int the number of related MalwareCampaign objects
+     */
+    public function countMalwareCampaigns(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collMalwareCampaignsPartial && !$this->isNew();
+        if (null === $this->collMalwareCampaigns || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collMalwareCampaigns) {
+                return 0;
+            } else {
+
+                if ($partial && !$criteria) {
+                    return count($this->getMalwareCampaigns());
+                }
+
+                $query = ChildMalwareCampaignQuery::create(null, $criteria);
+                if ($distinct) {
+                    $query->distinct();
+                }
+
+                return $query
+                    ->filterByUser($this)
+                    ->count($con);
+            }
+        } else {
+            return count($this->collMalwareCampaigns);
+        }
+    }
+
+    /**
+     * Associate a ChildMalwareCampaign to this object
+     * through the User_Malware_Campaigns cross reference table.
+     *
+     * @param ChildMalwareCampaign $malwareCampaign
+     * @return ChildUser The current object (for fluent API support)
+     */
+    public function addMalwareCampaign(ChildMalwareCampaign $malwareCampaign)
+    {
+        if ($this->collMalwareCampaigns === null) {
+            $this->initMalwareCampaigns();
+        }
+
+        if (!$this->getMalwareCampaigns()->contains($malwareCampaign)) {
+            // only add it if the **same** object is not already associated
+            $this->collMalwareCampaigns->push($malwareCampaign);
+            $this->doAddMalwareCampaign($malwareCampaign);
+        }
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param ChildMalwareCampaign $malwareCampaign
+     */
+    protected function doAddMalwareCampaign(ChildMalwareCampaign $malwareCampaign)
+    {
+        $userMalwareCampaigns = new ChildUserMalwareCampaigns();
+
+        $userMalwareCampaigns->setMalwareCampaign($malwareCampaign);
+
+        $userMalwareCampaigns->setUser($this);
+
+        $this->addUserMalwareCampaigns($userMalwareCampaigns);
+
+        // set the back reference to this object directly as using provided method either results
+        // in endless loop or in multiple relations
+        if (!$malwareCampaign->isUsersLoaded()) {
+            $malwareCampaign->initUsers();
+            $malwareCampaign->getUsers()->push($this);
+        } elseif (!$malwareCampaign->getUsers()->contains($this)) {
+            $malwareCampaign->getUsers()->push($this);
+        }
+
+    }
+
+    /**
+     * Remove malwareCampaign of this object
+     * through the User_Malware_Campaigns cross reference table.
+     *
+     * @param ChildMalwareCampaign $malwareCampaign
+     * @return ChildUser The current object (for fluent API support)
+     */
+    public function removeMalwareCampaign(ChildMalwareCampaign $malwareCampaign)
+    {
+        if ($this->getMalwareCampaigns()->contains($malwareCampaign)) {
+            $userMalwareCampaigns = new ChildUserMalwareCampaigns();
+            $userMalwareCampaigns->setMalwareCampaign($malwareCampaign);
+            if ($malwareCampaign->isUsersLoaded()) {
+                //remove the back reference if available
+                $malwareCampaign->getUsers()->removeObject($this);
+            }
+
+            $userMalwareCampaigns->setUser($this);
+            $this->removeUserMalwareCampaigns(clone $userMalwareCampaigns);
+            $userMalwareCampaigns->clear();
+
+            $this->collMalwareCampaigns->remove($this->collMalwareCampaigns->search($malwareCampaign));
+
+            if (null === $this->malwareCampaignsScheduledForDeletion) {
+                $this->malwareCampaignsScheduledForDeletion = clone $this->collMalwareCampaigns;
+                $this->malwareCampaignsScheduledForDeletion->clear();
+            }
+
+            $this->malwareCampaignsScheduledForDeletion->push($malwareCampaign);
+        }
+
+
+        return $this;
+    }
+
+    /**
      * Clears out the collGroups collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
@@ -3083,6 +3686,11 @@ abstract class User implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collUserMalwareCampaignss) {
+                foreach ($this->collUserMalwareCampaignss as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collUserGroupss) {
                 foreach ($this->collUserGroupss as $o) {
                     $o->clearAllReferences($deep);
@@ -3095,6 +3703,11 @@ abstract class User implements ActiveRecordInterface
             }
             if ($this->collUserMailingss) {
                 foreach ($this->collUserMailingss as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
+            if ($this->collMalwareCampaigns) {
+                foreach ($this->collMalwareCampaigns as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
@@ -3115,9 +3728,11 @@ abstract class User implements ActiveRecordInterface
             }
         } // if ($deep)
 
+        $this->collUserMalwareCampaignss = null;
         $this->collUserGroupss = null;
         $this->collUserVictimss = null;
         $this->collUserMailingss = null;
+        $this->collMalwareCampaigns = null;
         $this->collGroups = null;
         $this->collVictims = null;
         $this->collMailings = null;

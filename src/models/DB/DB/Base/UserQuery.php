@@ -42,6 +42,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUserQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildUserQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
  *
+ * @method     ChildUserQuery leftJoinUserMalwareCampaigns($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserMalwareCampaigns relation
+ * @method     ChildUserQuery rightJoinUserMalwareCampaigns($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserMalwareCampaigns relation
+ * @method     ChildUserQuery innerJoinUserMalwareCampaigns($relationAlias = null) Adds a INNER JOIN clause to the query using the UserMalwareCampaigns relation
+ *
+ * @method     ChildUserQuery joinWithUserMalwareCampaigns($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the UserMalwareCampaigns relation
+ *
+ * @method     ChildUserQuery leftJoinWithUserMalwareCampaigns() Adds a LEFT JOIN clause and with to the query using the UserMalwareCampaigns relation
+ * @method     ChildUserQuery rightJoinWithUserMalwareCampaigns() Adds a RIGHT JOIN clause and with to the query using the UserMalwareCampaigns relation
+ * @method     ChildUserQuery innerJoinWithUserMalwareCampaigns() Adds a INNER JOIN clause and with to the query using the UserMalwareCampaigns relation
+ *
  * @method     ChildUserQuery leftJoinUserGroups($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserGroups relation
  * @method     ChildUserQuery rightJoinUserGroups($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserGroups relation
  * @method     ChildUserQuery innerJoinUserGroups($relationAlias = null) Adds a INNER JOIN clause to the query using the UserGroups relation
@@ -72,7 +82,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUserQuery rightJoinWithUserMailings() Adds a RIGHT JOIN clause and with to the query using the UserMailings relation
  * @method     ChildUserQuery innerJoinWithUserMailings() Adds a INNER JOIN clause and with to the query using the UserMailings relation
  *
- * @method     \DB\UserGroupsQuery|\DB\UserVictimsQuery|\DB\UserMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \DB\UserMalwareCampaignsQuery|\DB\UserGroupsQuery|\DB\UserVictimsQuery|\DB\UserMailingsQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildUser findOne(ConnectionInterface $con = null) Return the first ChildUser matching the query
  * @method     ChildUser findOneOrCreate(ConnectionInterface $con = null) Return the first ChildUser matching the query, or a new ChildUser object populated from the query conditions when no match is found
@@ -456,6 +466,79 @@ abstract class UserQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related \DB\UserMalwareCampaigns object
+     *
+     * @param \DB\UserMalwareCampaigns|ObjectCollection $userMalwareCampaigns the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildUserQuery The current query, for fluid interface
+     */
+    public function filterByUserMalwareCampaigns($userMalwareCampaigns, $comparison = null)
+    {
+        if ($userMalwareCampaigns instanceof \DB\UserMalwareCampaigns) {
+            return $this
+                ->addUsingAlias(UserTableMap::COL_ID, $userMalwareCampaigns->getUserId(), $comparison);
+        } elseif ($userMalwareCampaigns instanceof ObjectCollection) {
+            return $this
+                ->useUserMalwareCampaignsQuery()
+                ->filterByPrimaryKeys($userMalwareCampaigns->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByUserMalwareCampaigns() only accepts arguments of type \DB\UserMalwareCampaigns or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the UserMalwareCampaigns relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildUserQuery The current query, for fluid interface
+     */
+    public function joinUserMalwareCampaigns($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('UserMalwareCampaigns');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'UserMalwareCampaigns');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the UserMalwareCampaigns relation UserMalwareCampaigns object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \DB\UserMalwareCampaignsQuery A secondary query class using the current class as primary query
+     */
+    public function useUserMalwareCampaignsQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinUserMalwareCampaigns($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'UserMalwareCampaigns', '\DB\UserMalwareCampaignsQuery');
+    }
+
+    /**
      * Filter the query by a related \DB\UserGroups object
      *
      * @param \DB\UserGroups|ObjectCollection $userGroups the related object to use as filter
@@ -672,6 +755,23 @@ abstract class UserQuery extends ModelCriteria
         return $this
             ->joinUserMailings($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'UserMailings', '\DB\UserMailingsQuery');
+    }
+
+    /**
+     * Filter the query by a related MalwareCampaign object
+     * using the User_Malware_Campaigns table as cross reference
+     *
+     * @param MalwareCampaign $malwareCampaign the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildUserQuery The current query, for fluid interface
+     */
+    public function filterByMalwareCampaign($malwareCampaign, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useUserMalwareCampaignsQuery()
+            ->filterByMalwareCampaign($malwareCampaign, $comparison)
+            ->endUse();
     }
 
     /**

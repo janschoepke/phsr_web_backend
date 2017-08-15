@@ -51,7 +51,9 @@ class TokenService {
         return $decrypted;
     }
 
-
+    function generateUuid() {
+        return uniqid();
+    }
 
 }
 

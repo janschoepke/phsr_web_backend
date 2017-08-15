@@ -93,6 +93,40 @@
         </foreign-key>
     </table>
 
+    <table name="MalwareCampaigns" phpName="MalwareCampaign">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="campaign_name" type="varchar" size="100" />
+        <column name="campaign_description" type="varchar" size="1000" />
+        <column name="campaign_random_id" type="varchar" size="100" />
+    </table>
+
+    <table name="CampaignResults" phpName="CampaignResult">
+        <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="timestamp" type="timestamp" />
+        <column name="computer_name" type="varchar" size="100" />
+        <column name="user_name" type="varchar" size="100" />
+        <column name="internal_ip" type="varchar" size="100" />
+        <column name="external_ip" type="varchar" size="100" />
+        <column name="os_version" type="varchar" size="100" />
+        <column name="campaign_id" type="integer" />
+
+        <foreign-key foreignTable="MalwareCampaigns">
+            <reference local="campaign_id" foreign="id" />
+        </foreign-key>
+    </table>
+
+    <table name="User_Malware_Campaigns" isCrossRef="true">
+        <column name="user_id" type="integer" primaryKey="true" />
+        <column name="campaign_id" type="integer" primaryKey="true" />
+
+        <foreign-key foreignTable="Users">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="MalwareCampaigns">
+            <reference local="campaign_id" foreign="id" />
+        </foreign-key>
+    </table>
+
     <table name="User_Groups" isCrossRef="true">
         <column name="user_id" type="integer" primaryKey="true" />
         <column name="group_id" type="integer" primaryKey="true" />

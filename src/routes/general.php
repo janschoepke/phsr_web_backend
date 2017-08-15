@@ -56,7 +56,6 @@ $app->group('/victim-management', function() use ($app) {
 
     });
 
-//TODO: Name darf nicht leer sein.
     $app->post('/edit-group', function(ServerRequestInterface $request, ResponseInterface $response) {
         $body = json_decode($request->getBody());
         $auth = $request->getAttribute('auth');
@@ -114,7 +113,6 @@ $app->group('/victim-management', function() use ($app) {
 
     });
 
-//TODO: Check for blank input
     $app->post('/add-victim', function(ServerRequestInterface $request, ResponseInterface $response) {
         $body = json_decode($request->getBody());
         $auth = $request->getAttribute('auth');

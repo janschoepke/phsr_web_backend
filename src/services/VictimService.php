@@ -92,12 +92,9 @@ class VictimService {
                     foreach ($groupSubscriptions as $groupSubscription) {
                         $groupSubscription->delete();
                     }
-                    $currentGroup->delete();
-                    return true;
-                } else {
-                    throw new \ApplicationException("This user has no group with the given ID.");
-                    return false;
                 }
+                $currentGroup->delete();
+                return true;
             } else {
                 throw new \ApplicationException("There is no group with this id.");
                 return false;
@@ -127,7 +124,6 @@ class VictimService {
         }
     }
 
-    //TODO: Check if already added!
     function addVictimToGroup($userMail, $groupID, $victimID) {
         $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
         if(!is_null($currentUser)) {

@@ -37,4 +37,7 @@ $container['mailingService'] = function($container){
     return $mailingService;
 };
 
-
+$container['malwareService'] = function($container){
+    $malwareService = new services\MalwareService();
+    return $malwareService;
+};

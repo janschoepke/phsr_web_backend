@@ -2,8 +2,8 @@
 
 namespace DB\Map;
 
-use DB\User;
-use DB\UserQuery;
+use DB\CampaignResult;
+use DB\CampaignResultQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'Users' table.
+ * This class defines the structure of the 'CampaignResults' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class UserTableMap extends TableMap
+class CampaignResultTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class UserTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'DB.Map.UserTableMap';
+    const CLASS_NAME = 'DB.Map.CampaignResultTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class UserTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'Users';
+    const TABLE_NAME = 'CampaignResults';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\DB\\User';
+    const OM_CLASS = '\\DB\\CampaignResult';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'DB.User';
+    const CLASS_DEFAULT = 'DB.CampaignResult';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 6;
+    const NUM_COLUMNS = 8;
 
     /**
      * The number of lazy-loaded columns
@@ -69,37 +69,47 @@ class UserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 6;
+    const NUM_HYDRATE_COLUMNS = 8;
 
     /**
      * the column name for the id field
      */
-    const COL_ID = 'Users.id';
+    const COL_ID = 'CampaignResults.id';
 
     /**
-     * the column name for the firstname field
+     * the column name for the timestamp field
      */
-    const COL_FIRSTNAME = 'Users.firstname';
+    const COL_TIMESTAMP = 'CampaignResults.timestamp';
 
     /**
-     * the column name for the lastname field
+     * the column name for the computer_name field
      */
-    const COL_LASTNAME = 'Users.lastname';
+    const COL_COMPUTER_NAME = 'CampaignResults.computer_name';
 
     /**
-     * the column name for the email field
+     * the column name for the user_name field
      */
-    const COL_EMAIL = 'Users.email';
+    const COL_USER_NAME = 'CampaignResults.user_name';
 
     /**
-     * the column name for the pwhash field
+     * the column name for the internal_ip field
      */
-    const COL_PWHASH = 'Users.pwhash';
+    const COL_INTERNAL_IP = 'CampaignResults.internal_ip';
 
     /**
-     * the column name for the salt field
+     * the column name for the external_ip field
      */
-    const COL_SALT = 'Users.salt';
+    const COL_EXTERNAL_IP = 'CampaignResults.external_ip';
+
+    /**
+     * the column name for the os_version field
+     */
+    const COL_OS_VERSION = 'CampaignResults.os_version';
+
+    /**
+     * the column name for the campaign_id field
+     */
+    const COL_CAMPAIGN_ID = 'CampaignResults.campaign_id';
 
     /**
      * The default string format for model objects of the related table
@@ -113,11 +123,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Firstname', 'Lastname', 'Email', 'Pwhash', 'Salt', ),
-        self::TYPE_CAMELNAME     => array('id', 'firstname', 'lastname', 'email', 'pwhash', 'salt', ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, UserTableMap::COL_EMAIL, UserTableMap::COL_PWHASH, UserTableMap::COL_SALT, ),
-        self::TYPE_FIELDNAME     => array('id', 'firstname', 'lastname', 'email', 'pwhash', 'salt', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
+        self::TYPE_PHPNAME       => array('Id', 'Timestamp', 'ComputerName', 'UserName', 'InternalIp', 'ExternalIp', 'OsVersion', 'CampaignId', ),
+        self::TYPE_CAMELNAME     => array('id', 'timestamp', 'computerName', 'userName', 'internalIp', 'externalIp', 'osVersion', 'campaignId', ),
+        self::TYPE_COLNAME       => array(CampaignResultTableMap::COL_ID, CampaignResultTableMap::COL_TIMESTAMP, CampaignResultTableMap::COL_COMPUTER_NAME, CampaignResultTableMap::COL_USER_NAME, CampaignResultTableMap::COL_INTERNAL_IP, CampaignResultTableMap::COL_EXTERNAL_IP, CampaignResultTableMap::COL_OS_VERSION, CampaignResultTableMap::COL_CAMPAIGN_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'timestamp', 'computer_name', 'user_name', 'internal_ip', 'external_ip', 'os_version', 'campaign_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
     );
 
     /**
@@ -127,11 +137,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Firstname' => 1, 'Lastname' => 2, 'Email' => 3, 'Pwhash' => 4, 'Salt' => 5, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'firstname' => 1, 'lastname' => 2, 'email' => 3, 'pwhash' => 4, 'salt' => 5, ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_FIRSTNAME => 1, UserTableMap::COL_LASTNAME => 2, UserTableMap::COL_EMAIL => 3, UserTableMap::COL_PWHASH => 4, UserTableMap::COL_SALT => 5, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'firstname' => 1, 'lastname' => 2, 'email' => 3, 'pwhash' => 4, 'salt' => 5, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Timestamp' => 1, 'ComputerName' => 2, 'UserName' => 3, 'InternalIp' => 4, 'ExternalIp' => 5, 'OsVersion' => 6, 'CampaignId' => 7, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'timestamp' => 1, 'computerName' => 2, 'userName' => 3, 'internalIp' => 4, 'externalIp' => 5, 'osVersion' => 6, 'campaignId' => 7, ),
+        self::TYPE_COLNAME       => array(CampaignResultTableMap::COL_ID => 0, CampaignResultTableMap::COL_TIMESTAMP => 1, CampaignResultTableMap::COL_COMPUTER_NAME => 2, CampaignResultTableMap::COL_USER_NAME => 3, CampaignResultTableMap::COL_INTERNAL_IP => 4, CampaignResultTableMap::COL_EXTERNAL_IP => 5, CampaignResultTableMap::COL_OS_VERSION => 6, CampaignResultTableMap::COL_CAMPAIGN_ID => 7, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'timestamp' => 1, 'computer_name' => 2, 'user_name' => 3, 'internal_ip' => 4, 'external_ip' => 5, 'os_version' => 6, 'campaign_id' => 7, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
     );
 
     /**
@@ -144,19 +154,21 @@ class UserTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('Users');
-        $this->setPhpName('User');
+        $this->setName('CampaignResults');
+        $this->setPhpName('CampaignResult');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\DB\\User');
+        $this->setClassName('\\DB\\CampaignResult');
         $this->setPackage('DB');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('firstname', 'Firstname', 'VARCHAR', true, 100, null);
-        $this->addColumn('lastname', 'Lastname', 'VARCHAR', true, 100, null);
-        $this->addColumn('email', 'Email', 'VARCHAR', true, 100, null);
-        $this->addColumn('pwhash', 'Pwhash', 'VARCHAR', true, 100, null);
-        $this->addColumn('salt', 'Salt', 'VARCHAR', true, 100, null);
+        $this->addColumn('timestamp', 'Timestamp', 'TIMESTAMP', false, null, null);
+        $this->addColumn('computer_name', 'ComputerName', 'VARCHAR', false, 100, null);
+        $this->addColumn('user_name', 'UserName', 'VARCHAR', false, 100, null);
+        $this->addColumn('internal_ip', 'InternalIp', 'VARCHAR', false, 100, null);
+        $this->addColumn('external_ip', 'ExternalIp', 'VARCHAR', false, 100, null);
+        $this->addColumn('os_version', 'OsVersion', 'VARCHAR', false, 100, null);
+        $this->addForeignKey('campaign_id', 'CampaignId', 'INTEGER', 'MalwareCampaigns', 'id', false, null, null);
     } // initialize()
 
     /**
@@ -164,38 +176,13 @@ class UserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('UserMalwareCampaigns', '\\DB\\UserMalwareCampaigns', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('MalwareCampaign', '\\DB\\MalwareCampaign', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
-    0 => ':user_id',
+    0 => ':campaign_id',
     1 => ':id',
   ),
-), null, null, 'UserMalwareCampaignss', false);
-        $this->addRelation('UserGroups', '\\DB\\UserGroups', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':user_id',
-    1 => ':id',
-  ),
-), null, null, 'UserGroupss', false);
-        $this->addRelation('UserVictims', '\\DB\\UserVictims', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':user_id',
-    1 => ':id',
-  ),
-), null, null, 'UserVictimss', false);
-        $this->addRelation('UserMailings', '\\DB\\UserMailings', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':user_id',
-    1 => ':id',
-  ),
-), null, null, 'UserMailingss', false);
-        $this->addRelation('MalwareCampaign', '\\DB\\MalwareCampaign', RelationMap::MANY_TO_MANY, array(), null, null, 'MalwareCampaigns');
-        $this->addRelation('Group', '\\DB\\Group', RelationMap::MANY_TO_MANY, array(), null, null, 'Groups');
-        $this->addRelation('Victim', '\\DB\\Victim', RelationMap::MANY_TO_MANY, array(), null, null, 'Victims');
-        $this->addRelation('Mailing', '\\DB\\Mailing', RelationMap::MANY_TO_MANY, array(), null, null, 'Mailings');
+), null, null, null, false);
     } // buildRelations()
 
     /**
@@ -255,7 +242,7 @@ class UserTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? UserTableMap::CLASS_DEFAULT : UserTableMap::OM_CLASS;
+        return $withPrefix ? CampaignResultTableMap::CLASS_DEFAULT : CampaignResultTableMap::OM_CLASS;
     }
 
     /**
@@ -269,22 +256,22 @@ class UserTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (User object, last column rank)
+     * @return array           (CampaignResult object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = UserTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = UserTableMap::getInstanceFromPool($key))) {
+        $key = CampaignResultTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = CampaignResultTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + UserTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + CampaignResultTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = UserTableMap::OM_CLASS;
-            /** @var User $obj */
+            $cls = CampaignResultTableMap::OM_CLASS;
+            /** @var CampaignResult $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            UserTableMap::addInstanceToPool($obj, $key);
+            CampaignResultTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -307,18 +294,18 @@ class UserTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = UserTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = UserTableMap::getInstanceFromPool($key))) {
+            $key = CampaignResultTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = CampaignResultTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var User $obj */
+                /** @var CampaignResult $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                UserTableMap::addInstanceToPool($obj, $key);
+                CampaignResultTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -339,19 +326,23 @@ class UserTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(UserTableMap::COL_ID);
-            $criteria->addSelectColumn(UserTableMap::COL_FIRSTNAME);
-            $criteria->addSelectColumn(UserTableMap::COL_LASTNAME);
-            $criteria->addSelectColumn(UserTableMap::COL_EMAIL);
-            $criteria->addSelectColumn(UserTableMap::COL_PWHASH);
-            $criteria->addSelectColumn(UserTableMap::COL_SALT);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_ID);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_TIMESTAMP);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_COMPUTER_NAME);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_USER_NAME);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_INTERNAL_IP);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_EXTERNAL_IP);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_OS_VERSION);
+            $criteria->addSelectColumn(CampaignResultTableMap::COL_CAMPAIGN_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.firstname');
-            $criteria->addSelectColumn($alias . '.lastname');
-            $criteria->addSelectColumn($alias . '.email');
-            $criteria->addSelectColumn($alias . '.pwhash');
-            $criteria->addSelectColumn($alias . '.salt');
+            $criteria->addSelectColumn($alias . '.timestamp');
+            $criteria->addSelectColumn($alias . '.computer_name');
+            $criteria->addSelectColumn($alias . '.user_name');
+            $criteria->addSelectColumn($alias . '.internal_ip');
+            $criteria->addSelectColumn($alias . '.external_ip');
+            $criteria->addSelectColumn($alias . '.os_version');
+            $criteria->addSelectColumn($alias . '.campaign_id');
         }
     }
 
@@ -364,7 +355,7 @@ class UserTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(UserTableMap::DATABASE_NAME)->getTable(UserTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(CampaignResultTableMap::DATABASE_NAME)->getTable(CampaignResultTableMap::TABLE_NAME);
     }
 
     /**
@@ -372,16 +363,16 @@ class UserTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(UserTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(UserTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new UserTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(CampaignResultTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(CampaignResultTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new CampaignResultTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a User or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a CampaignResult or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or User object or primary key or array of primary keys
+     * @param mixed               $values Criteria or CampaignResult object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -392,27 +383,27 @@ class UserTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(CampaignResultTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \DB\User) { // it's a model object
+        } elseif ($values instanceof \DB\CampaignResult) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(UserTableMap::DATABASE_NAME);
-            $criteria->add(UserTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(CampaignResultTableMap::DATABASE_NAME);
+            $criteria->add(CampaignResultTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = UserQuery::create()->mergeWith($criteria);
+        $query = CampaignResultQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            UserTableMap::clearInstancePool();
+            CampaignResultTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                UserTableMap::removeInstanceFromPool($singleval);
+                CampaignResultTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -420,20 +411,20 @@ class UserTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the Users table.
+     * Deletes all rows from the CampaignResults table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return UserQuery::create()->doDeleteAll($con);
+        return CampaignResultQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a User or Criteria object.
+     * Performs an INSERT on the database, given a CampaignResult or Criteria object.
      *
-     * @param mixed               $criteria Criteria or User object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or CampaignResult object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -442,22 +433,22 @@ class UserTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(CampaignResultTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from User object
+            $criteria = $criteria->buildCriteria(); // build Criteria from CampaignResult object
         }
 
-        if ($criteria->containsKey(UserTableMap::COL_ID) && $criteria->keyContainsValue(UserTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.UserTableMap::COL_ID.')');
+        if ($criteria->containsKey(CampaignResultTableMap::COL_ID) && $criteria->keyContainsValue(CampaignResultTableMap::COL_ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.CampaignResultTableMap::COL_ID.')');
         }
 
 
         // Set the correct dbName
-        $query = UserQuery::create()->mergeWith($criteria);
+        $query = CampaignResultQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -466,7 +457,7 @@ class UserTableMap extends TableMap
         });
     }
 
-} // UserTableMap
+} // CampaignResultTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-UserTableMap::buildTableMap();
+CampaignResultTableMap::buildTableMap();

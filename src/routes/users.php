@@ -26,7 +26,6 @@ $app->post('/users/authorize', function(ServerRequestInterface $request, Respons
             }
         }
     } catch(\ApplicationException $ae) {
-        //TODO: Response Service
         return $response->withStatus(403)
             ->write(json_encode(["success" => "false", "code" => $ae->getCode(), "message" => $ae->getMessage()]));
     }
@@ -55,7 +54,6 @@ $app->post('/users/login', function(ServerRequestInterface $request, ResponseInt
             $loginInformation = $userService->login($email, $password);
         }
     } catch(\ApplicationException $ae) {
-        //TODO: Response Service
         return $response->withStatus(403)
             ->write(json_encode(["success" => "false", "code" => $ae->getCode(), "message" => $ae->getMessage()]));
     }

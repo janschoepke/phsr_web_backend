@@ -144,7 +144,6 @@ class MailingService
         $victims = $victimService->getGroupVictims($userMail, $groupId, true);
 
         foreach ($victims as $victim) {
-            var_dump($victim);
             $this->sendMail($fromEmail, $fromName, $victim['Email'], $victim['Firstname'] . ' ' . $victim['Lastname'], $subject, $body);
         }
 
