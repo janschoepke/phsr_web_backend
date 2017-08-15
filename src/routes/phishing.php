@@ -220,7 +220,6 @@ $app->group('/phishing', function() use ($app) {
     });
 
     $app->post('/get-all-sent-mailings', function(ServerRequestInterface $request, ResponseInterface $response) {
-        $body = json_decode($request->getBody());
         $auth = $request->getAttribute('auth');
 
         $mailingService = $this->mailingService;
@@ -229,6 +228,50 @@ $app->group('/phishing', function() use ($app) {
         $resultData = [
             "success" => "true",
             "mailings" => json_encode($mailings)
+        ];
+
+        return $response->withStatus(200)
+            ->write(json_encode($resultData));
+    });
+
+    $app->post('/get-all-statistics', function(ServerRequestInterface $request, ResponseInterface $response){
+        $auth = $request->getAttribute('auth');
+
+        $mailingService = $this->mailingService;
+        $statistics = $mailingService->getAllStatistics($auth);
+
+        $resultData = [
+            "success" => "true",
+            "statistics" => json_encode($statistics)
+        ];
+
+        return $response->withStatus(200)
+            ->write(json_encode($resultData));
+    });
+
+    $app->post('/get-victim-statistics', function(ServerRequestInterface $request, ResponseInterface $response){
+        $auth = $request->getAttribute('auth');
+
+        $mailingService = $this->mailingService;
+        $statistics = $mailingService->getVictimStatistics($auth);
+
+        $resultData = [
+            "success" => "true",
+            "statistics" => json_encode($statistics)
+        ];
+
+        return $response->withStatus(200)
+            ->write(json_encode($resultData));
+    });
+    $app->post('/get-group-mailing-statistics', function(ServerRequestInterface $request, ResponseInterface $response){
+        $auth = $request->getAttribute('auth');
+
+        $mailingService = $this->mailingService;
+        $statistics = $mailingService->getGroupMailingStatistics($auth);
+
+        $resultData = [
+            "success" => "true",
+            "statistics" => json_encode($statistics)
         ];
 
         return $response->withStatus(200)

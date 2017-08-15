@@ -17,6 +17,7 @@ use DB\GroupMailingsQuery;
 use DB\Mailing;
 use DB\UserMailingsQuery;
 use DB\UserQuery;
+use DB\VictimQuery;
 use DB\WebVisitQuery;
 use PHPMailer\PHPMailer\PHPMailer;
 use Propel\Runtime\Propel;
@@ -436,6 +437,41 @@ class MailingService
 
             return $sentMailingsData;
 
+        } else {
+            throw new \ApplicationException("There is no such user.");
+            return false;
+        }
+    }
+
+    function getAllStatistics($userMail) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $victimData = VictimQuery::create()->joinWithVictimMailings()->joinWithUserVictims()->filterByUser($currentUser)->find()->toArray();
+            return $victimData;
+
+        } else {
+            throw new \ApplicationException("There is no such user.");
+            return false;
+        }
+    }
+
+    function getVictimStatistics($userMail) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $victimData = VictimQuery::create()->joinWithUserVictims()->filterByUser($currentUser)->find()->toArray();
+            return $victimData;
+        } else {
+            throw new \ApplicationException("There is no such user.");
+            return false;
+        }
+    }
+
+    function getGroupMailingStatistics($userMail) {
+        $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
+        if(!is_null($currentUser)) {
+            $groupCount = GroupQuery::create()->joinWithUserGroups()->filterByUser($currentUser)->count();
+            $mailingCount = MailingQuery::create()->joinWithUserMailings()->filterByUser($currentUser)->count();
+            return array("groups" => $groupCount, "mailings" => $mailingCount);
         } else {
             throw new \ApplicationException("There is no such user.");
             return false;
