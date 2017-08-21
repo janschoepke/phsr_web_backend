@@ -20,6 +20,7 @@ class TrackingService {
        $currentVictimMailing = VictimMailingsQuery::create()->filterByMailingId($mailingId)->filterByVictimId($victimId)->filterByUniqueId($uuid)->findOne();
        $currentVictimMailing->setOpened(true);
        $currentVictimMailing->save();
+       return true;
     }
 
     function isRegisteredVictim($currentUser, $userId) {
