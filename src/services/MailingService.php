@@ -103,14 +103,14 @@ class MailingService
         return $text;
     }
 
-    function replaceLinkVariable($text, $userid, $groupid, $victimUuid) {
+    function replaceLinkVariable($text, $userid, $groupid, $victimUuid, $email) {
         if (strpos($text, '(phsr:link') !== false) {
 
             preg_match_all('/\((phsr:link[A-Za-z0-9 :|\/.]+?)\)/', $text, $matches);
             foreach($matches[0] as $match) {
                 $temp = str_replace(")", "", $match);
                 $options = explode('|', $temp);
-                $userParam = '?user='. $userid . '&group=' . $groupid . '&uuid=' . $victimUuid;
+                $userParam = '?user='. $userid . '&group=' . $groupid . '&uuid=' . $victimUuid . '&email=' . $email;
                 $text = str_replace($match, '<a href="' . $options[2] . $userParam . '">' . $options[1] . "</a>", $text);
             }
         }
@@ -122,7 +122,7 @@ class MailingService
         $tempText = $this->replaceLastnameVariable($tempText, $lastname);
         $tempText = $this->replaceEmailVariable($tempText, $email);
         $tempText = $this->replaceSalutationVariable($tempText, $gender);
-        $tempText = $this->replaceLinkVariable($tempText, $userId, $groupId, $victimUuid);
+        $tempText = $this->replaceLinkVariable($tempText, $userId, $groupId, $victimUuid, $email);
         return $tempText;
     }
 
@@ -379,7 +379,6 @@ class MailingService
         $currentUser = UserQuery::create()->filterByEmail($userMail)->findOne();
         if(!is_null($currentUser)) {
             $mailings = MailingQuery::create()->filterByUser($currentUser)->find()->toArray();
-
             $tempMailing = [];
 
             foreach($mailings as $mailing) {
